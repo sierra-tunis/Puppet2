@@ -39,7 +39,7 @@ public:
 };
 
 template<class T>
-concept isConnector = requires{
+concept Connector = std::is_base_of<PositionConstraint,T>::value && requires{
 	T::getDoF();
 };
 
@@ -266,18 +266,16 @@ public:
 * 
 */
 
-template<class constraint>
+template<Connector constraint>
 consteval int sumDoF() {
-	static_assert(isConnector<constraint>);
 	return constraint::getDoF();
 }
-template<class constraint1,class constraint2, class... constraints>
+template<Connector constraint1,Connector constraint2, Connector... constraints>
 consteval int sumDoF() {
-	static_assert(isConnector<constraint1>);
 	return constraint1::getDoF() + sumDoF<constraint2,constraints...>();
 }
 
-template<class constraint, class...constraints>
+template<Connector constraint, Connector...constraints>
 class ConnectorChain : public ConnectorConstraint<sumDoF<constraint,constraints...>()> {
 	std::tuple<constraint&, constraints&...> connectors_;
 
@@ -293,13 +291,13 @@ protected:
 	Eigen::Matrix4f computeConnectorTransform(Eigen::Vector<float, ConnectorChain::getDoF()> state_vec) const override {
 		return computeChainTransform<constraint, constraints...>(state_vec);
 	}
-	template<class constraint_>
+	template<Connector constraint_>
 	Eigen::Matrix4f computeChainTransform(Eigen::Vector<float, constraint_::getDoF()> state_vec) const {
 		constraint_ conn = std::get< sizeof...(constraints)>(connectors_); //get last connector
 		Eigen::Matrix4f pop_last = conn.computeConnectorTransform(state_vec);
 		return pop_last;
 	}
-	template<class constraint_,class constraint2_,class...constraints_>
+	template<Connector constraint_,Connector constraint2_,Connector...constraints_>
 	Eigen::Matrix4f computeChainTransform(Eigen::Vector<float, sumDoF<constraint_,constraint2_,constraints_...>()> state_vec) const {
 		Eigen::Vector<float, constraint_::getDoF()> next_input = state_vec(seq(0, constraint_::getDoF() - 1));
 		constraint_ pop_conn = std::get<sizeof...(constraints) - sizeof...(constraints_) - 1>(connectors_);
@@ -319,10 +317,8 @@ public:
 
 };
 
-template<class constraint>
-class ConnectorChain<constraint> : public constraint {
-	static_assert(isConnector<constraint>);
-};
+template<Connector constraint>
+class ConnectorChain<constraint> : public constraint {};
 
 /*
 class ParametricCurveConstraint : public ConnectorConstraint<1> {
