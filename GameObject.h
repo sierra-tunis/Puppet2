@@ -1,0 +1,182 @@
+#pragma once
+#include <Eigen/Dense>
+#include <chrono>
+#include <vector>
+#include <array>
+#include <unordered_map>
+#include <glad/glad.h>
+
+#include "Model.h"
+#include "Texture.h"
+#include "InternalObject.h"
+#include "motion_constraint.h"
+#include "zmap.h"
+
+#ifndef PUPPET_GAMEOBJECT
+#define PUPPET_GAMEOBJECT
+
+using Eigen::Matrix4f;
+using Eigen::Matrix3f;
+using Eigen::seq;
+
+using std::chrono::microseconds;
+using std::chrono::time_point;
+using std::chrono::system_clock;
+using std::chrono::duration_cast;
+
+class GameObject: public InternalObject {
+
+private:
+
+	static const Model model_; //model is all the model data in one place and can be subclassed for other shader types
+	static const Texture texture_; //texture has all the texture packed into it like color, normal etc, and can just be subclassed to add more
+
+	Eigen::Vector3f velocity_; //yes this could be a twist, but simplicity over technical accuracy
+	Eigen::Vector3f acceleration_;
+	std::vector<MotionConstraint> motion_constraints_;
+	bool freefall_;
+
+	time_point<system_clock> t_ref_;
+	std::chrono::duration<float> dt_;
+
+	std::vector<const InternalObject*> collidors; //should be a safe pointer
+	std::vector<bool> collision_flags_;
+
+	/*
+	variable which contains information about constrainst on motion relative to parent
+	*/
+
+protected:
+	//virtual G makeGrobj(G shared_grobj) {}
+
+public:
+	
+	GameObject(Eigen::Matrix4f position, int id) :
+		InternalObject(position,id),
+		//shared_grobj_(GameObject::model_, GameObject::texture_, Matrix4f::Identity()),//still needs rework
+		t_ref_(system_clock::now()) {
+		/*if (!shared_grobj_.isInitialized()) {
+			shared_grobj_.initialize(GameObject::model_, GameObject::texture_);
+		}
+		grobj_.VAO = shared_grobj_.VAO;
+		grobj_.tex_id = shared_grobj_.tex_id;
+		grobj_.n_elems = shared_grobj_.n_elems;
+		this->graphics_->add(this->getID(), this->grobj_);
+		*/
+	}
+
+	void update(GLFWwindow* window) override{
+		InternalObject::update(window);
+		//update time
+		time_point<system_clock> t = system_clock::now();
+		dt_ = (t - t_ref_);
+		t_ref_ = t;
+		
+		//check collisions
+		auto collidor_it = collidors.begin();
+		auto flag_it = collision_flags_.begin();
+		for (int i = 0; i < collidors.size(); i++) {
+			const InternalObject* c = *collidor_it;
+			if (this->getHbox().checkCollision(c->getHbox(), getPosition(), c->getPosition())) [[unlikely]] {
+				*flag_it = true;
+				onCollision(*c);
+			}
+			else if (*flag_it) [[unlikely]] {//C++20
+				*flag_it = false;
+				onDecollision(*c);
+			}
+			else [[likely]] {}
+
+			collidor_it++;
+			flag_it++;
+		}
+		//move according to velocity and acceleration
+		/*if (freefall_) {
+			velocity_ += acceleration_ * dt_.count();
+			translate(velocity_ * dt_.count());
+		}
+		else {
+			//not efficient
+			velocity_ *= 0;
+		}*/
+	}
+
+
+	void addCollidor(const GameObject& other) {
+		this->collidors.emplace_back(&other);
+		this->collision_flags_.emplace_back(false);
+	}
+
+	float getdt() const {
+		return dt_.count();
+	}//note this is a copy, not a ref
+
+	void boundedTranslate(const Eigen::Vector3f& vec, const Zmap& bounds, float max_step) {
+		float height = getHbox().getShape()(1);
+		float width = getHbox().getShape()(0);
+		this->moveTo(bounds.getNewPosition(this->getPosition()(seq(0,2),3), vec, max_step,height,width,.5, freefall_));
+	}
+
+	virtual const Model& getModel() const { //these are virtual to allow for unique model/texture instances, i.e. level
+		return model_;
+	}
+
+	virtual const Texture& getTexture() const {
+		return texture_;
+	}
+
+	void setVelocity(Eigen::Vector3f velocity) {
+		velocity_ = velocity;
+	}
+
+	Eigen::Vector3f getVelocity() const {
+		return velocity_;
+	}
+
+	void setAcceleration(Eigen::Vector3f acceleration) {
+		acceleration_ = acceleration;
+	}
+	
+	Eigen::Vector3f getAcceleration() const {
+		return acceleration_;
+	}
+
+	bool isInFreefall() const {
+		return freefall_;
+	}
+
+};
+//template <class G, int ... Keys>
+//const std::array<int, sizeof(Keys)> GameObject<G, Keys...>::keys{ { Keys... } };
+
+//template <class G, int ... Keys>
+//const G GameObject<G, Keys...>::shared_grobj_(GameObject::model_, GameObject::texture_, NULL);
+
+
+template <int ... Keys> //this has to change eventually i think
+class InterfaceObject : public GameObject {
+
+private:
+	static constexpr std::array<int, sizeof...(Keys)> keys{ { Keys... } };
+
+public:
+	//poll inputs
+	void update(GLFWwindow* window) override {
+		GameObject::update(window);
+		for (int k : keys) {
+			if (glfwGetKey(window, k) == GLFW_PRESS) {
+				this->onKeyDown(k);
+			}
+			else if (glfwGetKey(window, k) == GLFW_RELEASE) {
+				this->onKeyUp(k);
+			}
+		}
+		this->onStep();
+	}
+	InterfaceObject(Eigen::Matrix4f position, int id) :
+		GameObject(position, id){}
+};
+
+
+
+#endif
