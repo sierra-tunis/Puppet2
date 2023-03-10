@@ -276,8 +276,8 @@ public:
 	void rotateY(float angle) {rotateAxisAngle(Eigen::Vector3f(0, 1, 0), angle);};
 	void rotateZ(float angle) {rotateAxisAngle(Eigen::Vector3f(0, 0, 1), angle);};
 
-
 };
+
 InternalObject::callbackInput InternalObject::input_members_;
 int InternalObject::last_id_ = 0;
 const std::string InternalObject::no_name_ = "";

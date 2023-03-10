@@ -67,7 +67,7 @@ int main(void)
     //Debugger right((Eigen::Matrix4f()<<1, 0, 0, .5, 0, 1, 0, 0, 0, 0, 1, .5, 0, 0, 0, 1).finished(), 2, default3d);
     ZMapper zmapper;
     Level room1(layout,window,Model("spiral_staircase_cult_exit.obj"),Texture("rocky.jpg"),255,"spiral staircase");
-    PlayerCamera camera(1.0,&room1.getZmap(),window);
+    PlayerCamera camera(1.0,&room1.getZmap(),window,"player1cam");
     //Camera camera((Eigen::Matrix4f() << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1).finished(), -1);
     camera.activateKeyInput(window);
     Default3d default3d(camera, .1, 100, 90);
