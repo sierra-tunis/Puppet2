@@ -33,7 +33,7 @@ private:
 
 
 	const InternalObject* parent_;
-	std::vector<InternalObject*> children_; //children should be created and managed by parent. in this way each game object is a sub world object
+	//std::vector<InternalObject*> children_; //children should be created and managed by parent. in this way each game object is a sub world object
 	PositionConstraint* parent_connector_;
 	//this might be a terrible idea:
 	static PositionConstraint default_position_constraint_;
@@ -123,6 +123,9 @@ protected:
 
 	inline virtual void onDecollision(const InternalObject& other) {};
 
+	const InternalObject* getParent() const {
+		return parent_;
+	}
 
 public:
 
@@ -183,6 +186,7 @@ public:
 	}
 
 	const Matrix4f getRelativePosition(InternalObject& other) const {
+		//this is almost certainly wrong
 		return inverseTform(parent_->getPosition()) * other.getPosition() * inverseTform(position_);
 		//so globalPosition = parent.gloabl*getRelativePosition(other)*position_ = other.globalPosition
 	}
@@ -196,9 +200,6 @@ public:
 		return hbox_;
 	}
 
-	const InternalObject* getParent() const {
-		return parent_;
-	}
 
 	void activateKeyInput(GLFWwindow* window) {
 		//input_objs = InternalObject * this_ = static_cast<InternalObject*>(glfwGetWindowUserPointer(window));
