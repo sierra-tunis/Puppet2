@@ -168,7 +168,7 @@ private:
 
 public:
 
-	ZMapper() :camera_(Camera(Eigen::Matrix4f::Identity(), -1)),
+	ZMapper() :camera_(Camera("zmapper camera")),
 		camera_location_(glGetUniformLocation(gl_id, "camera")),
 		ZClip_location_(glGetUniformLocation(gl_id, "ZClip")) {
 

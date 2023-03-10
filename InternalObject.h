@@ -23,7 +23,15 @@ private:
 	//so move(obj1.relativePosition(obj2)) will always move obj1 to obj2 but not need to "modify" global position
 	Eigen::Matrix4f position_;
 	static const Hitbox hbox_; //this should maybe be moved to gameobject since it is only relevant for dynamic behavior
+
+	
+	static int last_id_;
+	const static std::string no_name_;
+	static std::unordered_map<std::string,const InternalObject*> named_internal_objects_;
 	const int id_;
+	std::string name_;
+
+
 	const InternalObject* parent_;
 	std::vector<InternalObject*> children_; //children should be created and managed by parent. in this way each game object is a sub world object
 	PositionConstraint* parent_connector_;
@@ -117,21 +125,31 @@ protected:
 
 
 public:
-	//again this may be a terrible way of doing position constraints
 
-	InternalObject(Eigen::Matrix4f position, int id) :
-		position_(position),
-		id_(id),
+	InternalObject(std::string name) :
+		position_(Eigen::Matrix4f::Identity()),
+		id_(last_id_++),//this is only to avoid not wanting to generate random strings
+		name_(name),
+		parent_(nullptr),
+		parent_connector_(nullptr) {
+
+		this->onCreation();//i dont think this works since you cant use virtual functions in a constructor
+		InternalObject::named_internal_objects_[name] = this;
+
+	}
+	InternalObject() :
+		position_(Eigen::Matrix4f::Identity()),
+		name_(InternalObject::no_name_),
+		id_(last_id_++),
 		parent_(nullptr),
 		parent_connector_(nullptr) {
 
 		this->onCreation();
 
-
-		//e.g. grobj = GraphicsObject(VAO=shared_grobj.VAO,tex_id=shared_grobj.tex_id,tform = &this.tform)
 	}
 
-	virtual void clampTo(const InternalObject* parent) {//is it bad to do as a reference?
+
+	virtual void clampTo(const InternalObject* parent) {
 		this->parent_ = parent;
 		parent_connector_ = new OffsetConnector(parent_->getPosition(), position_);
 	}
@@ -202,10 +220,11 @@ public:
 
 
 
-	//virtual GameObject(std::string filename) = 0;
+	//virtual InternalObject(std::string filename) = 0;
 
 	//virtual File save() const = 0;
-//... for each built in condition
+	
+	// virtual std::vector<bool> unitTest() = 0;
 
 	void translate(Eigen::Vector3f vec) {
 		position_(seq(0, 2), 3) += vec;
@@ -252,6 +271,7 @@ public:
 		Matrix3f rot = Matrix3f::Identity() + w_hat * sin(angle) + w_hat * w_hat * (1 - cos(angle));
 		rotate(rot);
 	};
+
 	void rotateX(float angle) {rotateAxisAngle(Eigen::Vector3f(1, 0, 0), angle);};
 	void rotateY(float angle) {rotateAxisAngle(Eigen::Vector3f(0, 1, 0), angle);};
 	void rotateZ(float angle) {rotateAxisAngle(Eigen::Vector3f(0, 0, 1), angle);};
@@ -259,5 +279,8 @@ public:
 
 };
 InternalObject::callbackInput InternalObject::input_members_;
+int InternalObject::last_id_ = 0;
+const std::string InternalObject::no_name_ = "";
+std::unordered_map<std::string, const InternalObject*> InternalObject::named_internal_objects_;
 
 #endif

@@ -69,5 +69,5 @@ const char* HboxGraphics::fragment_code = "#version 330 core\n"
 "{\n"
 "	FragColor = vec4(1.0f,0.f,0.f,1.f);\n"
 " }\0";
-
+*/
 #endif

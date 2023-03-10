@@ -15,31 +15,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 int main(void)
 {
-    /*
-    linkedList<int,1,2,3,4,5,6,7,8,9,10> ll;
-    std::vector<int> v{1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
-    auto t0 = std::chrono::system_clock::now();
-    for(int i = 0; i < 1000000000; i++) {
-        v[i%10];
-    }
-    std::cout << std::chrono::duration_cast<microseconds>(std::chrono::system_clock::now() - t0).count()<<"\n";
-    t0 = std::chrono::system_clock::now();
-    for (int i = 0; i < 1000000000; i++) {
-        ll.getData<0>();
-        ll.getData<1>();
-        ll.getData<2>();
-        ll.getData<3>();
-        ll.getData<4>();
-        ll.getData<5>();
-        ll.getData<6>();
-        ll.getData<7>();
-        ll.getData<8>();
-        ll.getData<9>();
-
-
-    }
-    std::cout << std::chrono::duration_cast<microseconds>(std::chrono::system_clock::now() - t0).count() << "\n";
-    */
     GLFWwindow* window;
 
     // Initialize the library
@@ -91,15 +66,15 @@ int main(void)
 
     //Debugger right((Eigen::Matrix4f()<<1, 0, 0, .5, 0, 1, 0, 0, 0, 0, 1, .5, 0, 0, 0, 1).finished(), 2, default3d);
     ZMapper zmapper;
-    Level room1(layout,window,Model("spiral_staircase_cult_exit.obj"),Texture("rocky.jpg"),255);
-    PlayerCamera camera(1.0,&room1.getZmap(),window, - 1);
+    Level room1(layout,window,Model("spiral_staircase_cult_exit.obj"),Texture("rocky.jpg"),255,"spiral staircase");
+    PlayerCamera camera(1.0,&room1.getZmap(),window);
     //Camera camera((Eigen::Matrix4f() << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1).finished(), -1);
     camera.activateKeyInput(window);
     Default3d default3d(camera, .1, 100, 90);
     for (auto& dbg : debugs) {
         default3d.add(dbg);
     }
-    DebugCamera center(room1.getZmap(), 50);
+    DebugCamera center(room1.getZmap(), "obamna");
     room1.add(center);
     room1.add(camera); //shouldnt be part of the layout
     default3d.add(room1);

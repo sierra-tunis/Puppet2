@@ -15,7 +15,7 @@ private:
 
 public:
 
-	Camera(Matrix4f position, int id) :InternalObject(position, id),screenshot_flag_(false) {}
+	Camera(std::string name) : InternalObject(name),screenshot_flag_(false) {}
 
 	/*void bindTo(const InternalObject& target) {
 		clampTo(target);

@@ -24,6 +24,7 @@ private:
 	Model model_;
 	Texture texture_;
 	Zmap zmap_;
+
 	//we can render the floor like an image with color corresponding to the height.
 	// use some sentinel color for the background to indicate out of bounds regions.
 	//this lets us rectangularize the whole level and only need to figure out the player position
@@ -45,8 +46,8 @@ public:
 		}
 	}
 
-	Level(std::vector<InternalObject*> layout, GLFWwindow* window,Model model, Texture texture,int room_id) :
-		GameObject(Matrix4f::Identity(),room_id),
+	Level(std::vector<InternalObject*> layout, GLFWwindow* window,Model model, Texture texture, int room_id, std::string room_name) :
+		GameObject(room_name),
 		window_(window),
 		fname(""),
 		model_(model),

@@ -15,8 +15,8 @@ class Debugger : public InterfaceObject<GLFW_KEY_UP, GLFW_KEY_DOWN, GLFW_KEY_LEF
 	RotationJoint r2_;
 	ConnectorChain<OffsetConnector, RotationJoint, RotationJoint> linkage_;
 public:
-	Debugger(Eigen::Matrix4f position, int id, const InternalObject& parent) : 
-		InterfaceObject(position, id),
+	Debugger(Eigen::Matrix4f position, std::string name, const InternalObject& parent) : 
+		InterfaceObject(name),
 		clamp_(position),
 		r1_(Eigen::Vector3f(0,1,0)),
 		r2_(Eigen::Vector3f(1, 0, 0)),

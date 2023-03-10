@@ -35,8 +35,8 @@ private:
 	}
 
 public:
-	PlayerCamera(float equilibrium_length,const Zmap* bounds, GLFWwindow* window,int id) :
-		Camera(Matrix4f::Identity(), id),
+	PlayerCamera(float equilibrium_length,const Zmap* bounds, GLFWwindow* window, std::string name) :
+		Camera("PlayerCamera"),
 		equilibrium_length_(equilibrium_length),
 		bounds_(bounds),
 		pan_(RotationJoint(Eigen::Vector3f(0, 1, 0))),

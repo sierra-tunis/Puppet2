@@ -41,8 +41,8 @@ class DebugCamera : public InterfaceObject<GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, G
 		}
 	}
 public:
-	DebugCamera(const Zmap& zmap, int id):
-	InterfaceObject(Eigen::Matrix4f::Identity(),id),
+	DebugCamera(const Zmap& zmap, std::string name):
+	InterfaceObject(name),
 	floor_(&zmap){
 		setAcceleration(Eigen::Vector3f(0, -0.81, 0));
 	}

@@ -28,6 +28,8 @@ class GameObject: public InternalObject {
 
 private:
 
+	//this doesnt work?? this would cause all game objects to have the same texture?? only reason the map has a different texture is
+	//because it has a texture member
 	static const Model model_; //model is all the model data in one place and can be subclassed for other shader types
 	static const Texture texture_; //texture has all the texture packed into it like color, normal etc, and can just be subclassed to add more
 
@@ -51,8 +53,8 @@ protected:
 
 public:
 	
-	GameObject(Eigen::Matrix4f position, int id) :
-		InternalObject(position,id),
+	GameObject(std::string name) :
+		InternalObject(name),
 		//shared_grobj_(GameObject::model_, GameObject::texture_, Matrix4f::Identity()),//still needs rework
 		t_ref_(system_clock::now()) {
 		/*if (!shared_grobj_.isInitialized()) {
@@ -173,8 +175,8 @@ public:
 		}
 		this->onStep();
 	}
-	InterfaceObject(Eigen::Matrix4f position, int id) :
-		GameObject(position, id){}
+	InterfaceObject(std::string name) :
+		GameObject(name){}
 };
 
 
