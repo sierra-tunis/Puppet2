@@ -4,8 +4,7 @@
 #include <fstream>
 #include <sstream>
 
-//#define ASSET_PATH "C:\\Users\\Justin\\source\\repos\\Puppet2\\Puppet2\\assets"
-#define MODEL_PATH "C:\\Users\\Justin\\Documents\\Blender Models\\"
+#define MODEL_PATH "C:\\Users\\Justin\\source\\repos\\Puppet2\\Puppet2\\assets\\"
 class Model {
 private:
 	//std::unordered_map<std::vector<float>,std::string> vertex_data;

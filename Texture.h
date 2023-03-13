@@ -7,7 +7,7 @@
 #ifndef PUPPET_TEXTURE
 #define PUPPET_TEXTURE
 
-#define TEXTURE_PATH "C:\\Users\\Justin\\Documents\\Blender Models\\"
+#define TEXTURE_PATH "C:\\Users\\Justin\\source\\repos\\Puppet2\\Puppet2\\assets\\"
 
 class Texture {
 	std::string fname;

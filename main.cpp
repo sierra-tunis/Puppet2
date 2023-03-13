@@ -66,7 +66,12 @@ int main(void)
 
     //Debugger right((Eigen::Matrix4f()<<1, 0, 0, .5, 0, 1, 0, 0, 0, 0, 1, .5, 0, 0, 0, 1).finished(), 2, default3d);
     ZMapper zmapper;
-    Level room1(layout,window,Model("spiral_staircase_cult_exit.obj"),Texture("rocky.jpg"),255,"spiral staircase");
+    Level room1(layout,window,Model("spiral_staircase_cult_exit.obj"),Texture("rocky.jpg"),"spiral staircase");
+    Level room2(layout, window, Model("cult_exit_landing.obj"), Texture("rocky.jpg"), "spiral staircase");
+    Level room3(layout, window, Model("cult_exit_hallway.obj"), Texture("rocky.jpg"), "spiral staircase");
+    room1.addNeighbor(&room2);
+    room1.addNeighbor(&room3);
+
     PlayerCamera camera(1.0,&room1.getZmap(),window,"player1cam");
     //Camera camera((Eigen::Matrix4f() << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1).finished(), -1);
     camera.activateKeyInput(window);
@@ -79,8 +84,14 @@ int main(void)
     room1.add(center);
     room1.add(camera); //shouldnt be part of the layout
     default3d.add(room1);
+    default3d.add(room2);
+    default3d.add(room3);
+
     default3d.add(center);
     room1.initZmap(zmapper,6);
+    //room2.initZmap(zmapper, 2);
+    //room3.initZmap(zmapper, 2);
+
     //hboxGraphics.add(0,left.getHboxDbgGrobj());
     //hboxGraphics.add(1, right.getHboxDbgGrobj());
     camera.connectTo(&center);

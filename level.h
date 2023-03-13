@@ -49,7 +49,7 @@ public:
 		}
 	}
 
-	Level(std::vector<InternalObject*> layout, GLFWwindow* window,Model model, Texture texture, int room_id, std::string room_name) :
+	Level(std::vector<InternalObject*> layout, GLFWwindow* window,Model model, Texture texture, std::string room_name) :
 		GameObject(room_name),
 		window_(window),
 		fname(""),
@@ -90,6 +90,10 @@ public:
 
 	void add(InternalObject& obj) {
 		contents_.push_back(&obj);
+	}
+
+	void addNeighbor(Level* neighbor) {
+		neighbors_.push_back(neighbor);
 	}
 
 	/*
