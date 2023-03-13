@@ -39,8 +39,9 @@ private:
 	void calculateBoundingBox() {
 		std::array<float, 3> min = { INFINITY,INFINITY,INFINITY };
 		std::array<float, 3> max = { -INFINITY,-INFINITY,-INFINITY };
-		for (int i = 0; i < this->vlen(); i += 3) {
+		for (int i = 0; i < 3*this->vlen(); i += 3) {
 			for (int j = 0; j < 3; j++) {
+				float v = verts[i + j];
 				if (verts[i + j] < min[j]) {
 					min[j] = verts[i + j];
 				}

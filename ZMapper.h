@@ -126,7 +126,8 @@ private:
 
 	void drawObj(const Model& obj, Cache cache) const override {
 		glBindVertexArray(getVAO(cache));
-		glUniform1f(room_id_location_, static_cast<float>(getRoomID(cache))/255);
+		glUniform1f(room_id_location_, static_cast<float>(getRoomID(cache))/256.);
+		float tmp = static_cast<float>(getRoomID(cache)) / 256.;
 		//should remove inverse here
 
 		glDrawElements(GL_TRIANGLES, 3 * getNElems(cache), GL_UNSIGNED_INT, 0);
@@ -234,7 +235,7 @@ const char* ZMapper::vertex_code = "\n"
 "{\n"
 "	vec4 position = ZClip * camera * vec4(pos.x, pos.y, pos.z, 1.0);\n"//no model matrix since model does not move
 "   gl_Position = position;\n"
-"	Zdata = vec4(1.-position.z,norm.x/2.+.5,norm.z/2.+.5,room_id);"//red is Z height, green is y slope, blue is x slope, alpha is unused (for now)
+"	Zdata = vec4(1.-position.z,norm.x/2.+.5,norm.z/2.+.5,room_id);"//red is Z height, green is y slope, blue is x slope, alpha is room_id (for now)
 "}\0";
 
 const char* ZMapper::fragment_code = "#version 330 core\n"

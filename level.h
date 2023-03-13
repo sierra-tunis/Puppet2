@@ -13,7 +13,7 @@
 using std::array;
 using std::vector;
 
-class Level : public GameObject{
+class Level : public GameObject {
 private:
 
 	//static std::vector <Level> level_catalog_;
@@ -49,7 +49,7 @@ public:
 		}
 	}
 
-	Level(std::vector<InternalObject*> layout, GLFWwindow* window,Model model, Texture texture, std::string room_name) :
+	Level(std::vector<InternalObject*> layout, GLFWwindow* window, Model model, Texture texture, std::string room_name) :
 		GameObject(room_name),
 		window_(window),
 		fname(""),
@@ -57,7 +57,7 @@ public:
 		texture_(texture),
 		zmap_(Level::getWindowSize(window)[1], Level::getWindowSize(window)[0], model_)
 		//for now this uses current window size as resolution since thats what ZMapper will output as
-		{
+	{
 		for (auto& obj : layout) {
 			contents_.push_back(obj);
 		}
@@ -66,19 +66,19 @@ public:
 	//Level(std::string fname, GLFWwindow* window):fname(fname),window_(window) {}
 
 	bool save() const {
-		if(fname == ""){/*error*/ }
+		if (fname == "") {/*error*/ }
 	}
 
 	const Zmap& getZmap() const {
 		return zmap_;
 	}
 
-	void initZmap(ZMapper& zmapper,unsigned int n_steps) {
+	void initZmap(ZMapper& zmapper, unsigned int n_steps) {
 		std::vector<const Model*> neighbor_models;
 		for (auto& neig : neighbors_) {
 			neighbor_models.push_back(&neig->getModel());
 		}
-		zmap_.createData(zmapper, model_, n_steps,neighbor_models);
+		zmap_.createData(zmapper, model_, n_steps, neighbor_models);
 	}
 
 	const Model& getModel() const override {
@@ -88,12 +88,26 @@ public:
 		return this->texture_;
 	}
 
+	std::vector<Level*>& getNeighbors() {
+		return neighbors_;
+	}
+
 	void add(InternalObject& obj) {
 		contents_.push_back(&obj);
 	}
 
 	void addNeighbor(Level* neighbor) {
 		neighbors_.push_back(neighbor);
+	}
+
+	void activate() {
+	}
+	void deactivate() {
+	}
+
+	void activateNeighbor(int neighbor_index) {
+		deactivate();
+		neighbors_[neighbor_index]->activate();
 	}
 
 	/*

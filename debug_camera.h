@@ -14,17 +14,16 @@ using Eigen::seq;
 class DebugCamera : public InterfaceObject<GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, GLFW_KEY_D, GLFW_KEY_SPACE, GLFW_KEY_LEFT_SHIFT> {
 
 	//const Level* level_;
-	const Zmap* floor_;
+	Level* current_level_;
 	bool freefall;
-
 
 	void onKeyDown(int key) override {
 		switch (key) {
 		case GLFW_KEY_W:
-			boundedTranslate(this->getPosition()(seq(0, 2), 2) * -.01,*floor_,.5);
+			boundedTranslate(this->getPosition()(seq(0, 2), 2) * -.01,current_level_->getZmap(), .5);
 			break;
 		case GLFW_KEY_S:
-			boundedTranslate(this->getPosition()(seq(0, 2), 2) * +.01, *floor_, .5);
+			boundedTranslate(this->getPosition()(seq(0, 2), 2) * +.01, current_level_->getZmap(), .5);
 			break;
 		case GLFW_KEY_A:
 			rotateY(.005);
@@ -40,15 +39,22 @@ class DebugCamera : public InterfaceObject<GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, G
 			break;
 		}
 	}
+
 public:
-	DebugCamera(const Zmap& zmap, std::string name):
+	DebugCamera(Level* starting_level, std::string name):
 	InterfaceObject(name),
-	floor_(&zmap){
+	current_level_(starting_level){
 		setAcceleration(Eigen::Vector3f(0, -0.81, 0));
 	}
 
 	void update(GLFWwindow* window) override {
 		InterfaceObject::update(window);
+		int current_room = current_level_->getZmap().getZdata(getPosition()(seq(0, 2), 3), .5).first.room_id;
+		std::cout << "current room# " << current_room << "\n";
+		if (current_room != 1) {
+			current_level_->activateNeighbor(current_room-2);
+			current_level_ = current_level_->getNeighbors()[current_room-2];
+		}
 		/*if (isInFreefall()) {
 			getVelocity() += getAcceleration() * getdt();
 			boundedTranslate(getVelocity() * getdt(),*floor_,.1);
@@ -68,6 +74,11 @@ public:
 			moveTo(floor_pos);
 		}*/
 	}
+
+	const Level* getLevel() const {
+		return current_level_;
+	}
+
 
 };
 

@@ -27,7 +27,7 @@ int main(void)
 
     
     //Create a windowed mode window and its OpenGL context
-    window = glfwCreateWindow(1600, 1200, "Hello World", NULL, NULL);
+    window = glfwCreateWindow(1000, 1000, "Hello World", NULL, NULL);
     if (!window)
     {
         glfwTerminate();
@@ -71,6 +71,8 @@ int main(void)
     Level room3(layout, window, Model("cult_exit_hallway.obj"), Texture("rocky.jpg"), "spiral staircase");
     room1.addNeighbor(&room2);
     room1.addNeighbor(&room3);
+    room2.addNeighbor(&room1);
+    room3.addNeighbor(&room1);
 
     PlayerCamera camera(1.0,&room1.getZmap(),window,"player1cam");
     //Camera camera((Eigen::Matrix4f() << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1).finished(), -1);
@@ -80,7 +82,7 @@ int main(void)
         default3d.add(dbg);
     }
 
-    DebugCamera center(room1.getZmap(), "obamna");
+    DebugCamera center(&room1,"obamna");
     room1.add(center);
     room1.add(camera); //shouldnt be part of the layout
     default3d.add(room1);
@@ -89,12 +91,14 @@ int main(void)
 
     default3d.add(center);
     room1.initZmap(zmapper,6);
-    //room2.initZmap(zmapper, 2);
-    //room3.initZmap(zmapper, 2);
+    room2.initZmap(zmapper, 2);
+    room3.initZmap(zmapper, 2);
+
+    glfwSetWindowSize(window, 1600, 1200);
 
     //hboxGraphics.add(0,left.getHboxDbgGrobj());
     //hboxGraphics.add(1, right.getHboxDbgGrobj());
-    camera.connectTo(&center);
+    camera.setPlayer(&center);
     //left.addCollidor(right);
 
     //need to add objects to the shaders manually

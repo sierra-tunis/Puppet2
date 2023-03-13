@@ -95,7 +95,6 @@ public:
 			//std::cout << "out of bounds ( " << x_ind << ", " << y_ind << " )\n";
 			return std::pair<zdata, zdata>(zdata::floor(), zdata::ceiling());
 		}
-
 	}
 
 	Eigen::Vector3f findMaxTravel(const Eigen::Vector3f& current_pos, const Eigen::Vector3f& delta_pos, float max_step, float min_gap, float max_slope, int iters = 3) const {
@@ -186,7 +185,7 @@ public:
 		}
 		while (z <= model.getBoxCenter()[1] + model.getBoundingBox()[1] / 2) {
 			std::vector<uint8_t> data(x_resolution_ * y_resolution_ * 4);
-			float z_step = model.getBoundingBox()[1] / (n_steps - 1);
+			float z_step = model.getBoundingBox()[1] / static_cast<float>(n_steps - 1);
 			zmapper.renderZstep(model, y_resolution_, x_resolution_, z, z_step, &data, secondary_models);
 			addLayer(data, z, z_step);
 			z += z_step;
