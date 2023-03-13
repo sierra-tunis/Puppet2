@@ -147,6 +147,7 @@
     <ClInclude Include="motion_constraint.h" />
     <ClInclude Include="player_camera.h" />
     <ClInclude Include="stb_image_write.h" />
+    <ClInclude Include="zdata.hpp" />
     <ClInclude Include="zmap.h" />
     <ClInclude Include="ZMapper.h" />
     <ClInclude Include="InternalObject.h" />

@@ -1,20 +1,22 @@
 #pragma once
 #include <vector>
 
-#include "ZMapper.h"
-#include "motion_constraint.h"
-
 #ifndef PUPPET_GRAPHICS_ZMAP
 #define PUPPET_GRAPHICS_ZMAP
 
+#include "zdata.hpp"
+#include "ZMapper.h"
+#include "motion_constraint.h"
+
+
 class Zmap : public MotionConstraint{//we can even encode room neighbor information by color coding the out of bounds information
 private:
+
 	const int x_resolution_, y_resolution_;
 	const float map_width_, map_height_;
 	std::vector<std::vector<zdata>> raw_data_;//array data is {z height, x slope, y slope}, as per the ZMapper shader
 	//should really be an ordered vector
 	//const zdata background_;
-	int room_id_;
 
 
 	void addLayer(std::vector<uint8_t> frame_data, float frame_z, float z_step) {
@@ -40,20 +42,19 @@ protected:
 	};
 
 public:
-	Zmap(int y_resolution, int x_resolution, float map_height, float map_width, float room_id) :
+	Zmap(int y_resolution, int x_resolution, float map_height, float map_width) :
 		x_resolution_(x_resolution),
 		y_resolution_(y_resolution),
 		map_height_(map_height),
-		map_width_(map_width),
-		room_id_(room_id)
+		map_width_(map_width)
 	{
 		for (int i = 0; i < x_resolution * y_resolution; i++) {
 			raw_data_.emplace_back();
 		}
 	}
 
-	Zmap(int y_resolution, int x_resolution, Model model, float room_id) :
-		Zmap(y_resolution, x_resolution, model.getBoundingBox()[2], model.getBoundingBox()[0], room_id) {
+	Zmap(int y_resolution, int x_resolution, Model model) :
+		Zmap(y_resolution, x_resolution, model.getBoundingBox()[2], model.getBoundingBox()[0]) {
 
 	}
 
@@ -178,7 +179,7 @@ public:
 
 	}
 
-	void createData(ZMapper& zmapper, Model model, unsigned int n_steps) {
+	void createData(ZMapper& zmapper, const Model& model, unsigned int n_steps, std::vector<const Model*> secondary_models) {
 		float z = model.getBoxCenter()[1] - model.getBoundingBox()[1] / 2;
 		if (n_steps < 2) {
 			std::cerr << "n_steps must be greater than 2";
@@ -186,7 +187,7 @@ public:
 		while (z <= model.getBoxCenter()[1] + model.getBoundingBox()[1] / 2) {
 			std::vector<uint8_t> data(x_resolution_ * y_resolution_ * 4);
 			float z_step = model.getBoundingBox()[1] / (n_steps - 1);
-			zmapper.renderZstep(model, y_resolution_, x_resolution_, z, z_step, &data);
+			zmapper.renderZstep(model, y_resolution_, x_resolution_, z, z_step, &data, secondary_models);
 			addLayer(data, z, z_step);
 			z += z_step;
 		}

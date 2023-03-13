@@ -92,5 +92,8 @@
     <ClInclude Include="motion_constraint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="zdata.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

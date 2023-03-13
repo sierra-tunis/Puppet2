@@ -1,15 +1,15 @@
 ﻿#pragma once
 
 #define _USE_MATH_DEFINES
+
+#ifndef PUPPET_ZMAPPER
+#define PUPPET_ZMAPPER
 #include <cmath>
 
 #include "Graphics.h"
 #include "InternalObject.h"
 #include "camera.h"
-
-
-#ifndef PUPPET_GRAPHICS_ZMAPPER
-#define PUPPET_GRAPHICS_ZMAPPER
+#include "zdata.hpp"
 
 //An alternative, non-zmap based approach would be breaking up the level into large voxels,
 // each voxel contains an array of faces to check collisions on. this way the collision checking is
@@ -24,26 +24,8 @@
 // a primitive with easy to compute collisions and get precise contact positioning. zmap can also be used for true out of bounds
 // information that supercedes mesh collisions
 
-struct zdata {
-	float z, x_slope, y_slope;
-	int room_id; //room_id is the alpha bit and is transparent from the background. 0 is reserved for inaccessible
-	zdata(std::array<float, 3> data, int room_id):z(data[0]),x_slope(data[1]),y_slope(data[2]),room_id(room_id) {}
-	static zdata floor() {
-		return zdata({ -INFINITY,0,0 }, 0);
-	}
-	static zdata ceiling() {
-		return zdata({ INFINITY,0,0 }, 0);
-	}
 
-	bool operator!=(const zdata& other) {
-		return (this->z != other.z || this->x_slope != other.x_slope || this->y_slope != other.y_slope);
-	}
-
-	static constexpr int BaseRoom = 0;
-
-};
-
-class ZMapper : public Graphics<Model, int, size_t, float, float> { //note zmap is really the y direction in opengl, however Z usually represents the height dimension
+class ZMapper : public Graphics<Model, int, size_t, uint8_t> { //note zmap is really the y direction in opengl, however Z usually represents the height dimension
 private:
 	//const float step_height_; //data above step height will be clipped leaving only the background (cannot move onto background)
 								//in most cases this is "step height" i.e. the maximum height a player can step over small discontinuities
@@ -57,6 +39,8 @@ private:
 
 	const unsigned int camera_location_;
 	const unsigned int ZClip_location_;
+	const unsigned int room_id_location_;
+	static uint8_t last_room_id_;
 
 	InternalObject camera_; //must always be pointing down (R = R_x(90))
 	Eigen::Matrix4f ZClip_;
@@ -71,13 +55,18 @@ private:
 		return std::get<1>(cache);
 	}
 
+	constexpr uint8_t& getRoomID(Cache cache) const {
+		return std::get<2>(cache);
+	}
+
+	/*
 	constexpr float& getHeight(Cache cache) const {
 		return std::get<2>(cache);
 	}
 
 	constexpr float& getWidth(Cache cache) const {
 		return std::get<3>(cache);
-	}
+	}*/
 
 	void makeZclip(int y_resolution, int x_resolution, float height, float width,float y_center, float x_center, float z_step) {
 		
@@ -89,11 +78,12 @@ private:
 				0.0, 1., 0.0, -y_center,
 				0.0, 0.0, 1.0, 0.0,
 				0.0, 0.0, 0.0, 1.0).finished();
+
 	}
 
 
 	//copy pasted from default3d (i.e. bad practice)
-	virtual std::tuple<int, size_t, float, float> makeDataCache(const Model& obj) const override {
+	virtual Cache makeDataCache(const Model& obj) const override {
 		const Model& model = obj;
 		unsigned int VAO;
 		glGenVertexArrays(1, &(VAO));
@@ -121,15 +111,22 @@ private:
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 
-		return std::tuple<int, size_t, float, float>{VAO, model.flen(), model.getBoundingBox()[0], model.getBoundingBox()[2]};
+		//return std::tuple<int, size_t, float, float>{VAO, model.flen(), model.getBoundingBox()[0], model.getBoundingBox()[2]};
+		return std::tuple<int, size_t, uint8_t>{VAO, model.flen(), last_room_id_++};
 	}
 
 	virtual void deleteDataCache(Cache cache) const override {
 
 	}
 
+	void clearCache() {
+		cached_data_.clear();
+		last_room_id_ = 1;
+	}
+
 	void drawObj(const Model& obj, Cache cache) const override {
 		glBindVertexArray(getVAO(cache));
+		glUniform1f(room_id_location_, static_cast<float>(getRoomID(cache))/255);
 		//should remove inverse here
 
 		glDrawElements(GL_TRIANGLES, 3 * getNElems(cache), GL_UNSIGNED_INT, 0);
@@ -170,17 +167,28 @@ public:
 
 	ZMapper() :camera_(Camera("zmapper camera")),
 		camera_location_(glGetUniformLocation(gl_id, "camera")),
-		ZClip_location_(glGetUniformLocation(gl_id, "ZClip")) {
+		ZClip_location_(glGetUniformLocation(gl_id, "ZClip")),
+		room_id_location_(glGetUniformLocation(gl_id,"room_id")){
 
 		camera_.rotateX(M_PI / 2);
 	}
 
-	bool renderZstep(Model& model, int y_resolution, int x_resolution, float z, float z_step,std::vector<uint8_t>* data) {
+	bool renderZstep(const Model& model, int y_resolution, int x_resolution, float z, float z_step,std::vector<uint8_t>* data, std::vector<const Model*> secondary_models) {
+		constexpr int n_channels = 4;
+		//camera centers on model (primary model)
 		makeZclip(y_resolution, x_resolution, model.getBoundingBox()[2], model.getBoundingBox()[0], model.getBoxCenter()[2], model.getBoxCenter()[0], z_step);
-		draw_targets_.insert({ 0, &model });
+		int i = 0;
+		draw_targets_.insert({ i++, &model });
+		for (auto& mod : secondary_models) {
+			draw_targets_.insert({ i++, mod });
+		}
 		if (cached_data_.find(0) == cached_data_.end()) {
-			cached_data_.insert({ 0,makeDataCache(model) });
-		}		
+			i = 0;
+			cached_data_.insert({ i++,makeDataCache(model) });
+			for (auto& mod : secondary_models) {
+				cached_data_.insert({ i++,makeDataCache(*mod) });
+			}
+		}
 		camera_.moveTo(0, z, 0);
 		camera_.updatePosition();
 		//create zclip matrix
@@ -191,12 +199,13 @@ public:
 		drawAll();
 		endDraw();
 		//...see https://stackoverflow.com/questions/12157646/how-to-render-offscreen-on-opengl
-		data->reserve(y_resolution * x_resolution * 4);
+		data->reserve(y_resolution * x_resolution * n_channels);
 		//finishScreenshot<int, GL_INT>(data,"zmap_layer.png");
 		finishScreenshot<uint8_t, GL_UNSIGNED_BYTE>(data, "zmap" + std::to_string(z) + "_layer.png");
 		//finishScreenshot<uint8_t, GL_UNSIGNED_BYTE>(data);
 
-		draw_targets_.erase(0);
+		clearCache();
+
 		return true; //here in case I want to do checks on if the data was transfered. should also be [[nodiscard]]
 	}
 	/*
@@ -214,6 +223,8 @@ const char* ZMapper::vertex_code = "\n"
 "layout (location = 0) in vec3 pos;\n"
 "layout (location = 1) in vec3 norm;\n"
 
+"uniform float room_id;\n"
+
 "uniform mat4 camera;\n"
 "uniform mat4 ZClip;"
 
@@ -223,7 +234,7 @@ const char* ZMapper::vertex_code = "\n"
 "{\n"
 "	vec4 position = ZClip * camera * vec4(pos.x, pos.y, pos.z, 1.0);\n"//no model matrix since model does not move
 "   gl_Position = position;\n"
-"	Zdata = vec4(1.-position.z,norm.x/2.+.5,norm.z/2.+.5,1.0);"//red is Z height, green is y slope, blue is x slope, alpha is unused (for now)
+"	Zdata = vec4(1.-position.z,norm.x/2.+.5,norm.z/2.+.5,room_id);"//red is Z height, green is y slope, blue is x slope, alpha is unused (for now)
 "}\0";
 
 const char* ZMapper::fragment_code = "#version 330 core\n"
@@ -235,4 +246,5 @@ const char* ZMapper::fragment_code = "#version 330 core\n"
 "{\n"
 "	FragColor = Zdata;\n"
 " } ";
+uint8_t ZMapper::last_room_id_ = 1;
 #endif

@@ -68,14 +68,13 @@ public:
         Eigen::Vector3f intersect12 = (G21(seq(0, 2), seq(0, 2)) * f1 + p2).array().pow(2);
         if (intersect12.transpose() * other.E_inv_sq_ <= 1) {
             return true;
-        } else if((intersect12 + Eigen::Vector3f::Ones()*4*(p2-f1).transpose()*p2).transpose()*other.E_inv_sq_ <= 1) {
+        } else if ((intersect12 + Eigen::Vector3f::Ones()*4*(p2-f1).transpose()*p2).transpose()*other.E_inv_sq_ <= 1) {
             return true;
         } 
         Eigen::Vector3f intersect21 = (G12(seq(0, 2), seq(0, 2)) * f2 + p1).array().pow(2);
         if (intersect21.transpose() * this->E_inv_sq_ <= 1) {
             return true;
-        }
-        else if ((intersect21 + Eigen::Vector3f::Ones() * 4 * (p1 - f2).transpose() * p1).transpose() * other.E_inv_sq_ <= 1) {
+        } else if ((intersect21 + Eigen::Vector3f::Ones() * 4 * (p1 - f2).transpose() * p1).transpose() * other.E_inv_sq_ <= 1) {
             return true;
         }
 		return false;

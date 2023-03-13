@@ -15,6 +15,9 @@ using std::vector;
 
 class Level : public GameObject{
 private:
+
+	//static std::vector <Level> level_catalog_;
+
 	enum status { active, standby, frozen }; //by default, active is fully loaded and updated, standby is loaded but not updated, frozen is unloaded and unupdated
 	std::vector<InternalObject*> contents_;
 	GLFWwindow* window_;
@@ -52,7 +55,7 @@ public:
 		fname(""),
 		model_(model),
 		texture_(texture),
-		zmap_(Level::getWindowSize(window)[1], Level::getWindowSize(window)[0], model_, room_id)
+		zmap_(Level::getWindowSize(window)[1], Level::getWindowSize(window)[0], model_)
 		//for now this uses current window size as resolution since thats what ZMapper will output as
 		{
 		for (auto& obj : layout) {
@@ -71,7 +74,11 @@ public:
 	}
 
 	void initZmap(ZMapper& zmapper,unsigned int n_steps) {
-		zmap_.createData(zmapper, model_, n_steps);
+		std::vector<const Model*> neighbor_models;
+		for (auto& neig : neighbors_) {
+			neighbor_models.push_back(&neig->getModel());
+		}
+		zmap_.createData(zmapper, model_, n_steps,neighbor_models);
 	}
 
 	const Model& getModel() const override {
