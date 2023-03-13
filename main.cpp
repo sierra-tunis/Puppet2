@@ -74,6 +74,7 @@ int main(void)
     for (auto& dbg : debugs) {
         default3d.add(dbg);
     }
+
     DebugCamera center(room1.getZmap(), "obamna");
     room1.add(center);
     room1.add(camera); //shouldnt be part of the layout
