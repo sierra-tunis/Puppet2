@@ -22,6 +22,10 @@ public:
 	//virtual Eigen::Vector3f getConstrainedTranslate(Eigen::Vector3f current_pos, Eigen::Vector3f delta_pos) const { return Eigen::Vector3f::Zero(); }// = 0;
 };
 
+class NoCollideConstraint : public MotionConstraint{
+	
+}
+
 class PositionConstraint {
 	//MotionConstraint* bounds_;
 protected:
