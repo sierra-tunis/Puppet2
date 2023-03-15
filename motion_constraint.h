@@ -76,6 +76,11 @@ bool checkCollision<const Surface<3>&, const MeshSurface&>(const Surface<3>& Pri
 	return SurfaceNodeCollision(PrimarySurf, SecondarySurf, PrimaryPosition.inverse() * SecondaryPosition);
 }
 
+template<>
+bool checkCollision<const Ellipse&, const Ellipse&>(const Ellipse& PrimarySurf, const Ellipse& SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition) {
+
+}
+
 class BoundaryConstraint{
 	Surface<3>* boundary_;
 
