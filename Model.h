@@ -5,6 +5,7 @@
 #include <sstream>
 
 #define MODEL_PATH "C:\\Users\\Justin\\source\\repos\\Puppet2\\Puppet2\\assets\\"
+//this is conceptually the same as "mesh" may want to rename since a model can also be nurbs, but a mesh is always a mesh
 class Model {
 private:
 	//std::unordered_map<std::vector<float>,std::string> vertex_data;
@@ -144,6 +145,15 @@ public:
 
 	const Eigen::Vector3f& getBoxCenter() const {
 		return box_center_;
+	}
+
+	void centerVerts() {
+		for (int i = 0; i < 3*vlen(); i+=3) {
+			for (int j = 0; j < 3; j++) {
+				verts[i + j] -= box_center_(j);
+			}
+		}
+		box_center_ << 0, 0, 0;
 	}
 
 

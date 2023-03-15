@@ -9,7 +9,7 @@
 #include "motion_constraint.h"
 
 
-class Zmap : public MotionConstraint{//we can even encode room neighbor information by color coding the out of bounds information
+class Zmap : public BoundaryConstraint{//we can even encode room neighbor information by color coding the out of bounds information
 private:
 
 	const int x_resolution_, y_resolution_;

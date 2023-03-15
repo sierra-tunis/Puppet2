@@ -35,7 +35,7 @@ private:
 
 	Eigen::Vector3f velocity_; //yes this could be a twist, but simplicity over technical accuracy
 	Eigen::Vector3f acceleration_;
-	std::vector<MotionConstraint> motion_constraints_;
+	std::vector<BoundaryConstraint> motion_constraints_;
 	bool freefall_;
 
 	time_point<system_clock> t_ref_;

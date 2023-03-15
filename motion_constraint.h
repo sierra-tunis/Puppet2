@@ -5,11 +5,80 @@
 
 #include <Eigen/dense>
 #include <string>
+#include <iostream>
 using Eigen::seq;
 //boundaryConstraint -> cant cross specified boundary, motion is adjusted to stay within bounds
 //coupleConstraint -> motion is tied to parent motion except for set degrees of freedom
 
-class MotionConstraint {
+template<int n_dims>
+class Surface {
+public:
+	virtual bool crossesSurface(Eigen::Vector<float,n_dims> first_state, Eigen::Vector<float,n_dims> second_state) const = 0;
+};
+
+
+template<int n_dims>
+class Region : public Surface<n_dims> { //Region==bounded surface
+public:
+	virtual bool insideRegion(Eigen::Vector<float, n_dims> state) const = 0;
+
+	virtual bool crossesSurface(Eigen::Vector<float, n_dims> first_state, Eigen::Vector<float, n_dims> second_state) const override {
+		return insideRegion(first_state) != insideRegion(second_state);
+	};
+
+};
+
+//hitbox is then a child of region
+class MeshSurface : public Surface<3> {
+	std::vector<Eigen::Vector3f> verts_;
+	std::vector<std::pair<unsigned int,unsigned int>> edges_;
+
+	virtual bool crossesSurface(Eigen::Vector<float, 3> first_state, Eigen::Vector<float, 3> second_state) const override {
+		std::cerr << "not implemented to function as primary surface";
+	}
+
+public:
+	const std::vector<Eigen::Vector3f>& getVerts() const {
+		return verts_;
+	}
+	const std::vector<std::pair<unsigned int, unsigned int>>& getEdges() const{
+			return edges_;
+	}
+};
+
+class Ellipse : public Region<3> {//technially generalizable into N dimensions but not useful for making games lol
+	const Eigen::Vector3f E_;
+	const Eigen::Vector3f E_inv_sq_;
+public:
+	bool insideRegion(Eigen::Vector<float, 3> state) const {
+		return state.array().pow<int>(2).matrix().transpose() * E_inv_sq_;
+	};
+
+};
+
+template<class A, class B>
+bool checkCollision(const A PrimarySurf, const B SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition) {
+	static_assert(true, "Not A Function");
+};
+
+bool SurfaceNodeCollision(const Surface<3>& PrimarySurf, const MeshSurface& SecondarySurf, const Eigen::Matrix4f& SecondaryPosition) {
+	Eigen::Matrix3f R = SecondaryPosition(seq(0, 2), seq(0, 2));
+	Eigen::Vector3f p = SecondaryPosition(seq(0, 2), 3);
+	for (auto& e : SecondarySurf.getEdges()) {
+		if (PrimarySurf.crossesSurface(R*SecondarySurf.getVerts()[e.first]+p, R * SecondarySurf.getVerts()[e.second]+p)) {
+			return true;
+		}
+	}
+}
+
+template<>
+bool checkCollision<const Surface<3>&, const MeshSurface&>(const Surface<3>& PrimarySurf, const MeshSurface& SecondarySurf, const Eigen::Matrix4f PrimaryPosition,const Eigen::Matrix4f SecondaryPosition) {
+	return SurfaceNodeCollision(PrimarySurf, SecondarySurf, PrimaryPosition.inverse() * SecondaryPosition);
+}
+
+class BoundaryConstraint{
+	Surface<3>* boundary_;
+
 	virtual bool isValidPosition(Eigen::Matrix4f position) const { return true; };
 public:
 	virtual bool breaksConstraint(Eigen::Matrix4f old_tform, Eigen::Matrix4f new_tform) const { 
@@ -21,10 +90,29 @@ public:
 	//virtual Eigen::Matrix4f getConstrainedTwist(Eigen::Matrix4f current_tform, Eigen::Matrix4f delta_tform) const { return Eigen::Matrix4f::Identity(); }// = 0;
 	//virtual Eigen::Vector3f getConstrainedTranslate(Eigen::Vector3f current_pos, Eigen::Vector3f delta_pos) const { return Eigen::Vector3f::Zero(); }// = 0;
 };
+//all motion constraint 
 
-class NoCollideConstraint : public MotionConstraint{
-	
-}
+template<class T> 
+concept PrimaryHitbox = std::is_base_of_v<T, Surface<3>>;
+
+template<class secondary, class primary>
+concept SecondaryHitbox = requires(const primary & first, const secondary & second, Eigen::Matrix4f G1, Eigen::Matrix4f G2) {
+	checkCollision<primary, secondary>(first, second, G1, G2);
+};
+
+template<PrimaryHitbox primary_type,SecondaryHitbox<primary_type> secondary_type>
+class NoCollideConstraint : public BoundaryConstraint {
+
+	const primary_type& primary_hitbox_;
+	const Eigen::Matrix4f& primary_position_;
+	const secondary_type& secondary_hitbox_;
+	const Eigen::Matrix4f& secondary_position_;
+
+	virtual bool breaksConstraint(Eigen::Matrix4f old_tform, Eigen::Matrix4f new_tform) const {
+		return checkCollision(primary_hitbox_, secondary_hitbox_, primary_position_, secondary_position_);
+	}
+
+};
 
 class PositionConstraint {
 	//MotionConstraint* bounds_;
@@ -61,7 +149,7 @@ class ConnectorConstraint : public PositionConstraint {
 	//its possible to make an "observer" derived class which has two connection points and "observes" the inverse kinematics
 
 	//has unintuitive behavior if called publically
-	void boundedMove(Eigen::Vector<float, n_dofs> new_state, const MotionConstraint& bounds, int n_iters) {
+	void boundedMove(Eigen::Vector<float, n_dofs> new_state, const BoundaryConstraint& bounds, int n_iters) {
 		if (n_iters == 0) {
 			return;
 		} else {
@@ -122,7 +210,7 @@ public:
 	}
 
 	template<int max_iters = 5>
-	void boundedMove(Eigen::Vector<float, n_dofs> new_state, const MotionConstraint& bounds) {
+	void boundedMove(Eigen::Vector<float, n_dofs> new_state, const BoundaryConstraint& bounds) {
 		Eigen::Matrix4f new_transform = computeConnectorTransform(new_state);
 		bool breaks_constraint;
 		if (root_transform_ != nullptr) {

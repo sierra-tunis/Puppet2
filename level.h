@@ -61,6 +61,8 @@ public:
 		for (auto& obj : layout) {
 			contents_.push_back(obj);
 		}
+		moveTo(model.getBoxCenter());
+		model.centerVerts();
 	}
 
 	//Level(std::string fname, GLFWwindow* window):fname(fname),window_(window) {}

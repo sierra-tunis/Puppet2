@@ -1,18 +1,18 @@
 ﻿  main.cpp
-C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(86,34): warning C4129: '/': unrecognized character escape sequence
-C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(88,34): warning C4129: '/': unrecognized character escape sequence
-C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(90,34): warning C4129: '/': unrecognized character escape sequence
-C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(87,38): warning C4244: 'argument': conversion from 'float' to '_Ty', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(87,34): warning C4129: '/': unrecognized character escape sequence
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(89,34): warning C4129: '/': unrecognized character escape sequence
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(91,34): warning C4129: '/': unrecognized character escape sequence
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(88,38): warning C4244: 'argument': conversion from 'float' to '_Ty', possible loss of data
           with
           [
               _Ty=unsigned int
           ]
-C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(89,41): warning C4244: 'argument': conversion from 'float' to '_Ty', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(90,41): warning C4244: 'argument': conversion from 'float' to '_Ty', possible loss of data
           with
           [
               _Ty=unsigned int
           ]
-C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(91,43): warning C4244: 'argument': conversion from 'float' to '_Ty', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(92,43): warning C4244: 'argument': conversion from 'float' to '_Ty', possible loss of data
           with
           [
               _Ty=unsigned int
@@ -66,6 +66,6 @@ C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(143,1): message : while 
 C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(125,38): message : see reference to function template instantiation 'void Graphics<GameObject,int,int,size_t>::startScreenshot(size_t,size_t)' being compiled
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Default3d.h(15,62): message : see reference to class template instantiation 'Graphics<GameObject,int,int,size_t>' being compiled
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(143,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\Justin\source\repos\Puppet2\Puppet2\motion_constraint.h(31): warning C4172: returning address of local variable or temporary
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+C:\Users\Justin\source\repos\Puppet2\Puppet2\motion_constraint.h(72): warning C4715: 'SurfaceNodeCollision': not all control paths return a value
+C:\Users\Justin\source\repos\Puppet2\Puppet2\motion_constraint.h(123): warning C4172: returning address of local variable or temporary
   Puppet2.vcxproj -> C:\Users\Justin\source\repos\Puppet2\x64\Debug\Puppet2.exe
