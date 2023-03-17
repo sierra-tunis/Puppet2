@@ -35,11 +35,12 @@ private:
 
 	Eigen::Vector3f velocity_; //yes this could be a twist, but simplicity over technical accuracy
 	Eigen::Vector3f acceleration_;
-	std::vector<BoundaryConstraint> motion_constraints_;
+	std::vector<BoundaryConstraint*> motion_constraints_;
 	bool freefall_;
 
 	time_point<system_clock> t_ref_;
 	std::chrono::duration<float> dt_;
+	Eigen::Matrix4f last_position_;
 
 	std::vector<const InternalObject*> collidors; //should be a safe pointer
 	std::vector<bool> collision_flags_;
@@ -55,6 +56,7 @@ public:
 	
 	GameObject(std::string name) :
 		InternalObject(name),
+		last_position_(getPosition()),
 		//shared_grobj_(GameObject::model_, GameObject::texture_, Matrix4f::Identity()),//still needs rework
 		t_ref_(system_clock::now()) {
 		/*if (!shared_grobj_.isInitialized()) {
@@ -91,6 +93,26 @@ public:
 
 			collidor_it++;
 			flag_it++;
+		}
+		if (last_position_ != getPosition()) {
+			for (auto m_c : motion_constraints_) {
+				Eigen::Vector3f delta_pos = getPosition()(seq(0, 2), 3) - last_position_(seq(0, 2), 3);
+				Eigen::Vector3f normal;
+				Eigen::Vector3f binormal;
+				if (delta_pos.dot(getPosition()(seq(0, 2), 1)) == delta_pos.norm() * getPosition()(seq(0, 2), 1).norm()) {
+					normal = getPosition()(seq(0, 2), 1);
+					binormal = getPosition()(seq(0, 2), 0);
+				}
+				else {
+					normal = delta_pos.cross(Eigen::Vector3f(getPosition()(seq(0, 2), 1)));
+					binormal = delta_pos.cross(normal);
+					normal.normalize();
+					binormal.normalize();
+				}
+
+				moveTo(last_position_(seq(0, 2), 3) + m_c->bestTranslate(last_position_(seq(0, 2), 3), delta_pos, normal, binormal));
+				last_position_ = getPosition();
+			}
 		}
 		//move according to velocity and acceleration
 		/*if (freefall_) {
@@ -141,6 +163,10 @@ public:
 	
 	Eigen::Vector3f getAcceleration() const {
 		return acceleration_;
+	}
+
+	void addMotionConstraint(BoundaryConstraint* BC) {
+		motion_constraints_.push_back(BC);
 	}
 
 	bool isInFreefall() const {

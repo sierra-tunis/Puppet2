@@ -22,6 +22,7 @@ private:
 	PrismaticJoint dist_;
 	ConnectorChain<RotationJoint, RotationJoint, PrismaticJoint> tether_;
 	PlayerType* player_;
+	BoundaryConstraint level_bounds_;
 
 	void onMouseMove(float x, float y, float dx, float dy){
 		std::cout << "(" << dx << ", " << dy << ")\n";
@@ -44,7 +45,8 @@ public:
 		pan_(RotationJoint(Eigen::Vector3f(0, 1, 0))),
 		tilt_(RotationJoint(Eigen::Vector3f(1, 0, 0))),
 		dist_(PrismaticJoint(Eigen::Vector3f(0, 2, 3))),
-		tether_(ConnectorChain<RotationJoint, RotationJoint, PrismaticJoint>(pan_,tilt_,dist_)) {
+		tether_(ConnectorChain<RotationJoint, RotationJoint, PrismaticJoint>(pan_,tilt_,dist_)),
+		level_bounds_(bounds){
 		enableMouseControl(window);
 		setConnector(&tether_);
 	}
@@ -60,7 +62,7 @@ public:
 		damped_equilibrium_state(2) = damped_return_to_equilibrium;
 		no_extension(2) = 0;
 		tether_.setState(no_extension);
-		tether_.boundedMove<20>(damped_equilibrium_state,player_->getLevel()->getZmap());
+		tether_.boundedMove<20>(damped_equilibrium_state,level_bounds_);
 		//float delta_len = getParent()->getPosition()(seq(0, 2), seq(0, 2)) * damped_return_to_equilibrium;
 		//float new_len = bounds_->findMaxTravel(getParent()->getPosition(), delta_pos, 0, 0, 10, 100).norm();
 		//std::cout << (getParent()->getGlobalPosition()(seq(0, 2), seq(0, 2)).transpose() * (new_pos-parent_pos)).transpose() << "\n";

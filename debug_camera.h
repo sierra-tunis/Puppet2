@@ -16,14 +16,17 @@ class DebugCamera : public InterfaceObject<GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, G
 	//const Level* level_;
 	Level* current_level_;
 	bool freefall;
+	MeshSurface hitbox_;
+	NoCollideConstraint<Zmap, MeshSurface> level_bounds_;
 
 	void onKeyDown(int key) override {
 		switch (key) {
 		case GLFW_KEY_W:
-			boundedTranslate(this->getPosition()(seq(0, 2), 2) * -.01,current_level_->getZmap(), .5);
+			//boundedTranslate(this->getPosition()(seq(0, 2), 2) * -.01,current_level_->getZmap(), .5);
+			translate(this->getPosition()(seq(0, 2), 2) * -.01);
 			break;
 		case GLFW_KEY_S:
-			boundedTranslate(this->getPosition()(seq(0, 2), 2) * +.01, current_level_->getZmap(), .5);
+			translate(this->getPosition()(seq(0, 2), 2) * .01);
 			break;
 		case GLFW_KEY_A:
 			rotateY(.005);
@@ -43,8 +46,11 @@ class DebugCamera : public InterfaceObject<GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, G
 public:
 	DebugCamera(Level* starting_level, std::string name):
 	InterfaceObject(name),
-	current_level_(starting_level){
+	current_level_(starting_level),
+	hitbox_(MeshSurface(getModel())),
+	level_bounds_(hitbox_,getPosition()){
 		setAcceleration(Eigen::Vector3f(0, -0.81, 0));
+		addMotionConstraint(&level_bounds_);
 	}
 
 	void update(GLFWwindow* window) override {

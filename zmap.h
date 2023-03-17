@@ -9,7 +9,7 @@
 #include "motion_constraint.h"
 
 
-class Zmap : public BoundaryConstraint{//we can even encode room neighbor information by color coding the out of bounds information
+class Zmap : public Surface<3>{//we can even encode room neighbor information by color coding the out of bounds information
 private:
 
 	const int x_resolution_, y_resolution_;
@@ -32,7 +32,7 @@ private:
 	}
 
 protected:
-	
+	/*
 	bool breaksConstraint(Eigen::Matrix4f current_tform, Eigen::Matrix4f new_tform) const override {
 		//check for room_id,max_step,gap_width change in xy and getZdata.first change in z
 		if (getZdata(new_tform(seq(0, 2), 3), 0).first.room_id == zdata::BaseRoom) {
@@ -40,6 +40,20 @@ protected:
 		}
 		return false;
 	};
+	*/
+
+	bool crossesSurface(Eigen::Vector<float, 3> first_state, Eigen::Vector<float, 3> second_state) const override {
+		Eigen::Vector3f move_xy = second_state;
+		move_xy(1) = first_state(1);
+		Eigen::Vector3f move_z = first_state;
+		move_z(1) = second_state(1);
+		if (getZdata(move_xy,0).first.room_id == zdata::BaseRoom) {
+			return true;
+		} else if(getZdata(first_state, 0).first != getZdata(move_z, 0).first){
+			return true;
+		}
+		return false;
+	}
 
 public:
 	Zmap(int y_resolution, int x_resolution, float map_height, float map_width) :
