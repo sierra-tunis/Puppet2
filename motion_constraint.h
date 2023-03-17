@@ -99,7 +99,7 @@ public:
 
 template<class A, class B>
 bool checkCollision(const A& PrimarySurf, const B& SecondarySurf, Eigen::Matrix4f PrimaryPosition, Eigen::Matrix4f SecondaryPosition) {
-	static_assert(false, "Not A Function");
+	//static_assert(false, "Not A Function");
 	return true;
 };
 
@@ -156,7 +156,7 @@ public:
 	virtual Eigen::Vector3f bestTranslate(Eigen::Vector3f current, Eigen::Vector3f delta_pos, Eigen::Vector3f normal, Eigen::Vector3f binormal) const {
 			//Eigen::Matrix3f delta_pos = target(seq(0, 2), 3) - current(seq(0, 2), 3);
 		float delta_norm = delta_pos.norm();
-		Eigen::Vector3f fwd = limitTranslate(current(seq(0, 2), 3), delta_pos);
+		Eigen::Vector3f fwd = limitTranslate(current, delta_pos);
 		float fwd_ratio = fwd.norm() / delta_pos.norm();
 		if (fwd_ratio == 1.) {
 			return fwd;

@@ -17,7 +17,9 @@ class DebugCamera : public InterfaceObject<GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, G
 	Level* current_level_;
 	bool freefall;
 	MeshSurface hitbox_;
-	NoCollideConstraint<Zmap, MeshSurface> level_bounds_;
+	//NoCollideConstraint<Zmap, MeshSurface> level_bounds_;
+	BoundaryConstraint level_bounds_;
+
 
 	void onKeyDown(int key) override {
 		switch (key) {
@@ -48,7 +50,9 @@ public:
 	InterfaceObject(name),
 	current_level_(starting_level),
 	hitbox_(MeshSurface(getModel())),
-	level_bounds_(hitbox_,getPosition()){
+	level_bounds_(&current_level_->getZmap())
+	//level_bounds_(hitbox_,getPosition())
+	{
 		setAcceleration(Eigen::Vector3f(0, -0.81, 0));
 		addMotionConstraint(&level_bounds_);
 	}
