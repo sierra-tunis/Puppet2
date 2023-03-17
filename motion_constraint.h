@@ -99,7 +99,7 @@ public:
 
 template<class A, class B>
 bool checkCollision(const A& PrimarySurf, const B& SecondarySurf, Eigen::Matrix4f PrimaryPosition, Eigen::Matrix4f SecondaryPosition) {
-	static_assert(true, "Not A Function");
+	static_assert(false, "Not A Function");
 	return true;
 };
 
