@@ -62,8 +62,12 @@ public:
 		int current_room = current_level_->getZmap().getZdata(getPosition()(seq(0, 2), 3), .5).first.room_id;
 		std::cout << "current room# " << current_room << "\n";
 		if (current_room != 1) {
-			current_level_->activateNeighbor(current_room-2);
-			current_level_ = current_level_->getNeighbors()[current_room-2];
+			if (current_room == zdata::BaseRoom) {
+				std::cerr << "fatal out of bounds error!"
+			} else {
+				current_level_->activateNeighbor(current_room - 2);
+				current_level_ = current_level_->getNeighbors()[current_room - 2];
+			}
 		}
 		/*if (isInFreefall()) {
 			getVelocity() += getAcceleration() * getdt();
