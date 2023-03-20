@@ -63,11 +63,9 @@ C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_camera.h(56,1): warning C4305
 C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(80,44): warning C4305: 'argument': truncation from 'double' to 'float'
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(143,1): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(143,1): message : while compiling class template member function 'void Graphics<GameObject,int,int,size_t>::startScreenshot(size_t,size_t)'
-C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(125,38): message : see reference to function template instantiation 'void Graphics<GameObject,int,int,size_t>::startScreenshot(size_t,size_t)' being compiled
+C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(126,38): message : see reference to function template instantiation 'void Graphics<GameObject,int,int,size_t>::startScreenshot(size_t,size_t)' being compiled
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Default3d.h(15,62): message : see reference to class template instantiation 'Graphics<GameObject,int,int,size_t>' being compiled
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(143,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\Justin\source\repos\Puppet2\Puppet2\motion_constraint.h(114): warning C4715: 'SurfaceNodeCollision': not all control paths return a value
-C:\Users\Justin\source\repos\Puppet2\Puppet2\motion_constraint.h(223): warning C4172: returning address of local variable or temporary
-  LINK : C:\Users\Justin\source\repos\Puppet2\x64\Debug\Puppet2.exe not found or not built by the last incremental link; performing full link
+C:\Users\Justin\source\repos\Puppet2\Puppet2\motion_constraint.h(239): warning C4172: returning address of local variable or temporary
 LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
   Puppet2.vcxproj -> C:\Users\Justin\source\repos\Puppet2\x64\Debug\Puppet2.exe

@@ -115,6 +115,7 @@ int main(void)
     // Loop until the user closes the window
     while (!glfwWindowShouldClose(window))
     {
+        glfwPollEvents();
 
         room1.update();
 
@@ -140,7 +141,6 @@ int main(void)
         glfwSwapBuffers(window);
 
         // Poll for and process events
-        glfwPollEvents();
     }
 
     glfwTerminate();

@@ -94,7 +94,7 @@ public:
 			collidor_it++;
 			flag_it++;
 		}
-		if (last_position_ != getPosition()) {
+		if (last_position_(seq(0,2),3) != getPosition()(seq(0,2),3)) {
 			for (auto m_c : motion_constraints_) {
 				Eigen::Vector3f delta_pos = getPosition()(seq(0, 2), 3) - last_position_(seq(0, 2), 3);
 				Eigen::Vector3f normal;
@@ -109,8 +109,7 @@ public:
 					normal.normalize();
 					binormal.normalize();
 				}
-
-				moveTo(last_position_(seq(0, 2), 3) + m_c->bestTranslate(last_position_(seq(0, 2), 3), delta_pos, normal, binormal));
+				moveTo(last_position_(seq(0, 2), 3) + m_c->bestTranslate(last_position_, delta_pos, normal, binormal));
 				last_position_ = getPosition();
 			}
 		}
@@ -190,7 +189,7 @@ private:
 public:
 	//poll inputs
 	void update(GLFWwindow* window) override {
-		GameObject::update(window);
+		//poll inputs first
 		for (int k : keys) {
 			if (glfwGetKey(window, k) == GLFW_PRESS) {
 				this->onKeyDown(k);
@@ -200,6 +199,10 @@ public:
 			}
 		}
 		this->onStep();
+		//this way inputs are parsed with main() pollInputs input parsing
+		//then update GameObject
+		GameObject::update(window);
+
 	}
 	InterfaceObject(std::string name) :
 		GameObject(name){}

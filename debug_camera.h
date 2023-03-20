@@ -17,8 +17,8 @@ class DebugCamera : public InterfaceObject<GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, G
 	Level* current_level_;
 	bool freefall;
 	MeshSurface hitbox_;
-	//NoCollideConstraint<Zmap, MeshSurface> level_bounds_;
-	BoundaryConstraint level_bounds_;
+	NoCollideConstraint<Zmap, MeshSurface> level_bounds_;
+	//BoundaryConstraint level_bounds_;
 
 
 	void onKeyDown(int key) override {
@@ -50,8 +50,8 @@ public:
 	InterfaceObject(name),
 	current_level_(starting_level),
 	hitbox_(MeshSurface(getModel())),
-	level_bounds_(&current_level_->getZmap())
-	//level_bounds_(hitbox_,getPosition())
+	level_bounds_(&current_level_->getZmap(), &current_level_->getPosition(),hitbox_)
+	//level_bounds_(&current_level_->getZmap())
 	{
 		setAcceleration(Eigen::Vector3f(0, -0.81, 0));
 		addMotionConstraint(&level_bounds_);
@@ -59,11 +59,12 @@ public:
 
 	void update(GLFWwindow* window) override {
 		InterfaceObject::update(window);
-		int current_room = current_level_->getZmap().getZdata(getPosition()(seq(0, 2), 3), .5).first.room_id;
+		int current_room = current_level_->getZmap().getZdata(getPosition()(seq(0, 2), 3), 0.).first.room_id;
 		std::cout << "current room# " << current_room << "\n";
 		if (current_room != 1) {
 			if (current_room == zdata::BaseRoom) {
-				std::cerr << "fatal out of bounds error!";
+				//std::cerr << "fatal out of bounds error!";
+				//std::cout << "fatal out of bounds error!";
 			} else {
 				current_level_->activateNeighbor(current_room - 2);
 				current_level_ = current_level_->getNeighbors()[current_room - 2];

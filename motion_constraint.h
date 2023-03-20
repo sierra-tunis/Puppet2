@@ -98,41 +98,45 @@ public:
 };
 
 template<class A, class B>
-bool checkCollision(const A& PrimarySurf, const B& SecondarySurf, Eigen::Matrix4f PrimaryPosition, Eigen::Matrix4f SecondaryPosition) {
+bool checkCollision(const A* PrimarySurf, const B* SecondarySurf, Eigen::Matrix4f PrimaryPosition, Eigen::Matrix4f SecondaryPosition) {
 	//static_assert(false, "Not A Function");
 	return true;
 };
 
-bool SurfaceNodeCollision(const Surface<3>& PrimarySurf, const MeshSurface& SecondarySurf, Eigen::Matrix4f SecondaryPosition) {
+bool SurfaceNodeCollision(const Surface<3>* PrimarySurf, const MeshSurface* SecondarySurf, Eigen::Matrix4f SecondaryPosition) {
 	Eigen::Matrix3f R = SecondaryPosition(seq(0, 2), seq(0, 2));
 	Eigen::Vector3f p = SecondaryPosition(seq(0, 2), 3);
-	for (auto& e : SecondarySurf.getEdges()) {
-		if (PrimarySurf.crossesSurface(R*SecondarySurf.getVerts()[e.first]+p, R * SecondarySurf.getVerts()[e.second]+p)) {
+	for (auto& e : SecondarySurf->getEdges()) {
+		if (PrimarySurf->crossesSurface(R*SecondarySurf->getVerts()[e.first]+p, R*SecondarySurf->getVerts()[e.second]+p)) {
 			return true;
 		}
 	}
+	return false;
 }
 
 template<>
-bool checkCollision<Surface<3>, MeshSurface>(const Surface<3>& PrimarySurf, const MeshSurface& SecondarySurf, const Eigen::Matrix4f PrimaryPosition,const Eigen::Matrix4f SecondaryPosition) {
+bool checkCollision<Surface<3>, MeshSurface>(const Surface<3>* PrimarySurf, const MeshSurface* SecondarySurf, const Eigen::Matrix4f PrimaryPosition,const Eigen::Matrix4f SecondaryPosition) {
 	return SurfaceNodeCollision(PrimarySurf, SecondarySurf, PrimaryPosition.inverse() * SecondaryPosition);
 }
 
 template<>
-bool checkCollision<Ellipse, Ellipse>(const Ellipse& PrimarySurf, const Ellipse& SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition) {
+bool checkCollision<Ellipse, Ellipse>(const Ellipse* PrimarySurf, const Ellipse* SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition) {
 	return true;
 }
 
 class BoundaryConstraint{
 
 
-	Eigen::Vector3f limitTranslate(Eigen::Vector3f position, Eigen::Vector3f delta_pos, int n_iters = 5) const {
+	Eigen::Vector3f limitTranslate(Eigen::Matrix4f position, Eigen::Vector3f delta_pos, int n_iters = 5) const {
 		//Eigen::Vector3f delta_pos = first_guess - position;
 		float delta_norm = delta_pos.norm();
 		float len_ratio = 1.;
 		Eigen::Vector3f longest_vec = Eigen::Vector3f::Zero();
 		for (int i = 0; i < n_iters; i++) {
-			if (boundary_->crossesSurface(position, position + longest_vec + len_ratio * delta_pos )) {
+			Eigen::Matrix4f new_tform = position;
+			new_tform(seq(0, 2), 3) += longest_vec + len_ratio * delta_pos;
+			if (breaksConstraint(position, new_tform)) {
+
 			} else {
 				if (len_ratio == 1.) {
 					return delta_pos;
@@ -146,14 +150,16 @@ class BoundaryConstraint{
 protected:
 	const Surface<3>* boundary_;
 
-	virtual bool isValidPosition(Eigen::Matrix4f position) const { return true; };
+	virtual bool invalidPosition(Eigen::Matrix4f position) const {
+		return false;
+	};
 
 public:
 	bool breaksConstraint(Eigen::Matrix4f old_tform, Eigen::Matrix4f new_tform) const { 
-		return !isValidPosition(new_tform) || boundary_->crossesSurface(old_tform(seq(0,2),3), new_tform(seq(0,2),3) - old_tform(seq(0, 2), 3));
+		return invalidPosition(new_tform) || boundary_->crossesSurface(old_tform(seq(0,2),3), new_tform(seq(0,2),3));
 	}
 
-	virtual Eigen::Vector3f bestTranslate(Eigen::Vector3f current, Eigen::Vector3f delta_pos, Eigen::Vector3f normal, Eigen::Vector3f binormal) const {
+	Eigen::Vector3f bestTranslate(Eigen::Matrix4f current, Eigen::Vector3f delta_pos, Eigen::Vector3f normal, Eigen::Vector3f binormal) const {
 			//Eigen::Matrix3f delta_pos = target(seq(0, 2), 3) - current(seq(0, 2), 3);
 		float delta_norm = delta_pos.norm();
 		Eigen::Vector3f fwd = limitTranslate(current, delta_pos);
@@ -161,7 +167,8 @@ public:
 		if (fwd_ratio == 1.) {
 			return fwd;
 		}
-		Eigen::Vector3f next = current + fwd;
+		Eigen::Matrix4f next = current;
+		next(seq(0,2),3) += fwd;
 		Eigen::Vector3f pos_norm = limitTranslate(next, (1 - fwd_ratio) * delta_norm * normal);
 		Eigen::Vector3f neg_norm = limitTranslate(next, -(1 - fwd_ratio) * delta_norm * normal);
 		Eigen::Vector3f pos_binorm = limitTranslate(next, (1 - fwd_ratio) * delta_norm * binormal);
@@ -176,6 +183,9 @@ public:
 	void setBoundary(const Surface<3>* boundary) {
 		boundary = boundary_;
 	}
+	const Surface<3>* getBoundary() const {
+		return boundary_;
+	}
 	// this should be overwritten in the case where both old and new are valid but the movement from one to the other is impossible
 	//virtual bool breaksConstraint(Eigen::Vector3f current_pos, Eigen::Vector3f delta_pos) { return true; }// = 0;
 	
@@ -184,32 +194,38 @@ public:
 };
 //all motion constraint 
 
+
+
 template<class primary>
 concept PrimaryHitbox = std::derived_from<primary, Surface<3>>;
 
+
 template<class secondary, class primary>
 concept SecondaryHitbox = requires(const primary & first, const secondary & second, Eigen::Matrix4f G1, Eigen::Matrix4f G2) {
-	checkCollision<primary, secondary>(first, second, G1, G2);
+	checkCollision<primary, secondary>(&first, &second, G1, G2);
 };
 
 template<PrimaryHitbox primary_type,SecondaryHitbox<primary_type> secondary_type>
 class NoCollideConstraint : public BoundaryConstraint {
 
-	const primary_type* primary_hitbox_;
 	const Eigen::Matrix4f* primary_position_;
 	const secondary_type& secondary_hitbox_;
-	const Eigen::Matrix4f& secondary_position_;
+
+protected:
+	bool invalidPosition(Eigen::Matrix4f position) const override {
+		return checkCollision<Surface<3>,secondary_type>(getBoundary(), &secondary_hitbox_, *primary_position_, position);
+	}
 
 public:
-	virtual bool isValidPosition(Eigen::Matrix4f old_tform, Eigen::Matrix4f new_tform) const {
-		return checkCollision(primary_hitbox_, secondary_hitbox_, *primary_position_, new_tform);
-	}
 	
-	NoCollideConstraint(const secondary_type& secondary_hitbox, const Eigen::Matrix4f& secondary_position) :
-		primary_hitbox_(nullptr),
+	NoCollideConstraint(const secondary_type& secondary_hitbox) :
 		primary_position_(nullptr),
-		secondary_hitbox_(secondary_hitbox),
-		secondary_position_(secondary_position){
+		secondary_hitbox_(secondary_hitbox){
+	}
+	NoCollideConstraint(const primary_type* primary_hitbox,const Eigen::Matrix4f* primary_position, const secondary_type& secondary_hitbox) :
+		BoundaryConstraint(primary_hitbox),
+		primary_position_(primary_position),
+		secondary_hitbox_(secondary_hitbox){
 	}
 
 };

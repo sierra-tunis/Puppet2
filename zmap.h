@@ -45,11 +45,11 @@ protected:
 	bool crossesSurface(Eigen::Vector<float, 3> first_state, Eigen::Vector<float, 3> second_state) const override {
 		Eigen::Vector3f move_xy = second_state;
 		move_xy(1) = first_state(1);
-		Eigen::Vector3f move_z = first_state;
-		move_z(1) = second_state(1);
-		if (getZdata(move_xy,0).first.room_id == zdata::BaseRoom) {
+		//Eigen::Vector3f move_z = first_state;
+		//move_z(1) = second_state(1);
+		if (getZdata(second_state,0).first.room_id == zdata::BaseRoom) {
 			return true;
-		} else if(getZdata(first_state, 0).first != getZdata(move_z, 0).first){
+		} else if(getZdata(second_state, 0).first != getZdata(move_xy, 0).first){
 			return true;
 		}
 		return false;
