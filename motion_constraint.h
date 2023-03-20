@@ -185,7 +185,7 @@ public:
 //all motion constraint 
 
 template<class primary>
-concept PrimaryHitbox = std::derived_from<Surface<3>, primary>;
+concept PrimaryHitbox = std::derived_from<primary, Surface<3>>;
 
 template<class secondary, class primary>
 concept SecondaryHitbox = requires(const primary & first, const secondary & second, Eigen::Matrix4f G1, Eigen::Matrix4f G2) {
@@ -231,7 +231,7 @@ public:
 };
 
 template<class T>
-concept Connector = std::derived_from<PositionConstraint,T> && requires{
+concept Connector = std::derived_from<T, PositionConstraint> && requires{
 	T::getDoF();
 };
 
