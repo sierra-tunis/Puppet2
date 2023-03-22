@@ -99,8 +99,8 @@ public:
 				Eigen::Vector3f delta_pos = getPosition()(seq(0, 2), 3) - last_position_(seq(0, 2), 3);
 				Eigen::Vector3f normal;
 				Eigen::Vector3f binormal;
-				if (delta_pos.dot(getPosition()(seq(0, 2), 1)) == delta_pos.norm() * getPosition()(seq(0, 2), 1).norm()) {
-					normal = getPosition()(seq(0, 2), 1);
+				if (delta_pos.dot(getPosition()(seq(0, 2), 1)) == delta_pos.norm()) {
+					normal = getPosition()(seq(0, 2), 2);
 					binormal = getPosition()(seq(0, 2), 0);
 				}
 				else {

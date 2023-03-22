@@ -25,10 +25,10 @@ class DebugCamera : public InterfaceObject<GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, G
 		switch (key) {
 		case GLFW_KEY_W:
 			//boundedTranslate(this->getPosition()(seq(0, 2), 2) * -.01,current_level_->getZmap(), .5);
-			translate(this->getPosition()(seq(0, 2), 2) * -.01);
+			translate(this->getPosition()(seq(0, 2), 2) * -.05);
 			break;
 		case GLFW_KEY_S:
-			translate(this->getPosition()(seq(0, 2), 2) * .01);
+			translate(this->getPosition()(seq(0, 2), 2) * .05);
 			break;
 		case GLFW_KEY_A:
 			rotateY(.005);

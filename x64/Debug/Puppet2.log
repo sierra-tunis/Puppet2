@@ -66,6 +66,6 @@ C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(143,1): message : while 
 C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(126,38): message : see reference to function template instantiation 'void Graphics<GameObject,int,int,size_t>::startScreenshot(size_t,size_t)' being compiled
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Default3d.h(15,62): message : see reference to class template instantiation 'Graphics<GameObject,int,int,size_t>' being compiled
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(143,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\Justin\source\repos\Puppet2\Puppet2\motion_constraint.h(239): warning C4172: returning address of local variable or temporary
+C:\Users\Justin\source\repos\Puppet2\Puppet2\motion_constraint.h(241): warning C4172: returning address of local variable or temporary
 LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
   Puppet2.vcxproj -> C:\Users\Justin\source\repos\Puppet2\x64\Debug\Puppet2.exe
