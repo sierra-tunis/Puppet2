@@ -53,7 +53,7 @@
     <ClInclude Include="stb_image.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HboxGraphics.h">
+    <ClInclude Include="DebugGraphics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Debugger.h">
@@ -93,6 +93,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="zdata.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="graph.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

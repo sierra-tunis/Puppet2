@@ -1,14 +1,15 @@
 #pragma once
 
+#ifndef PUPPET_GRAPHICS_DEFAULT3D
+#define PUPPET_GRAPHICS_DEFAULT3D
+
 #include <Eigen/Dense>
 #define _USE_MATH_DEFINES
 #include <cmath>
 
 #include "Graphics.h"
 #include "camera.h"
-
-#ifndef PUPPET_GRAPHICS_DEFAULT3D
-#define PUPPET_GRAPHICS_DEFAULT3D
+#include "GameObject.h"
 
 using Eigen::Matrix4f;
 
@@ -38,8 +39,8 @@ private:
 	}
 
 	virtual std::tuple<int, int, size_t> makeDataCache(const GameObject& obj) const override {
-		const Model& model = obj.getModel();
-		const Texture& tex = obj.getTexture();
+		const Model& model = *(obj.getModel());
+		const Texture& tex = *(obj.getTexture());
 		// = model.flen();
 		unsigned int VAO;
 		glGenVertexArrays(1, &(VAO));

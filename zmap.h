@@ -1,8 +1,9 @@
 #pragma once
-#include <vector>
 
 #ifndef PUPPET_GRAPHICS_ZMAP
 #define PUPPET_GRAPHICS_ZMAP
+
+#include <vector>
 
 #include "zdata.hpp"
 #include "ZMapper.h"
@@ -67,8 +68,8 @@ public:
 		}
 	}
 
-	Zmap(int y_resolution, int x_resolution, Model model) :
-		Zmap(y_resolution, x_resolution, model.getBoundingBox()[2], model.getBoundingBox()[0]) {
+	Zmap(int y_resolution, int x_resolution, Model* model) :
+		Zmap(y_resolution, x_resolution, model->getBoundingBox()[2], model->getBoundingBox()[0]) {
 
 	}
 

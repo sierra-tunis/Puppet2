@@ -1,15 +1,17 @@
 #pragma once
+
+//#include "zmap.h"
+
+#ifndef PUPPET_INTERNALOBJECT
+#define PUPPET_INTERNALOBJECT
+
 #include <Eigen/Dense>
-#include <GLFW/glfw3.h>
 
 #include "Hitbox.h"
 #include "motion_constraint.h"
 
-//#include "zmap.h"
+#include <GLFW/glfw3.h>
 
-
-#ifndef PUPPET_INTERNALOBJECT
-#define PUPPET_INTERNALOBJECT
 
 using Eigen::Matrix4f;
 using Eigen::Matrix3f;
@@ -22,7 +24,7 @@ private:
 	//do get obj1.relativePosition(obj2) which should return G1_parent_inv*(obj2.global*obj1.global_inv)
 	//so move(obj1.relativePosition(obj2)) will always move obj1 to obj2 but not need to "modify" global position
 	Eigen::Matrix4f position_;
-	static const Hitbox hbox_; //this should maybe be moved to gameobject since it is only relevant for dynamic behavior
+	const Hitbox hbox_; //this should maybe be moved to gameobject since it is only relevant for dynamic behavior
 
 	
 	static int last_id_;
@@ -36,7 +38,6 @@ private:
 	//std::vector<InternalObject*> children_; //children should be created and managed by parent. in this way each game object is a sub world object
 	PositionConstraint* parent_connector_;
 	//this might be a terrible idea:
-	static PositionConstraint default_position_constraint_;
 
 	struct callbackInput {
 		std::vector<InternalObject*> key_;

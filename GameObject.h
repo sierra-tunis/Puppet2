@@ -1,4 +1,8 @@
 #pragma once
+
+#ifndef PUPPET_GAMEOBJECT
+#define PUPPET_GAMEOBJECT
+
 #include <Eigen/Dense>
 #include <chrono>
 #include <vector>
@@ -6,14 +10,13 @@
 #include <unordered_map>
 #include <glad/glad.h>
 
+
 #include "Model.h"
 #include "Texture.h"
 #include "InternalObject.h"
 #include "motion_constraint.h"
 #include "zmap.h"
 
-#ifndef PUPPET_GAMEOBJECT
-#define PUPPET_GAMEOBJECT
 
 using Eigen::Matrix4f;
 using Eigen::Matrix3f;
@@ -30,8 +33,8 @@ private:
 
 	//this doesnt work?? this would cause all game objects to have the same texture?? only reason the map has a different texture is
 	//because it has a texture member
-	static const Model model_; //model is all the model data in one place and can be subclassed for other shader types
-	static const Texture texture_; //texture has all the texture packed into it like color, normal etc, and can just be subclassed to add more
+	Model* model_; //model is all the model data in one place and can be subclassed for other shader types
+	Texture* texture_; //texture has all the texture packed into it like color, normal etc, and can just be subclassed to add more
 
 	Eigen::Vector3f velocity_; //yes this could be a twist, but simplicity over technical accuracy
 	Eigen::Vector3f acceleration_;
@@ -51,6 +54,13 @@ private:
 
 protected:
 	//virtual G makeGrobj(G shared_grobj) {}
+	void setModel(Model* model) {
+		model_ = model;
+	}
+
+	void setTexture(Texture* tex) {
+		texture_ = tex;
+	}
 
 public:
 	
@@ -140,11 +150,11 @@ public:
 		this->moveTo(bounds.getNewPosition(this->getPosition()(seq(0,2),3), vec, max_step,height,width,.5, freefall_));
 	}
 
-	virtual const Model& getModel() const { //these are virtual to allow for unique model/texture instances, i.e. level
+	virtual const Model* getModel() const { //these are virtual to allow for unique model/texture instances, i.e. level
 		return model_;
 	}
 
-	virtual const Texture& getTexture() const {
+	virtual const Texture* getTexture() const {
 		return texture_;
 	}
 

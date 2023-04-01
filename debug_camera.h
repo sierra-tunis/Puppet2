@@ -1,13 +1,14 @@
 #pragma once
 
+#ifndef PUPPET_DEBUGCAMERA
+#define PUPPET_DEBUGCAMERA
+
 #include <Eigen/Dense>
 
 #include "GameObject.h"
 #include "GLFW/glfw3.h"
 #include "level.h"
-
-#ifndef PUPPET_DEBUGCAMERA
-#define PUPPET_DEBUGCAMERA
+#include "no_collide_constraint.hpp"
 
 using Eigen::seq;
 
@@ -49,10 +50,12 @@ public:
 	DebugCamera(Level* starting_level, std::string name):
 	InterfaceObject(name),
 	current_level_(starting_level),
-	hitbox_(MeshSurface(getModel())),
+	hitbox_("cube.obj"),
 	level_bounds_(&current_level_->getZmap(), &current_level_->getPosition(),hitbox_)
 	//level_bounds_(&current_level_->getZmap())
 	{
+		setModel(new Model("cube.obj"));
+		setTexture(new Texture("obamna.jpg"));
 		setAcceleration(Eigen::Vector3f(0, -0.81, 0));
 		addMotionConstraint(&level_bounds_);
 	}
@@ -94,6 +97,9 @@ public:
 		return current_level_;
 	}
 
+	const MeshSurface& getHitbox() const {
+		return hitbox_;
+	}
 
 };
 

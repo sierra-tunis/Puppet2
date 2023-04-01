@@ -137,16 +137,21 @@
   <ItemGroup>
     <ClCompile Include="glad.c" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="motion_constraint.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
+    <ClInclude Include="collision.hpp" />
     <ClInclude Include="debug_camera.h" />
-    <ClInclude Include="HboxGraphics.h" />
+    <ClInclude Include="DebugGraphics.h" />
     <ClInclude Include="Debugger.h" />
+    <ClInclude Include="graph.h" />
     <ClInclude Include="Header.h" />
     <ClInclude Include="motion_constraint.h" />
+    <ClInclude Include="no_collide_constraint.hpp" />
     <ClInclude Include="player_camera.h" />
     <ClInclude Include="stb_image_write.h" />
+    <ClInclude Include="surface.hpp" />
     <ClInclude Include="zdata.hpp" />
     <ClInclude Include="zmap.h" />
     <ClInclude Include="ZMapper.h" />

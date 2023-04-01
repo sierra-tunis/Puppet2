@@ -1,10 +1,11 @@
 #pragma once
-#include <array>
-#include <Eigen/Dense>
-#include <initializer_list>
 
 #ifndef PUPPET_HITBOX
 #define PUPPET_HITBOX
+
+#include <array>
+#include <Eigen/Dense>
+#include <initializer_list>
 
 using Eigen::seq;
 

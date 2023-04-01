@@ -1,14 +1,16 @@
 #pragma once
 
-#include <GLFW/glfw3.h>
+#ifndef PUPPET_LEVEL
+#define PUPPET_LEVEL
+
 #include <map>
 
 #include "GameObject.h"
 #include "Graphics.h"
 #include "zmap.h"
 
-#ifndef PUPPET_LEVEL
-#define PUPPET_LEVEL
+#include <GLFW/glfw3.h>
+
 
 using std::array;
 using std::vector;
@@ -24,8 +26,6 @@ private:
 	int load_value_;//how "loaded" the level is
 	std::string fname;
 	std::vector<Level*> neighbors_; //neighbors enter standby when this is active
-	Model model_;
-	Texture texture_;
 	Zmap zmap_;
 
 	//we can render the floor like an image with color corresponding to the height.
@@ -49,20 +49,20 @@ public:
 		}
 	}
 
-	Level(std::vector<InternalObject*> layout, GLFWwindow* window, Model model, Texture texture, std::string room_name) :
+	Level(std::vector<InternalObject*> layout, GLFWwindow* window, Model* model, Texture* texture, std::string room_name) :
 		GameObject(room_name),
 		window_(window),
 		fname(""),
-		model_(model),
-		texture_(texture),
-		zmap_(Level::getWindowSize(window)[1], Level::getWindowSize(window)[0], model_)
+		zmap_(Level::getWindowSize(window)[1], Level::getWindowSize(window)[0], model)
 		//for now this uses current window size as resolution since thats what ZMapper will output as
 	{
+		setModel(model);
+		setTexture(texture);
 		for (auto& obj : layout) {
 			contents_.push_back(obj);
 		}
-		moveTo(model.getBoxCenter());
-		model.centerVerts();
+		moveTo(model->getBoxCenter());
+		model->centerVerts();
 	}
 
 	//Level(std::string fname, GLFWwindow* window):fname(fname),window_(window) {}
@@ -78,17 +78,17 @@ public:
 	void initZmap(ZMapper& zmapper, unsigned int n_steps) {
 		std::vector<const Model*> neighbor_models;
 		for (auto& neig : neighbors_) {
-			neighbor_models.push_back(&neig->getModel());
+			neighbor_models.push_back(neig->getModel());
 		}
-		zmap_.createData(zmapper, model_, n_steps, neighbor_models);
+		zmap_.createData(zmapper, *getModel(), n_steps, neighbor_models);
 	}
-
+	/*
 	const Model& getModel() const override {
 		return this->model_;
 	}
 	const Texture& getTexture() const override {
 		return this->texture_;
-	}
+	}*/
 
 	std::vector<Level*>& getNeighbors() {
 		return neighbors_;

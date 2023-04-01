@@ -1,14 +1,15 @@
 #include <Eigen/Dense>
-#include "Debugger.h"
-#include "Default3d.h"
-#include <GLFW/glfw3.h>
 #include <cmath>
+#include <chrono>
+
+
+#include "Default3d.h"
 #include "level.h"
 #include "player_camera.h"
 #include "debug_camera.h"
-#include "Header.h"
 
-#include <chrono>
+#include <GLFW/glfw3.h>
+
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -48,7 +49,6 @@ int main(void)
     //HboxGraphics hboxGraphics;
 
     std::vector<InternalObject> bases;
-    std::vector<Debugger> debugs;
     std::vector<InternalObject*> layout;//this being a vector which rearranges is horrible lol
     /*int n_debuggers = 10;
     for (int i = 0; i < n_debuggers; i++) {
@@ -66,7 +66,7 @@ int main(void)
 
     //Debugger right((Eigen::Matrix4f()<<1, 0, 0, .5, 0, 1, 0, 0, 0, 0, 1, .5, 0, 0, 0, 1).finished(), 2, default3d);
     ZMapper zmapper;
-    Level room1(layout,window,Model("spiral_staircase_cult_exit.obj"),Texture("rocky.jpg"),"spiral staircase");
+    Level room1(layout,window,new Model("spiral_staircase_cult_exit.obj"),new Texture("rocky.jpg"),"spiral staircase");
     //Level room2(layout, window, Model("cult_exit_landing.obj"), Texture("rocky.jpg"), "spiral staircase");
     //Level room3(layout, window, Model("cult_exit_hallway.obj"), Texture("rocky.jpg"), "spiral staircase");
     //room1.addNeighbor(&room2);
@@ -78,9 +78,6 @@ int main(void)
     //Camera camera((Eigen::Matrix4f() << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1).finished(), -1);
     camera.activateKeyInput(window);
     Default3d default3d(camera, .1, 100, 90);
-    for (auto& dbg : debugs) {
-        default3d.add(dbg);
-    }
 
     DebugCamera center(&room1,"obamna");
     room1.add(center);

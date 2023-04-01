@@ -1,17 +1,19 @@
 ﻿#pragma once
-#include "GraphicsObject.h"
-#include <glad/glad.h>
-#include <iostream>
-#include <unordered_map>
-#include "InternalObject.h"
-//#include <gl/GL.h>
-#define STBI_MSC_SECURE_CRT
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
 
 #ifndef PUPPET_GRAPHICS
 #define PUPPET_GRAPHICS
 
+#include <glad/glad.h>
+#include <iostream>
+#include <unordered_map>
+
+#include "InternalObject.h"
+#include "GraphicsObject.h"
+
+//#include <gl/GL.h>
+#define STBI_MSC_SECURE_CRT
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include "stb_image_write.h"
 
 /*
 template<class T>

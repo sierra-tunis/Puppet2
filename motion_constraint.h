@@ -8,126 +8,11 @@
 #include <iostream>
 #include <unordered_set>
 
-#include "Model.h"
+#include "surface.hpp"
+
 using Eigen::seq;
-//boundaryConstraint -> cant cross specified boundary, motion is adjusted to stay within bounds
-//coupleConstraint -> motion is tied to parent motion except for set degrees of freedom
-
-template<int n_dims>
-class Surface {
-public:
-	virtual bool crossesSurface(Eigen::Vector<float,n_dims> first_state, Eigen::Vector<float,n_dims> second_state) const = 0;
-};
-
-
-template<int n_dims>
-class Region : public Surface<n_dims> { //Region==bounded surface
-public:
-	virtual bool insideRegion(Eigen::Vector<float, n_dims> state) const = 0;
-
-	virtual bool crossesSurface(Eigen::Vector<float, n_dims> first_state, Eigen::Vector<float, n_dims> second_state) const override {
-		return insideRegion(first_state) != insideRegion(second_state);
-	};
-
-};
-
-//hitbox is then a child of region
-class MeshSurface : public Surface<3> {
-	std::vector<Eigen::Vector3f> verts_;
-	std::vector<std::pair<int, int>> edges_;
-
-	virtual bool crossesSurface(Eigen::Vector<float, 3> first_state, Eigen::Vector<float, 3> second_state) const override {
-		std::cerr << "not implemented to function as primary surface";
-		return true;
-	}
-	
-	struct edgeHasher {
-		size_t operator()(const std::pair<int, int>& p) const {
-			auto hash1 = std::hash<int>{}(p.first);
-			auto hash2 = std::hash<int>{}(p.second);
-
-			if (hash1 != hash2) {
-				return hash1 ^ hash2;
-			}
-
-			// If hash1 == hash2, their XOR is zero.
-			return hash1;
-		}
-	};
-
-public:
-	const std::vector<Eigen::Vector3f>& getVerts() const {
-		return verts_;
-	}
-	const std::vector<std::pair<int, int>>& getEdges() const{
-			return edges_;
-	}
-
-	explicit MeshSurface(const Model& model) {
-		for (int i = 0; i < model.vlen(); i++) {
-			verts_.emplace_back(model.getVerts()[3 * i],model.getVerts()[3 * i + 1],model.getVerts()[3 * i + 2]);
-		}
-		for (int i = 0; i < model.flen(); i++) {
-			std::unordered_set<std::pair<int, int>,edgeHasher> edges;
-			for (int first = 0; first < 3; first++) {
-				for (int second = 0; second < 3; second++) {
-					if (first == second) continue;
-					std::pair<int, int>e(model.getFaces()[3 * i+first], model.getFaces()[3 * i + second]);
-					if (!edges.contains(e)) {
-						edges.emplace(e);
-						edges_.push_back(e);
-					}
-				}
-			}
-		}
-	}
-
-	MeshSurface(std::string filename) : MeshSurface(Model(filename)) {
-
-	}
-};
-
-class Ellipse : public Region<3> {//technially generalizable into N dimensions but not useful for making games lol
-	const Eigen::Vector3f E_;
-	const Eigen::Vector3f E_inv_sq_;
-public:
-	bool insideRegion(Eigen::Vector<float, 3> state) const {
-		return state.array().pow<int>(2).matrix().transpose() * E_inv_sq_;
-	};
-
-};
-
-template<class A, class B>
-bool checkCollision(const A* PrimarySurf, const B* SecondarySurf, Eigen::Matrix4f PrimaryPosition, Eigen::Matrix4f SecondaryPosition) {
-	//static_assert(false, "Not A Function");
-	return true;
-};
-
-bool SurfaceNodeCollision(const Surface<3>* PrimarySurf, const MeshSurface* SecondarySurf, Eigen::Matrix4f SecondaryPosition) {
-	Eigen::Matrix3f R = SecondaryPosition(seq(0, 2), seq(0, 2));
-	Eigen::Vector3f p = SecondaryPosition(seq(0, 2), 3);
-	for (auto& e : SecondarySurf->getEdges()) {
-		//if (PrimarySurf->crossesSurface(R*SecondarySurf->getVerts()[e.first]+p, R*SecondarySurf->getVerts()[e.second]+p)) {
-		//should at least let the user choose is the mesh is irrotational?
-		if (PrimarySurf->crossesSurface(SecondarySurf->getVerts()[e.first] + p, SecondarySurf->getVerts()[e.second] + p)) {
-			return true;
-		}
-	}
-	return false;
-}
-
-template<>
-bool checkCollision<Surface<3>, MeshSurface>(const Surface<3>* PrimarySurf, const MeshSurface* SecondarySurf, const Eigen::Matrix4f PrimaryPosition,const Eigen::Matrix4f SecondaryPosition) {
-	return SurfaceNodeCollision(PrimarySurf, SecondarySurf, PrimaryPosition.inverse() * SecondaryPosition);
-}
-
-template<>
-bool checkCollision<Ellipse, Ellipse>(const Ellipse* PrimarySurf, const Ellipse* SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition) {
-	return true;
-}
 
 class BoundaryConstraint{
-
 
 	Eigen::Vector3f limitTranslate(Eigen::Matrix4f position, Eigen::Vector3f delta_pos, int n_iters = 5) const {
 		//Eigen::Vector3f delta_pos = first_guess - position;
@@ -197,40 +82,6 @@ public:
 //all motion constraint 
 
 
-
-template<class primary>
-concept PrimaryHitbox = std::derived_from<primary, Surface<3>>;
-
-
-template<class secondary, class primary>
-concept SecondaryHitbox = requires(const primary & first, const secondary & second, Eigen::Matrix4f G1, Eigen::Matrix4f G2) {
-	checkCollision<primary, secondary>(&first, &second, G1, G2);
-};
-
-template<PrimaryHitbox primary_type,SecondaryHitbox<primary_type> secondary_type>
-class NoCollideConstraint : public BoundaryConstraint {
-
-	const Eigen::Matrix4f* primary_position_;
-	const secondary_type& secondary_hitbox_;
-
-protected:
-	bool invalidPosition(Eigen::Matrix4f position) const override {
-		return checkCollision<Surface<3>,secondary_type>(getBoundary(), &secondary_hitbox_, *primary_position_, position);
-	}
-
-public:
-	
-	NoCollideConstraint(const secondary_type& secondary_hitbox) :
-		primary_position_(nullptr),
-		secondary_hitbox_(secondary_hitbox){
-	}
-	NoCollideConstraint(const primary_type* primary_hitbox,const Eigen::Matrix4f* primary_position, const secondary_type& secondary_hitbox) :
-		BoundaryConstraint(primary_hitbox),
-		primary_position_(primary_position),
-		secondary_hitbox_(secondary_hitbox){
-	}
-
-};
 
 class PositionConstraint {
 	//MotionConstraint* bounds_;

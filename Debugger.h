@@ -1,12 +1,13 @@
 #pragma once
 
-#include "GameObject.h"
-#include <GLFW/glfw3.h>
+#ifndef PUPPET_DEBUGGER
+#define PUPPET_DEBUGGER
+
 #include <stdio.h>
 #include <iostream>
 
-#ifndef PUPPET_DEBUGGER
-#define PUPPET_DEBUGGER
+#include "GameObject.h"
+#include <GLFW/glfw3.h>
 
 
 class Debugger : public InterfaceObject<GLFW_KEY_UP, GLFW_KEY_DOWN, GLFW_KEY_LEFT, GLFW_KEY_RIGHT> {

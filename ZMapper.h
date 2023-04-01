@@ -1,9 +1,11 @@
 ﻿#pragma once
 
-#define _USE_MATH_DEFINES
 
 #ifndef PUPPET_ZMAPPER
 #define PUPPET_ZMAPPER
+
+#define _USE_MATH_DEFINES
+
 #include <cmath>
 
 #include "Graphics.h"

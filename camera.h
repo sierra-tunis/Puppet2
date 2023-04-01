@@ -1,10 +1,11 @@
 #pragma once
-#include "InternalObject.h"
-#include "Graphics.h"
-
 
 #ifndef PUPPET_CAMERA
 #define PUPPET_CAMERA
+
+#include "InternalObject.h"
+#include "Graphics.h"
+
 
 using Eigen::Matrix4f;
 

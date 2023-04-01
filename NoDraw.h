@@ -1,8 +1,10 @@
 #pragma once
-#include "Graphics.h"
 
 #ifndef PUPPET_GRAPHICS_NODRAW
 #define PUPPET_GRAPHICS_NODRAW
+
+#include "Graphics.h"
+
 /*
 struct null_grobj: public GraphicsObject{
 	null_grobj(Eigen::Matrix4f pos) :GraphicsObject() {}

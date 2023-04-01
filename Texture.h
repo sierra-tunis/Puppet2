@@ -1,11 +1,12 @@
 #pragma once
+#ifndef PUPPET_TEXTURE
+#define PUPPET_TEXTURE
+
 #include <string>
 #include <vector>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
-#ifndef PUPPET_TEXTURE
-#define PUPPET_TEXTURE
 
 #define TEXTURE_PATH "C:\\Users\\Justin\\source\\repos\\Puppet2\\Puppet2\\assets\\"
 

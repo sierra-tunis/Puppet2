@@ -1,8 +1,13 @@
 #pragma once
+#ifndef PUPPET_GRAPHICSMODEL
+#define PUPPET_GRAPHICSMODEL
+
 #include <string>
 #include <vector>
 #include <fstream>
 #include <sstream>
+
+#include<Eigen/Dense>
 
 #define MODEL_PATH "C:\\Users\\Justin\\source\\repos\\Puppet2\\Puppet2\\assets\\"
 //this is conceptually the same as "mesh" may want to rename since a model can also be nurbs, but a mesh is always a mesh
@@ -58,6 +63,7 @@ private:
 	}
 
 public:
+
 	Model(std::string fname) {
 		std::string line;
 		std::string type;
@@ -158,3 +164,5 @@ public:
 
 
 };
+
+#endif

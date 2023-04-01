@@ -1,12 +1,15 @@
 #pragma once
-#include <Eigen\Dense>
-#include "Model.h"
-#include "Texture.h"
-#include "Hitbox.h"
-#include <glad/glad.h>
 
 #ifndef PUPPET_GRAPHICSOBJECT
 #define PUPPET_GRAPHICSOBJECT
+
+#include <Eigen\Dense>
+#include <glad/glad.h>
+
+#include "Model.h"
+#include "Texture.h"
+#include "Hitbox.h"
+
 
 /*template <class... Refs>
 struct Observer {
