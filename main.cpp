@@ -7,6 +7,7 @@
 #include "level.h"
 #include "player_camera.h"
 #include "debug_camera.h"
+#include "DebugGraphics.h"
 
 #include <GLFW/glfw3.h>
 
@@ -78,6 +79,7 @@ int main(void)
     //Camera camera((Eigen::Matrix4f() << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1).finished(), -1);
     camera.activateKeyInput(window);
     Default3d default3d(camera, .1, 100, 90);
+    HboxGraphics hbox_graphics(camera, .1, 100, 90);
 
     DebugCamera center(&room1,"obamna");
     room1.add(center);
@@ -86,7 +88,8 @@ int main(void)
    // default3d.add(room2);
    // default3d.add(room3);
 
-    default3d.add(center);
+    //default3d.add(center);
+    hbox_graphics.add(center);
     room1.initZmap(zmapper,6);
     //room2.initZmap(zmapper, 2);
     //room3.initZmap(zmapper, 2);
@@ -117,7 +120,6 @@ int main(void)
         room1.update();
 
         // Render here
-
         
         if (camera.getScreenshotFlag()) {
             default3d.startScreenshot(screenshot_width, screenshot_height);
@@ -125,7 +127,10 @@ int main(void)
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+
         default3d.drawAll();
+        hbox_graphics.drawAll();
+
 
         if (camera.getScreenshotFlag()) {
             default3d.finishScreenshot<uint8_t, GL_UNSIGNED_BYTE>(&screenshot_buffer,"screenshot.png");

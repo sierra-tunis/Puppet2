@@ -63,7 +63,7 @@ public:
 	void update(GLFWwindow* window) override {
 		InterfaceObject::update(window);
 		int current_room = current_level_->getZmap().getZdata(getPosition()(seq(0, 2), 3), 0.).first.room_id;
-		std::cout << "current room# " << current_room << "\n";
+		//std::cout << "current room# " << current_room << "\n";
 		if (current_room != 1) {
 			if (current_room == zdata::BaseRoom) {
 				//std::cerr << "fatal out of bounds error!";

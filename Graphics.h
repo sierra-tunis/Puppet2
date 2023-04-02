@@ -47,6 +47,7 @@ private:
 		glCompileShader(vertexShader);
 
 		check_compile_error(vertexShader);
+		std::cout << vertex_code;
 		return vertexShader;
 	}
 
@@ -55,6 +56,7 @@ private:
 		glShaderSource(fragmentShader, 1, &fragment_code, NULL);
 		glCompileShader(fragmentShader);
 		check_compile_error(fragmentShader);
+		std::cout << fragment_code;
 		return fragmentShader;
 	}
 
