@@ -3,6 +3,7 @@
 #define PUPPET_MATH_SURFACE
 
 #include <Eigen/dense>
+#include <iostream>
 
 using Eigen::seq;
 //boundaryConstraint -> cant cross specified boundary, motion is adjusted to stay within bounds
@@ -33,7 +34,7 @@ class MeshSurface : public Surface<3> {
 	std::vector<std::tuple<int, int, int>> faces_;
 
 	virtual bool crossesSurface(Eigen::Vector<float, 3> first_state, Eigen::Vector<float, 3> second_state) const override {
-		std::cerr << "not implemented to function as primary surface";
+		std::cout << "not implemented to function as primary surface";
 		return true;
 	}
 

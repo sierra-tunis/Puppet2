@@ -29,13 +29,15 @@ bool SurfaceNodeCollision(const Surface<3>* PrimarySurf, const MeshSurface* Seco
 	Eigen::Matrix3f R = SecondaryPosition(seq(0, 2), seq(0, 2));
 	Eigen::Vector3f p = SecondaryPosition(seq(0, 2), 3);
 	bool result = false;
+	int i = 0;
 	for (auto& e : SecondarySurf->getEdges()) {
 		//if (PrimarySurf->crossesSurface(R*SecondarySurf->getVerts()[e.first]+p, R*SecondarySurf->getVerts()[e.second]+p)) {
 		//should at least let the user choose is the mesh is irrotational?
-		collision_info->push_back(PrimarySurf->crossesSurface(SecondarySurf->getVerts()[e.first] + p, SecondarySurf->getVerts()[e.second] + p));
+		(*collision_info)[i] = (PrimarySurf->crossesSurface(SecondarySurf->getVerts()[e.first] + p, SecondarySurf->getVerts()[e.second] + p));
 		if (result == false && collision_info->back()==true) {
 			result = true;
 		}
+		i++;
 	}
 	return result;
 }

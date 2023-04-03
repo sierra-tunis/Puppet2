@@ -46,11 +46,13 @@ protected:
 	bool crossesSurface(Eigen::Vector<float, 3> first_state, Eigen::Vector<float, 3> second_state) const override {
 		Eigen::Vector3f move_xy = second_state;
 		move_xy(1) = first_state(1);
-		//Eigen::Vector3f move_z = first_state;
-		//move_z(1) = second_state(1);
-		if (getZdata(second_state,0).first.room_id == zdata::BaseRoom) {
+		Eigen::Vector3f move_z = first_state;
+		move_z(1) = second_state(1);
+		if (getZdata(second_state,0).first.room_id == zdata::BaseRoom || getZdata(first_state, 0).first.room_id == zdata::BaseRoom) {
 			return true;
 		} else if(getZdata(second_state, 0).first != getZdata(move_xy, 0).first){
+			return true;
+		} else if (getZdata(first_state, 0).first != getZdata(move_z, 0).first) {
 			return true;
 		}
 		return false;
@@ -89,7 +91,7 @@ public:
 				auto zdata_below = xy_column.begin();
 				auto zdata_above = zdata_below + 1;
 				while (zdata_above != xy_column.end()) {
-					if (zdata_above->z > position(1) + step_height) {
+					if (zdata_above->z > position(1) + step_height && zdata_below->z < position(1) + step_height) {
 						return std::pair<zdata, zdata>(*zdata_below, *zdata_above); //this can be improved for performance
 					}
 					//zdata_below = zdata_above;

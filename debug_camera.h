@@ -8,6 +8,7 @@
 #include "GameObject.h"
 #include "GLFW/glfw3.h"
 #include "level.h"
+#include "collision.hpp"
 #include "no_collide_constraint.hpp"
 
 using Eigen::seq;
@@ -19,6 +20,7 @@ class DebugCamera : public InterfaceObject<GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, G
 	bool freefall;
 	MeshSurface hitbox_;
 	NoCollideConstraint<Zmap, MeshSurface> level_bounds_;
+	std::vector<bool> collision_info;
 	//BoundaryConstraint level_bounds_;
 
 
@@ -46,12 +48,14 @@ class DebugCamera : public InterfaceObject<GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, G
 		}
 	}
 
+
 public:
 	DebugCamera(Level* starting_level, std::string name):
 	InterfaceObject(name),
 	current_level_(starting_level),
 	hitbox_("cube.obj"),
-	level_bounds_(&current_level_->getZmap(), &current_level_->getPosition(),hitbox_)
+	level_bounds_(&current_level_->getZmap(), &current_level_->getPosition(),hitbox_),
+	collision_info(hitbox_.getEdges().size())
 	//level_bounds_(&current_level_->getZmap())
 	{
 		setModel(new Model("cube.obj"));
@@ -61,9 +65,10 @@ public:
 	}
 
 	void update(GLFWwindow* window) override {
+		SurfaceNodeCollision(&current_level_->getZmap(), &hitbox_, getPosition(), &collision_info);
 		InterfaceObject::update(window);
 		int current_room = current_level_->getZmap().getZdata(getPosition()(seq(0, 2), 3), 0.).first.room_id;
-		//std::cout << "current room# " << current_room << "\n";
+		std::cout << "current room# " << current_room << "\n";
 		if (current_room != 1) {
 			if (current_room == zdata::BaseRoom) {
 				//std::cerr << "fatal out of bounds error!";
@@ -73,6 +78,7 @@ public:
 				current_level_ = current_level_->getNeighbors()[current_room - 2];
 			}
 		}
+
 		/*if (isInFreefall()) {
 			getVelocity() += getAcceleration() * getdt();
 			boundedTranslate(getVelocity() * getdt(),*floor_,.1);
@@ -99,6 +105,10 @@ public:
 
 	const MeshSurface& getHitbox() const {
 		return hitbox_;
+	}
+
+	const std::vector<bool>& getCollisionInfo() const {
+		return collision_info;
 	}
 
 };

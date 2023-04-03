@@ -231,25 +231,27 @@ private:
 
 		std::vector<float>* vert_colors = new std::vector<float>(3 * n_verts);
 		vert_colors->reserve(3 * n_verts);
+		for (int i = 0; i < vert_colors->size(); i++) {
+			(*vert_colors)[i] = 0.;
+		}
 
 		//size_t n_verts = obj.getHitbox().getVerts().size();
 		
 
-		std::vector<unsigned int> mesh_faces;
-		int n_faces = mesh.getFaces().size();
-		for (int i = 0; i < n_faces; i++) {
-			const std::tuple<int, int, int>& face = mesh.getFaces()[i];
-			mesh_faces.push_back(static_cast<unsigned int>(std::get<0>(face)));
-			mesh_faces.push_back(static_cast<unsigned int>(std::get<1>(face)));
-			mesh_faces.push_back(static_cast<unsigned int>(std::get<2>(face)));
+		std::vector<unsigned int> mesh_edges;
+		int n_edges = mesh.getEdges().size();
+		for (int i = 0; i < n_edges; i++) {
+			const std::pair<int, int>& edge = mesh.getEdges()[i];
+			mesh_edges.push_back(static_cast<unsigned int>(std::get<0>(edge)));
+			mesh_edges.push_back(static_cast<unsigned int>(std::get<1>(edge)));
 		}
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);//have to change this to face length not vertex len
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_faces * 3, mesh_faces.data(), GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * n_edges * 2, mesh_edges.data(), GL_STATIC_DRAW);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 
-		return Cache{ VAO, VBO[1], n_faces,vert_colors };
+		return Cache{ VAO, VBO[1], n_edges,vert_colors };
 	}
 
 	virtual void deleteDataCache(Cache cache) const override {
@@ -267,16 +269,25 @@ public:
 		glUniformMatrix4fv(model_location_, 1, GL_FALSE, obj.getPosition().data());
 
 		int n_verts = obj.getHitbox().getVerts().size();
-		for (size_t i = 0; i < n_verts * 3; i++) {
-			(*getVertColors(cache))[i] += 0.3/static_cast<float>(n_verts)*static_cast<float>(i)*obj.getdt();
-			(*getVertColors(cache))[i] = fmod((*getVertColors(cache))[i], 1.);
+		int n_edges = obj.getHitbox().getEdges().size();
+		for (size_t i = 0; i < n_edges; i++) {
+			//(*getVertColors(cache))[3*i+j] += 0.3/static_cast<float>(n_verts)*static_cast<float>(i)*obj.getdt();
+			//(*getVertColors(cache))[3*i+j] = fmod((*getVertColors(cache))[i], 1.);
+			std::pair<int, int> edge = obj.getHitbox().getEdges()[i];
+			if (obj.getCollisionInfo()[i]) {
+				(*getVertColors(cache))[3 * std::get<0>(edge)] = 1.;
+				(*getVertColors(cache))[3 * std::get<1>(edge)] = 1.;
+			} else {
+				(*getVertColors(cache))[3 * std::get<0>(edge)] = 0.;
+				(*getVertColors(cache))[3 * std::get<1>(edge)] = 0.;
+			}
 		}
 		glBindBuffer(GL_ARRAY_BUFFER, getColorVBO(cache));
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * n_verts * 3, getVertColors(cache)->data(), GL_DYNAMIC_DRAW);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(1);
 
-		glDrawElements(GL_LINE_LOOP, 3 * getNElems(cache), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_LINES, 2 * getNElems(cache), GL_UNSIGNED_INT, 0);
 		//for (auto const& o : obj.getChildren()) {
 		//	draw(*o);
 		//}
