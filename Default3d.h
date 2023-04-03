@@ -20,12 +20,8 @@ private:
 	const unsigned int camera_location_;
 	const unsigned int model_location_;
 
-	const InternalObject& camera_;
-	//all this should be moved to camera
-	float fov_;
-	float near_clip_;
-	float far_clip_;
-	Matrix4f perspective_;
+	const Camera& camera_;
+
 
 	constexpr int& getVAO(Cache cache) const {
 		return std::get<0>(cache);
@@ -117,8 +113,8 @@ public:
 		glEnable(GL_DEPTH_TEST);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-		glUniformMatrix4fv(perspective_location_, 1, GL_FALSE, perspective_.data());
-		glUniformMatrix4fv(camera_location_, 1, GL_FALSE, Matrix4f(camera_.getPosition().inverse()).data());
+		glUniformMatrix4fv(perspective_location_, 1, GL_FALSE, camera_.getPerspective().data());
+		glUniformMatrix4fv(camera_location_, 1, GL_FALSE, camera_.getCameraMatrix().data());
 		//default3d specific code
 	}
 
@@ -127,20 +123,12 @@ public:
 		//default3d specific code
 	}
 
-	Default3d(const Camera& camera,float near_clip,float far_clip, float fov):
+	Default3d(const Camera& camera):
 		model_location_(glGetUniformLocation(gl_id, "model")),
 		camera_location_(glGetUniformLocation(gl_id, "camera")),
 		perspective_location_(glGetUniformLocation(gl_id, "perspective")),
-		camera_(camera),
-		near_clip_(near_clip),
-		far_clip_(far_clip),
-		fov_(fov){
+		camera_(camera){
 
-		float S = 1./(tan(fov_/2.*M_PI/180.));
-		perspective_ << S,0,0,0,
-						0,S,0,0,
-						0,0,-(far_clip_)/(far_clip_-near_clip_),-2*far_clip_ * near_clip_ / (far_clip_ - near_clip_),
-						0,0,-1.,0;
 		//perspective_ << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1;
 	}
 

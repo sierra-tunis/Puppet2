@@ -39,8 +39,8 @@ private:
 
 
 public:
-	PlayerCamera(float equilibrium_length,const Zmap* bounds, GLFWwindow* window, std::string name) :
-		Camera("PlayerCamera"),
+	PlayerCamera(float near_clip, float far_clip, float fov,float equilibrium_length,const Zmap* bounds, GLFWwindow* window, std::string name) :
+		Camera(near_clip,far_clip,fov,"PlayerCamera"),
 		equilibrium_length_(equilibrium_length),
 		pan_(RotationJoint(Eigen::Vector3f(0, 1, 0))),
 		tilt_(RotationJoint(Eigen::Vector3f(1, 0, 0))),

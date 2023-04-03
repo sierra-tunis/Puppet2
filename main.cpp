@@ -75,10 +75,10 @@ int main(void)
     //room2.addNeighbor(&room1);
     //room3.addNeighbor(&room1);
 
-    PlayerCamera camera(1.0,&room1.getZmap(),window,"player1cam");
+    PlayerCamera camera(.1, 100, 90, 1.0,&room1.getZmap(),window,"player1cam");
     //Camera camera((Eigen::Matrix4f() << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1).finished(), -1);
     camera.activateKeyInput(window);
-    Default3d default3d(camera, .1, 100, 90);
+    Default3d default3d(camera);
     HboxGraphics hbox_graphics(camera, .1, 100, 90);
 
     DebugCamera center(&room1,"obamna");
@@ -88,7 +88,7 @@ int main(void)
    // default3d.add(room2);
    // default3d.add(room3);
 
-    //default3d.add(center);
+    default3d.add(center);
     hbox_graphics.add(center);
     room1.initZmap(zmapper,6);
     //room2.initZmap(zmapper, 2);
