@@ -169,12 +169,12 @@ public:
 		//probably not correct kinematics lol
 	}
 
-	void setState(Eigen::Vector<float,n_dofs> new_state) {
+	virtual void setState(Eigen::Vector<float,n_dofs> new_state) {
 		state_ = new_state;
 		connector_transform_ = computeConnectorTransform(new_state);
 	}
 
-	const Eigen::Vector<float, n_dofs>& getState() const {
+	virtual const Eigen::Vector<float, n_dofs>& getState() const {
 		return state_;
 	}
 
@@ -369,6 +369,17 @@ protected:
 public:
 	ConnectorChain(constraint& constraint0,constraints&... constraint1_end) : ConnectorConstraint< ConnectorChain::getDoF()>(), connectors_(constraint0, constraint1_end...) {
 		
+	}
+	
+	virtual void setState(Eigen::Vector<float,n_dofs> new_state) {
+		//set child states using template magic
+		connector_transform_ = computeConnectorTransform(new_state);
+	}
+
+	virtual const Eigen::Vector<float, n_dofs>& getState() const {
+		Eigen::Vector<float,n_dofs> state;
+		//read from children using template magic
+		return state;
 	}
 	/*
 	ConnectorChain(const Eigen::Matrix4f* root_transform,constraint& constraint0, constraints&... constraint1_end) :
