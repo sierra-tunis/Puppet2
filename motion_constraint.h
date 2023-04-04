@@ -102,6 +102,9 @@ public:
 template<class T>
 concept Connector = std::derived_from<T, PositionConstraint> && requires{
 	T::getDoF();
+} && requires(const T& getter, T& setter, Eigen::Vector<float, T::getDoF()> state_vec) {
+	getter.getState();
+	setter.setState(state_vec);
 };
 
 template<int n_dofs>
@@ -174,7 +177,7 @@ public:
 		connector_transform_ = computeConnectorTransform(new_state);
 	}
 
-	virtual const Eigen::Vector<float, n_dofs>& getState() const {
+	virtual Eigen::Vector<float, n_dofs> getState() const {
 		return state_;
 	}
 
@@ -354,15 +357,15 @@ protected:
 	}
 	template<Connector constraint_>
 	Eigen::Matrix4f computeChainTransform(Eigen::Vector<float, constraint_::getDoF()> state_vec) const {
-		constraint_ conn = std::get< sizeof...(constraints)>(connectors_); //get last connector
-		Eigen::Matrix4f pop_last = conn.computeConnectorTransform(state_vec);
+		constraint_& conn = std::get< sizeof...(constraints)>(connectors_); //get last connector
+		const Eigen::Matrix4f& pop_last = conn.computeConnectorTransform(state_vec);
 		return pop_last;
 	}
 	template<Connector constraint_,Connector constraint2_,Connector...constraints_>
 	Eigen::Matrix4f computeChainTransform(Eigen::Vector<float, sumDoF<constraint_,constraint2_,constraints_...>()> state_vec) const {
 		Eigen::Vector<float, constraint_::getDoF()> next_input = state_vec(seq(0, constraint_::getDoF() - 1));
-		constraint_ pop_conn = std::get<sizeof...(constraints) - sizeof...(constraints_) - 1>(connectors_);
-		Eigen::Matrix4f pop_front = pop_conn.computeConnectorTransform(next_input);
+		constraint_& pop_conn = std::get<sizeof...(constraints) - sizeof...(constraints_) - 1>(connectors_);
+		const Eigen::Matrix4f& pop_front = pop_conn.computeConnectorTransform(next_input);
 		return pop_front * computeChainTransform<constraint2_,constraints_...>(state_vec(seq(constraint_::getDoF(), Eigen::last)));
 	}
 
@@ -370,14 +373,40 @@ public:
 	ConnectorChain(constraint& constraint0,constraints&... constraint1_end) : ConnectorConstraint< ConnectorChain::getDoF()>(), connectors_(constraint0, constraint1_end...) {
 		
 	}
-	
-	virtual void setState(Eigen::Vector<float,n_dofs> new_state) {
-		//set child states using template magic
-		connector_transform_ = computeConnectorTransform(new_state);
+	template<Connector constraint_>
+	void setSubstate(Eigen::Vector<float, constraint_::getDoF()> state_vec) const {
+		constraint_& conn = std::get< sizeof...(constraints)>(connectors_); //get last connector
+		conn.setState(state_vec);
+	}
+	template<Connector constraint_, Connector constraint2_, Connector...constraints_>
+	void setSubstate(Eigen::Vector<float, sumDoF<constraint_, constraint2_, constraints_...>()> state_vec) {
+		//Eigen::Vector<float, constraint_::getDoF()>& substate = state_vec(seq(0, constraint_::getDoF() - 1));
+		constraint_& pop_conn = std::get<sizeof...(constraints) - sizeof...(constraints_) - 1>(connectors_);
+		pop_conn.setState(state_vec(seq(0, constraint_::getDoF() - 1)));
+		setSubstate<constraint2_, constraints_...>(state_vec(seq(constraint_::getDoF(), Eigen::last)));
 	}
 
-	virtual const Eigen::Vector<float, n_dofs>& getState() const {
-		Eigen::Vector<float,n_dofs> state;
+	virtual void setState(Eigen::Vector<float,ConnectorChain::getDoF()> new_state) {
+		//set child states using template magic
+		setSubstate<constraint, constraints...>(new_state); //this can likely be sped up by combining these two calls
+		ConnectorConstraint<ConnectorChain::getDoF()>::setState(new_state);
+		//connector_transform_ = computeConnectorTransform(new_state);
+	}
+	template<int start_index,Connector constraint_>
+	void writeSubstate(Eigen::Vector<float, ConnectorChain::getDoF()>& state_vec) const {
+		constraint_& conn = std::get< sizeof...(constraints)>(connectors_); //get last connector
+		state_vec(seq(start_index,Eigen::last)) = conn.getState();
+	}
+	template<int start_index, Connector constraint_, Connector constraint2_, Connector...constraints_>
+	void writeSubstate(Eigen::Vector<float, ConnectorChain::getDoF()>& state_vec) const {
+		constraint_& pop_conn = std::get<sizeof...(constraints) - sizeof...(constraints_) - 1>(connectors_);
+		state_vec(seq(start_index, start_index + constraint_::getDoF() - 1)) = pop_conn.getState();
+		writeSubstate<start_index + constraint_::getDoF(),constraint2_, constraints_...>(state_vec);
+	}
+
+	virtual Eigen::Vector<float, ConnectorChain::getDoF()> getState() const override {
+		Eigen::Vector<float,ConnectorChain::getDoF()> state;
+		writeSubstate<0,constraint, constraints...>(state);
 		//read from children using template magic
 		return state;
 	}

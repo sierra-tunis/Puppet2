@@ -110,5 +110,8 @@
     <ClInclude Include="surface.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="physics.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
