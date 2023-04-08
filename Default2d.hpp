@@ -69,7 +69,7 @@ class Default2d : public Graphics<GameObject, int, int> {
 	}
 
 public:
-	Default2d() : position_location_(glGetUniformLocation(gl_id, "position")) {}
+	Default2d() : position_location_(glGetUniformLocation(gl_id, "position_matrix")) {}
 
 	void beginDraw() const override {
 		Graphics::beginDraw();
@@ -85,7 +85,7 @@ public:
 
 
 
-		//glUniformMatrix4fv(position_location_, 1, GL_FALSE, obj.getPosition().data());
+		glUniformMatrix4fv(position_location_, 1, GL_FALSE, obj.getPosition().data());
 		glBindVertexArray(getVAO(cache));
 		glDrawArrays(GL_TRIANGLE_STRIP, 0,4);
 		//for (auto const& o : obj.getChildren()) {
@@ -97,7 +97,7 @@ public:
 const char* Default2d::vertex_code = "\n"
 "#version 330 core\n"
 "layout (location = 0) in vec3 pos;\n"
-"layout (location = 1) in vec2 vtx;\n"
+"layout (location = 1) in vec2 vt;\n"
 
 
 "uniform mat4 position_matrix;\n"
@@ -106,7 +106,7 @@ const char* Default2d::vertex_code = "\n"
 
 "void main()\n"
 "{\n"
-"   gl_Position = vec4(pos.x, pos.y, 0, 1.0);\n"
+"   gl_Position = position_matrix * vec4(pos.x, pos.y, 0, 1.0);\n"
 "	texCoord = vt;\n"
 "}\0";
 const char* Default2d::fragment_code = "#version 330 core\n"
@@ -117,6 +117,6 @@ const char* Default2d::fragment_code = "#version 330 core\n"
 
 "void main()\n"
 "{\n"
-//"	FragColor = texture(tex,texCoord);\n"
-"	FragColor = vec4(0.,0.,0.,1.);\n"
+"	FragColor = texture(tex,texCoord);\n"
+//"	FragColor = vec4(0.,0.,0.,1.);\n"
 " } ";

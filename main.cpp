@@ -92,9 +92,10 @@ int main(void)
     //default3d.add(room2);
     //default3d.add(room3);
 
-    Button test(.5, .5, 0, 0, "test_button");
-    test.activateMouseInput(window);
-    default2d.add(test);
+    Button test_button(.5, .5, 0, 0, "test_button");
+    test_button.activateMouseInput(window);
+    test_button.moveTo(.5, .5, 0);
+    default2d.add(test_button);
 
     default3d.add(center);
     hbox_graphics.add(center);

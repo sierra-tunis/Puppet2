@@ -16,7 +16,7 @@ private:
 		return std::vector<float>{0.,0.,-1.,0,0,-1,0,0,-1,0,0,-1};
 	}
 	constexpr static std::vector<float> RectTex() {
-		return std::vector<float>{1, 1, 0, 1, 0, 0, 1, 0};
+		return std::vector<float>{0, 0, 1, 0, 0, 1, 1, 1};
 	}
 	constexpr static std::vector<unsigned int> RectFace() {
 		return std::vector<unsigned int>{0,1,2,3};
@@ -64,6 +64,7 @@ public:
 		button_model_(height_,width_){
 
 		setModel(&button_model_);
+		setTexture(new Texture("rocky.jpg"));
 	}
 
 };
