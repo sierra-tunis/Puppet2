@@ -67,9 +67,10 @@ int main(void)
 
     //Debugger right((Eigen::Matrix4f()<<1, 0, 0, .5, 0, 1, 0, 0, 0, 0, 1, .5, 0, 0, 0, 1).finished(), 2, default3d);
     ZMapper zmapper;
-    Level room1(layout,window,new Model("spiral_staircase_cult_exit.obj"),new Texture("rocky.jpg"),"spiral staircase");
-    //Level room2(layout, window, Model("cult_exit_landing.obj"), Texture("rocky.jpg"), "spiral staircase");
-    //Level room3(layout, window, Model("cult_exit_hallway.obj"), Texture("rocky.jpg"), "spiral staircase");
+    Texture rocky_texture("rocky.jpg");
+    Level room1(layout,window,new Model("spiral_staircase_cult_exit.obj"),&rocky_texture ,"spiral staircase");
+    //Level room2(layout, window, new Model("cult_exit_landing.obj"), &rocky_texture, "cult_exit_landing");
+    //Level room3(layout, window, new Model("cult_exit_hallway.obj"), &rocky_texture, "cult_exit_hallway");
     //room1.addNeighbor(&room2);
     //room1.addNeighbor(&room3);
     //room2.addNeighbor(&room1);
@@ -85,8 +86,8 @@ int main(void)
     room1.add(center);
     room1.add(camera); //shouldnt be part of the layout
     default3d.add(room1);
-   // default3d.add(room2);
-   // default3d.add(room3);
+    //default3d.add(room2);
+    //default3d.add(room3);
 
     default3d.add(center);
     hbox_graphics.add(center);
@@ -96,10 +97,7 @@ int main(void)
 
     glfwSetWindowSize(window, 1600, 1200);
 
-    //hboxGraphics.add(0,left.getHboxDbgGrobj());
-    //hboxGraphics.add(1, right.getHboxDbgGrobj());
     camera.setPlayer(&center);
-    //left.addCollidor(right);
 
     //need to add objects to the shaders manually
 

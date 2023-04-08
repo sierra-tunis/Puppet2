@@ -1,0 +1,8 @@
+
+Descender.h
+*.obj
+*.ilk
+*.log
+*.idb
+*.pdb
+*.tlog
