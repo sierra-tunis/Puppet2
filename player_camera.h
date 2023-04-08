@@ -24,16 +24,40 @@ private:
 	PlayerType* player_;
 	BoundaryConstraint level_bounds_;
 
-	void onMouseMove(float x, float y, float dx, float dy){
+	GLFWwindow* window_;
+
+	void onMouseMove(float x, float y, float dx, float dy) override {
 		std::cout << "(" << dx << ", " << dy << ")\n";
 	}
 
+	void onMouseDown(int key, float x, float y) override {
+		if (abs(x) <= 1 && abs(y) <= 1) {
+			glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+			if (glfwRawMouseMotionSupported()) {
+				glfwSetInputMode(window_, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+			}
+		}
+	}
+
+	void onKeyPress(int key) {
+		if (key == GLFW_KEY_ESCAPE) {
+			glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+			if (glfwRawMouseMotionSupported()) {
+				glfwSetInputMode(window_, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
+			}
+		}
+	}
+
 	void enableMouseControl(GLFWwindow* window) {
+		window_ = window;
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 		if (glfwRawMouseMotionSupported()) {
 			glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 		}
+		activateKeyInput(window);
 		activateMouseInput(window);
 	}
 

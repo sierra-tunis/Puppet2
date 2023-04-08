@@ -14,29 +14,29 @@
 class Model {
 private:
 	//std::unordered_map<std::vector<float>,std::string> vertex_data;
-	std::vector<float> verts;
-	std::vector<float> norms;
-	std::vector<float> tex_coords;
-	std::vector<unsigned int> faces;
-	std::vector<unsigned int> face_norms;
-	std::vector<unsigned int> face_tex;
+	std::vector<float> verts_;
+	std::vector<float> norms_;
+	std::vector<float> tex_coords_;
+	std::vector<unsigned int> faces_;
+	std::vector<unsigned int> face_norms_;
+	std::vector<unsigned int> face_tex_;
 
 	Eigen::Vector3f bounding_box_;
 	Eigen::Vector3f box_center_;
 
-	size_t n_verts;
-	size_t n_faces;
-	const std::string fname;
+	size_t n_verts_;
+	size_t n_faces_;
+	const std::string fname_;
 
 	bool loaded;
 
 	void reassign_vtx() {
-		std::vector<float> tex_temp(tex_coords);
-		tex_coords = std::vector<float>(n_verts*2);
-		for (size_t i = 0; i < faces.size(); i++) {
-			tex_coords[2*faces[i]] = tex_temp[2*face_norms[i]];
+		std::vector<float> tex_temp(tex_coords_);
+		tex_coords_ = std::vector<float>(n_verts_*2);
+		for (size_t i = 0; i < faces_.size(); i++) {
+			tex_coords_[2*faces_[i]] = tex_temp[2*face_norms_[i]];
 			//if crash here then the blender model is not in smooth vertex mode
-			tex_coords[2*faces[i]+1] = tex_temp[2 * face_norms[i]+1];
+			tex_coords_[2*faces_[i]+1] = tex_temp[2 * face_norms_[i]+1];
 
 		}
 		return;
@@ -47,12 +47,12 @@ private:
 		std::array<float, 3> max = { -INFINITY,-INFINITY,-INFINITY };
 		for (int i = 0; i < 3*this->vlen(); i += 3) {
 			for (int j = 0; j < 3; j++) {
-				float v = verts[i + j];
-				if (verts[i + j] < min[j]) {
-					min[j] = verts[i + j];
+				float v = verts_[i + j];
+				if (verts_[i + j] < min[j]) {
+					min[j] = verts_[i + j];
 				}
-				if (verts[i + j] > max[j]) {
-					max[j] = verts[i + j];
+				if (verts_[i + j] > max[j]) {
+					max[j] = verts_[i + j];
 				}
 			}
 		}
@@ -60,6 +60,19 @@ private:
 		box_center_ << (max[0] + min[0])/2, (max[1] + min[1])/2, (max[2] + min[2])/2;
 
 
+	}
+
+protected:
+	Model(std::vector<float> verts, std::vector<float> norms, std::vector<float> tex_coords, std::vector<unsigned int> faces, std::vector<unsigned int> face_norms, std::vector<unsigned int> face_tex):
+	verts_(verts),
+	norms_(norms),
+	tex_coords_(tex_coords),
+	faces_(faces),
+	face_norms_(face_norms),
+	face_tex_(face_tex),
+	fname_("") {
+		//reassign_vtx();
+		calculateBoundingBox();
 	}
 
 public:
@@ -77,11 +90,11 @@ public:
 			std::getline(ss, type, ' ');
 			if (line[0] == 'v') {
 				if (type == "v") {
-					dest = &verts;
+					dest = &verts_;
 				} else if (type == "vn") {
-					dest = &norms;
+					dest = &norms_;
 				} else if (type == "vt") {
-					dest = &tex_coords;
+					dest = &tex_coords_;
 				} else return;
 				while (std::getline(ss, value, ' ')) {
 					dest->push_back(std::stof(value));
@@ -91,17 +104,17 @@ public:
 				while (std::getline(ss, entries, ' ')) {
 					std::stringstream sub_ss(entries);
 					std::getline(sub_ss, value, '\/');
-					faces.push_back(std::stof(value)-1);
+					faces_.push_back(std::stof(value)-1);
 					std::getline(sub_ss, value, '\/');
-					face_tex.push_back(std::stof(value)-1);
+					face_tex_.push_back(std::stof(value)-1);
 					std::getline(sub_ss, value, '\/');
-					face_norms.push_back(std::stof(value)-1);
+					face_norms_.push_back(std::stof(value)-1);
 				}
 			}
 		}
 		objFile.close();
-		n_verts = verts.size()/3;
-		n_faces = faces.size()/3;
+		n_verts_ = verts_.size()/3;
+		n_faces_ = faces_.size()/3;
 
 		reassign_vtx();
 		calculateBoundingBox();
@@ -122,27 +135,27 @@ public:
 	}	
 
 	const std::vector<float> getVerts() const {
-		return verts;
+		return verts_;
 	}
 
 	const std::vector<float> getNorms() const {
-		return norms;
+		return norms_;
 	}
 
 	const std::vector<unsigned int> getFaces() const {
-		return faces;
+		return faces_;
 	}
 
 	const std::vector<float> getTexCoords() const {
-		return tex_coords;
+		return tex_coords_;
 	}
 
 	constexpr size_t vlen() const {
-		return n_verts;
+		return n_verts_;
 	}
 
 	constexpr size_t flen() const {
-		return n_faces;
+		return n_faces_;
 	}
 
 	const Eigen::Vector3f& getBoundingBox() const {
@@ -156,7 +169,7 @@ public:
 	void centerVerts() {
 		for (int i = 0; i < 3*vlen(); i+=3) {
 			for (int j = 0; j < 3; j++) {
-				verts[i + j] -= box_center_(j);
+				verts_[i + j] -= box_center_(j);
 			}
 		}
 		box_center_ << 0, 0, 0;

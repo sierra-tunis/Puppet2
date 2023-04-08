@@ -8,6 +8,8 @@
 #include "player_camera.h"
 #include "debug_camera.h"
 #include "DebugGraphics.h"
+#include "UI.h"
+#include "Default2d.hpp"
 
 #include <GLFW/glfw3.h>
 
@@ -80,6 +82,7 @@ int main(void)
     //Camera camera((Eigen::Matrix4f() << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1).finished(), -1);
     camera.activateKeyInput(window);
     Default3d default3d(camera);
+    Default2d default2d;
     HboxGraphics hbox_graphics(camera, .1, 100, 90);
 
     DebugCamera center(&room1,"obamna");
@@ -88,6 +91,10 @@ int main(void)
     default3d.add(room1);
     //default3d.add(room2);
     //default3d.add(room3);
+
+    Button test(.5, .5, 0, 0, "test_button");
+    test.activateMouseInput(window);
+    default2d.add(test);
 
     default3d.add(center);
     hbox_graphics.add(center);
@@ -128,7 +135,7 @@ int main(void)
 
         default3d.drawAll();
         hbox_graphics.drawAll();
-
+        default2d.drawAll();
 
         if (camera.getScreenshotFlag()) {
             default3d.finishScreenshot<uint8_t, GL_UNSIGNED_BYTE>(&screenshot_buffer,"screenshot.png");

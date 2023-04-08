@@ -81,6 +81,27 @@ private:
 		input_members->mouse_xpos_last_ = xpos;
 		input_members->mouse_ypos_last_ = ypos;
 	}
+	static void mousebuttonCallback(GLFWwindow* window, int button, int action, int mod) {
+		//InternalObject* input_callback_ = static_cast<InternalObject*>(glfwGetWindowUserPointer(window));
+		callbackInput* input_members = static_cast<callbackInput*>(glfwGetWindowUserPointer(window));
+		std::pair<float, float> cursor_pos;
+		switch (action) {
+		case GLFW_PRESS:
+			cursor_pos = getCursorPosition(window);
+			for (InternalObject* obj : input_members->mouse_) {
+				obj->onMouseDown(button,cursor_pos.first,cursor_pos.second);
+			}
+			break;
+		case GLFW_RELEASE:
+			cursor_pos = getCursorPosition(window);
+			for (InternalObject* obj : input_members->mouse_) {
+				obj->onMouseUp(button, cursor_pos.first, cursor_pos.second);
+			}
+			break;
+		case GLFW_REPEAT:
+			break;
+		}
+	}
 
 public://needs to be changed later, only did this for debugging xzmapper
 	void updatePosition() { 
@@ -115,6 +136,9 @@ protected:
 
 	inline virtual void onMouseMove(float x, float y, float dx, float dy) {}; //triggers repeatedly
 
+	inline virtual void onMouseDown(int key, float x, float y) {};
+	
+	inline virtual void onMouseUp(int key, float x, float y) {};
 
 	inline virtual void onCreation() {};
 
@@ -218,8 +242,15 @@ public:
 		glfwSetWindowUserPointer(window, &input_members_);
 		input_members_.mouse_xpos_last_ = x;
 		input_members_.mouse_ypos_last_ = y;
+
+		glfwSetMouseButtonCallback(window, InternalObject::mousebuttonCallback);
 	}
 
+	static std::pair<float, float> getCursorPosition(GLFWwindow* window) {
+		int window_width, window_height;
+		glfwGetWindowSize(window, &window_width, &window_height);
+		return std::pair<float, float>{input_members_.mouse_xpos_last_/window_width*2.-1., input_members_.mouse_ypos_last_/window_height*2.-1.};
+	}
 
 
 	//virtual InternalObject(std::string filename) = 0;
