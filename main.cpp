@@ -10,6 +10,7 @@
 #include "DebugGraphics.h"
 #include "UI.h"
 #include "Default2d.hpp"
+#include "debug_menu.h"
 
 #include <GLFW/glfw3.h>
 
@@ -92,9 +93,12 @@ int main(void)
     //default3d.add(room2);
     //default3d.add(room3);
 
-    Button test_button(.5, .5, 0, 0, "test_button");
+    Button test_button(.5, .5, "test_button");
     test_button.activateMouseInput(window);
     test_button.moveTo(.5, .5, 0);
+    DebugMenu debugMenu;
+    debugMenu.activateKeyInput(window);
+    debugMenu.addButton(&test_button);
     default2d.add(test_button);
 
     default3d.add(center);

@@ -38,15 +38,23 @@ public:
 class Button : public GameObject{
 
 	const float height_, width_;
-	float x_, y_; //center coord
+//	float x_, y_; //center coord
 	Rect2d button_model_;
 
 	void (*callback_func_)();
 
+	float getX() const {
+		return getPosition()(0, 3);
+	}
+
+	float getY() const {
+		return getPosition()(1, 3);
+	}
 
 	void onMouseDown(int key,float x, float y) override {
-		if (x > x_ - width_ / 2 && x < x_ + width_ / 2
-			&& y > y_ - height_ / 2 && y < y_ + height_ / 2) {
+		if (!isHidden() &&
+			x > getX() - width_ / 2 && x < getX() + width_ / 2
+			&& y > getY() - height_ / 2 && y < getY() + height_ / 2) {
 			if (callback_func_ != nullptr){
 				callback_func_();
 			}
@@ -55,12 +63,10 @@ class Button : public GameObject{
 	}
 
 public:
-	Button(float height, float width, float x_center, float y_center, std::string name) : 
+	Button(float height, float width, std::string name) : 
 		GameObject(name),
 		height_(height),
 		width_(width),
-		x_(x_center),
-		y_(y_center),
 		button_model_(height_,width_){
 
 		setModel(&button_model_);

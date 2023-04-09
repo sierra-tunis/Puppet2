@@ -117,7 +117,7 @@ public:
 	void drawAll() const {
 		beginDraw();
 		for (const auto& obj : draw_targets_) {
-			this->drawObj(*(obj.second),cached_data_[obj.first]);
+			this->drawObj(*(obj.second), cached_data_[obj.first]);
 		}
 		endDraw();
 	}

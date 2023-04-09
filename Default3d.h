@@ -95,14 +95,16 @@ private:
 public:
 
 	void drawObj(const GameObject& obj, Cache cache) const override {
-		glBindTexture(GL_TEXTURE_2D, getTexID(cache));
-		glBindVertexArray(getVAO(cache));
-		//should remove inverse here
-	
+		if (!obj.isHidden()) {
+			glBindTexture(GL_TEXTURE_2D, getTexID(cache));
+			glBindVertexArray(getVAO(cache));
+			//should remove inverse here
 
 
-		glUniformMatrix4fv(model_location_, 1, GL_FALSE, obj.getPosition().data());
-		glDrawElements(GL_TRIANGLES, 3*getNElems(cache), GL_UNSIGNED_INT, 0);
+
+			glUniformMatrix4fv(model_location_, 1, GL_FALSE, obj.getPosition().data());
+			glDrawElements(GL_TRIANGLES, 3 * getNElems(cache), GL_UNSIGNED_INT, 0);
+		}
 		//for (auto const& o : obj.getChildren()) {
 		//	draw(*o);
 		//}

@@ -35,6 +35,7 @@ private:
 	//because it has a texture member
 	Model* model_; //model is all the model data in one place and can be subclassed for other shader types
 	Texture* texture_; //texture has all the texture packed into it like color, normal etc, and can just be subclassed to add more
+	bool hidden_;
 
 	Eigen::Vector3f velocity_; //yes this could be a twist, but simplicity over technical accuracy
 	Eigen::Vector3f acceleration_;
@@ -182,6 +183,24 @@ public:
 		return freefall_;
 	}
 
+	bool isHidden() const {
+		return hidden_;
+	}
+
+	void toggleHidden() {
+		hidden_ = !hidden_;
+	}
+
+	void setHideState(bool is_hidden) {
+		hidden_ = is_hidden;
+	}
+
+	void hide() {
+		hidden_ = true;
+	}
+	void show() {
+		hidden_ = false;
+	}
 };
 //template <class G, int ... Keys>
 //const std::array<int, sizeof(Keys)> GameObject<G, Keys...>::keys{ { Keys... } };

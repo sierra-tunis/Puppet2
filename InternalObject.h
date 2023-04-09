@@ -249,7 +249,7 @@ public:
 	static std::pair<float, float> getCursorPosition(GLFWwindow* window) {
 		int window_width, window_height;
 		glfwGetWindowSize(window, &window_width, &window_height);
-		return std::pair<float, float>{input_members_.mouse_xpos_last_/window_width*2.-1., input_members_.mouse_ypos_last_/window_height*2.-1.};
+		return std::pair<float, float>{input_members_.mouse_xpos_last_/window_width*2.-1., -input_members_.mouse_ypos_last_/window_height*2.+1.};
 	}
 
 
@@ -308,6 +308,8 @@ public:
 	void rotateX(float angle) {rotateAxisAngle(Eigen::Vector3f(1, 0, 0), angle);};
 	void rotateY(float angle) {rotateAxisAngle(Eigen::Vector3f(0, 1, 0), angle);};
 	void rotateZ(float angle) {rotateAxisAngle(Eigen::Vector3f(0, 0, 1), angle);};
+
+
 
 };
 
