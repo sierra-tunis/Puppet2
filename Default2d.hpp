@@ -3,6 +3,8 @@
 #include "Graphics.h"
 #include "GameObject.h"
 
+
+
 class Default2d : public Graphics<GameObject, int, int> {
 											//vao, tex_id
 	const unsigned int position_location_;

@@ -15,8 +15,9 @@ private:
 	constexpr static std::vector<float> RectNorms() {
 		return std::vector<float>{0.,0.,-1.,0,0,-1,0,0,-1,0,0,-1};
 	}
-	constexpr static std::vector<float> RectTex() {
-		return std::vector<float>{0, 0, 1, 0, 0, 1, 1, 1};
+	constexpr static std::vector<float> RectTex(float height, float width, float top, float left) {
+		//(height ,width, 0,0) is top left
+		return std::vector<float>{left, top, left+width, top, left, top+height, left+width, top+height};
 	}
 	constexpr static std::vector<unsigned int> RectFace() {
 		return std::vector<unsigned int>{0,1,2,3};
@@ -32,7 +33,7 @@ private:
 public:
 
 	Rect2d(float height, float width):
-	Model(RectVerts(height,width),RectNorms(),RectTex(),RectFace(),RectFaceNorm(),RectFaceTex()){}
+	Model(RectVerts(height,width),RectNorms(),RectTex(1.,1.,0.,0.),RectFace(),RectFaceNorm(),RectFaceTex()){}
 };
 
 class Button : public GameObject{
