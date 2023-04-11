@@ -23,8 +23,7 @@ class DebugMenu : public GameObject {
 
 public:
 
-	void addButton(Button* button)
-		{
+	void addButton(Button* button){
 		buttons_.push_back(button);
 	}
 

@@ -6,6 +6,7 @@
 #include <glad/glad.h>
 #include <iostream>
 #include <unordered_map>
+#include <concepts>
 
 #include "InternalObject.h"
 #include "GraphicsObject.h"
@@ -15,9 +16,19 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
+
 /*
 template<class T>
 concept Cachable = std::is_base_of<DataCache,T>::value;
+*/
+
+template<class T, class obj_T>
+concept Cacher = requires(obj_T obj) {
+	new T(obj);
+};
+/*
+template <class Object, Cacher cache_T>
+class Graphics {
 */
 
 template <class Object, class ... data>

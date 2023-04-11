@@ -9,7 +9,6 @@ class Default2d : public Graphics<GameObject, int, int> {
 											//vao, tex_id
 	const unsigned int position_location_;
 
-
 	constexpr int& getVAO(Cache cache) const {
 		return std::get<0>(cache);
 	}
