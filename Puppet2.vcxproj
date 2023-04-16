@@ -147,6 +147,7 @@
     <ClInclude Include="Debugger.h" />
     <ClInclude Include="debug_menu.h" />
     <ClInclude Include="Default2d.hpp" />
+    <ClInclude Include="glyph.hpp" />
     <ClInclude Include="graph.h" />
     <ClInclude Include="Header.h" />
     <ClInclude Include="Descender.h" />
@@ -157,6 +158,7 @@
     <ClInclude Include="player_camera.h" />
     <ClInclude Include="stb_image_write.h" />
     <ClInclude Include="surface.hpp" />
+    <ClInclude Include="text_graphics.hpp" />
     <ClInclude Include="UI.h" />
     <ClInclude Include="zdata.hpp" />
     <ClInclude Include="zmap.h" />

@@ -46,7 +46,7 @@ public:
 	}*/
 
 	void onKeyPress(int key) override {
-		if (key == GLFW_KEY_F12) [[unlikely]]{
+		if (key == GLFW_KEY_F1) [[unlikely]]{
 			this->screenshot_flag_ = true;
 		}
 	}

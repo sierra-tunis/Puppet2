@@ -11,6 +11,8 @@
 #include "collision.hpp"
 #include "no_collide_constraint.hpp"
 
+#include "text_graphics.hpp"
+
 using Eigen::seq;
 
 class DebugCamera : public InterfaceObject<GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, GLFW_KEY_D, GLFW_KEY_SPACE, GLFW_KEY_LEFT_SHIFT> {
@@ -58,8 +60,17 @@ public:
 	collision_info(hitbox_.getEdges().size())
 	//level_bounds_(&current_level_->getZmap())
 	{
-		setModel(new Model("cube.obj"));
-		setTexture(new Texture("obamna.jpg"));
+		//setModel(new Model("cube.obj"));
+		Font test_glyph("test_glyph.png");
+
+		Textbox test_tbox;
+		test_tbox.text = "this is a test";
+		test_tbox.box_height = .5;
+		test_tbox.box_width = .5;
+
+		setModel(TextGraphics::makeTextboxModel(test_tbox, test_glyph));
+		//setTexture(new Texture("obamna.jpg"));
+		setTexture(new Texture("test_glyph.png"));
 		setAcceleration(Eigen::Vector3f(0, -0.81, 0));
 		addMotionConstraint(&level_bounds_);
 	}

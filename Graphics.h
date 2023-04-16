@@ -31,7 +31,12 @@ template <class Object, Cacher cache_T>
 class Graphics {
 */
 
-template <class Object, class ... data>
+template<class T>
+concept Identifiable = requires(const T & t) {
+	{t.getID()}->std::convertible_to<size_t>;
+};
+
+template <Identifiable Object, class ... data>
 class Graphics {
 private:
 	int FBO_;
@@ -106,12 +111,10 @@ protected:
 	virtual void drawObj(const Object& obj , Cache cache) const = 0;
 
 	virtual void beginDraw() const {
-		glUseProgram(gl_id);
 	};
 
 	virtual void endDraw() const {
-		glBindVertexArray(0);
-		glUseProgram(0);
+		
 	};
 
 	virtual Cache makeDataCache(const Object& obj) const = 0;
@@ -126,16 +129,19 @@ protected:
 public:
 	
 	void drawAll() const {
+		glUseProgram(gl_id);
 		beginDraw();
 		for (const auto& obj : draw_targets_) {
 			this->drawObj(*(obj.second), cached_data_[obj.first]);
 		}
 		endDraw();
+		glBindVertexArray(0);
+		glUseProgram(0);
 	}
 
 
-	//either make graphics only capable of drawing internal objects or make it vector based and lose
-	//some efficiency in removing elements
+
+	//instead of getID it should just hash obj. the hash for GameObj can just be return id_
 	void add(const Object& obj) {
 		draw_targets_.insert({ obj.getID(), &obj });
 		if (cached_data_.find(obj.getID()) == cached_data_.end()) {
@@ -196,14 +202,19 @@ public:
 	}
 
 
-	Graphics() :gl_id(static_cast<int>(Graphics<Object,data...>::compile_program())),FBO_(-1) {}
+	Graphics() :gl_id(static_cast<int>(Graphics<Object,data...>::compile_program())),FBO_(-1) {
+		GLenum error = glGetError();
+		if (error != GL_NO_ERROR) {
+			printf("Error during Graphics creation: 0x%x\n", error);
+		}
+	}
 
 };
 //const char* Graphics::vertex_code = "";
 //const char* Graphics::fragment_code = "";
-template <class Object,class...data>
+template <Identifiable Object,class...data>
 std::unordered_map<int, std::tuple<data...>> Graphics<Object,data...>::cached_data_ = std::unordered_map<int, std::tuple<data...>>();
-template <class Object, class...data>
+template <Identifiable Object, class...data>
 std::unordered_map<int, const Object*> Graphics<Object, data...>::draw_targets_ = std::unordered_map<int,const Object*>();
 
 

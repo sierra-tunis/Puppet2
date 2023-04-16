@@ -7,20 +7,20 @@ C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(81,37): warning C4
 C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(82,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(243,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(244,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(106,34): warning C4129: '/': unrecognized character escape sequence
-C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(108,34): warning C4129: '/': unrecognized character escape sequence
-C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(110,34): warning C4129: '/': unrecognized character escape sequence
-C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(107,39): warning C4244: 'argument': conversion from 'float' to '_Ty', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(105,34): warning C4129: '/': unrecognized character escape sequence
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(107,34): warning C4129: '/': unrecognized character escape sequence
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(109,34): warning C4129: '/': unrecognized character escape sequence
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(106,39): warning C4244: 'argument': conversion from 'float' to '_Ty', possible loss of data
           with
           [
               _Ty=std::_Vbase
           ]
-C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(109,42): warning C4244: 'argument': conversion from 'float' to '_Ty', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(108,42): warning C4244: 'argument': conversion from 'float' to '_Ty', possible loss of data
           with
           [
               _Ty=std::_Vbase
           ]
-C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(111,44): warning C4244: 'argument': conversion from 'float' to '_Ty', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(110,44): warning C4244: 'argument': conversion from 'float' to '_Ty', possible loss of data
           with
           [
               _Ty=std::_Vbase
@@ -35,12 +35,21 @@ C:\Users\Justin\source\repos\Puppet2\Puppet2\ZMapper.h(135,1): warning C4267: 'a
 C:\Users\Justin\source\repos\Puppet2\Puppet2\ZMapper.h(176,1): warning C4305: 'argument': truncation from 'double' to 'float'
 C:\Users\Justin\source\repos\Puppet2\Puppet2\ZMapper.h(224,34): warning C4356: 'Graphics<Model,int,size_t,uint8_t>::vertex_code': static data member cannot be initialized via derived class
 C:\Users\Justin\source\repos\Puppet2\Puppet2\ZMapper.h(243,36): warning C4356: 'Graphics<Model,int,size_t,uint8_t>::fragment_code': static data member cannot be initialized via derived class
-C:\Users\Justin\source\repos\Puppet2\Puppet2\Default3d.h(106,1): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-C:\Users\Justin\source\repos\Puppet2\Puppet2\Default3d.h(138,36): warning C4356: 'Graphics<GameObject,int,int,size_t>::vertex_code': static data member cannot be initialized via derived class
-C:\Users\Justin\source\repos\Puppet2\Puppet2\Default3d.h(155,38): warning C4356: 'Graphics<GameObject,int,int,size_t>::fragment_code': static data member cannot be initialized via derived class
-C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_camera.h(37,1): warning C4305: 'argument': truncation from 'double' to 'float'
-C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_camera.h(40,1): warning C4305: 'argument': truncation from 'double' to 'float'
-C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_camera.h(63,1): warning C4305: 'argument': truncation from 'double' to 'const float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Default3d.h(105,1): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Default3d.h(135,36): warning C4356: 'Graphics<GameObject,int,int,size_t>::vertex_code': static data member cannot be initialized via derived class
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Default3d.h(152,38): warning C4356: 'Graphics<GameObject,int,int,size_t>::fragment_code': static data member cannot be initialized via derived class
+C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(20,1): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(21,1): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(22,39): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(23,38): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(154,1): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(182,1): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(233,1): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(255,39): warning C4356: 'Graphics<Textbox,unsigned int,unsigned int,size_t>::vertex_code': static data member cannot be initialized via derived class
+C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(271,41): warning C4356: 'Graphics<Textbox,unsigned int,unsigned int,size_t>::fragment_code': static data member cannot be initialized via derived class
+C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_camera.h(39,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_camera.h(42,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_camera.h(74,1): warning C4305: 'argument': truncation from 'double' to 'const float'
 C:\Users\Justin\source\repos\Puppet2\Puppet2\DebugGraphics.h(50,1): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\DebugGraphics.h(72,1): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\DebugGraphics.h(101,1): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
@@ -48,18 +57,62 @@ C:\Users\Justin\source\repos\Puppet2\Puppet2\DebugGraphics.h(102,1): warning C42
 C:\Users\Justin\source\repos\Puppet2\Puppet2\DebugGraphics.h(120,1): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\DebugGraphics.h(150,39): warning C4356: 'Graphics<DebugCamera,int,int,size_t,std::vector<float,std::allocator<float>> *>::vertex_code': static data member cannot be initialized via derived class
 C:\Users\Justin\source\repos\Puppet2\Puppet2\DebugGraphics.h(166,41): warning C4356: 'Graphics<DebugCamera,int,int,size_t,std::vector<float,std::allocator<float>> *>::fragment_code': static data member cannot be initialized via derived class
-C:\Users\Justin\source\repos\Puppet2\Puppet2\Default2d.hpp(98,36): warning C4356: 'Graphics<GameObject,int,int>::vertex_code': static data member cannot be initialized via derived class
-C:\Users\Justin\source\repos\Puppet2\Puppet2\Default2d.hpp(113,38): warning C4356: 'Graphics<GameObject,int,int>::fragment_code': static data member cannot be initialized via derived class
-C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(32,1): warning C4305: 'argument': truncation from 'double' to 'float'
-C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(35,1): warning C4305: 'argument': truncation from 'double' to 'float'
-C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(82,78): warning C4305: 'argument': truncation from 'double' to 'float'
-C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(87,51): warning C4305: 'argument': truncation from 'double' to 'float'
-C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(147,1): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(147,1): message : while compiling class template member function 'void Graphics<GameObject,int,int,size_t>::startScreenshot(size_t,size_t)'
-C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(132,38): message : see reference to function template instantiation 'void Graphics<GameObject,int,int,size_t>::startScreenshot(size_t,size_t)' being compiled
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Default2d.hpp(96,36): warning C4356: 'Graphics<GameObject,int,int>::vertex_code': static data member cannot be initialized via derived class
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Default2d.hpp(111,38): warning C4356: 'Graphics<GameObject,int,int>::fragment_code': static data member cannot be initialized via derived class
+C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(31,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(34,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(84,78): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(89,51): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(145,1): warning C4267: 'argument': conversion from 'size_t' to 'const _Kty', possible loss of data
+          with
+          [
+              _Kty=int
+          ]
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(145,1): message : while compiling class template member function 'void Graphics<Textbox,unsigned int,unsigned int,size_t>::add(const Object &)'
+          with
+          [
+              Object=Textbox
+          ]
+C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(98,22): message : see reference to function template instantiation 'void Graphics<Textbox,unsigned int,unsigned int,size_t>::add(const Object &)' being compiled
+          with
+          [
+              Object=Textbox
+          ]
+C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(100,83): message : see reference to class template instantiation 'Graphics<Textbox,unsigned int,unsigned int,size_t>' being compiled
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(164,1): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(164,1): message : while compiling class template member function 'void Graphics<GameObject,int,int,size_t>::startScreenshot(size_t,size_t)'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(143,38): message : see reference to function template instantiation 'void Graphics<GameObject,int,int,size_t>::startScreenshot(size_t,size_t)' being compiled
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Default3d.h(16,62): message : see reference to class template instantiation 'Graphics<GameObject,int,int,size_t>' being compiled
-C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(147,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(164,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.31933\include\utility(172,48): warning C4267: 'initializing': conversion from 'size_t' to '_Ty1', possible loss of data
+          with
+          [
+              _Ty1=const int
+          ]
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(145,1): message : see reference to function template instantiation 'std::pair<const int,const Object *>::pair<size_t,const Object*,0>(_Other1 &&,_Other2 &&) noexcept' being compiled
+          with
+          [
+              Object=Textbox,
+              _Other1=size_t,
+              _Other2=const Textbox *
+          ]
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(146,23): message : see reference to function template instantiation 'std::pair<const int,const Object *>::pair<size_t,const Object*,0>(_Other1 &&,_Other2 &&) noexcept' being compiled
+          with
+          [
+              Object=Textbox,
+              _Other1=size_t,
+              _Other2=const Textbox *
+          ]
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(145,1): message : while compiling class template member function 'void Graphics<Textbox,unsigned int,unsigned int,size_t>::add(const Object &)'
+          with
+          [
+              Object=Textbox
+          ]
+C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(98,22): message : see reference to function template instantiation 'void Graphics<Textbox,unsigned int,unsigned int,size_t>::add(const Object &)' being compiled
+          with
+          [
+              Object=Textbox
+          ]
 C:\Users\Justin\source\repos\Puppet2\Puppet2\camera.h(74): warning C4172: returning address of local variable or temporary: camera_matrix
 C:\Users\Justin\source\repos\Puppet2\Puppet2\motion_constraint.h(92): warning C4172: returning address of local variable or temporary
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
   Puppet2.vcxproj -> C:\Users\Justin\source\repos\Puppet2\x64\Debug\Puppet2.exe

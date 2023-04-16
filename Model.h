@@ -6,6 +6,7 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <iostream>
 
 #include<Eigen/Dense>
 
@@ -62,20 +63,18 @@ private:
 
 	}
 
-protected:
-	Model(std::vector<float> verts, std::vector<float> norms, std::vector<float> tex_coords, std::vector<unsigned int> faces, std::vector<unsigned int> face_norms, std::vector<unsigned int> face_tex):
-	verts_(verts),
-	norms_(norms),
-	tex_coords_(tex_coords),
-	faces_(faces),
-	face_norms_(face_norms),
-	face_tex_(face_tex),
-	fname_("") {
+public:
+	Model(std::vector<float> verts, std::vector<float> norms, std::vector<float> tex_coords, std::vector<unsigned int> faces, std::vector<unsigned int> face_norms, std::vector<unsigned int> face_tex) :
+		verts_(verts),
+		norms_(norms),
+		tex_coords_(tex_coords),
+		faces_(faces),
+		face_norms_(face_norms),
+		face_tex_(face_tex),
+		fname_("") {
 		//reassign_vtx();
 		calculateBoundingBox();
 	}
-
-public:
 
 	Model(std::string fname) {
 		std::string line;
@@ -158,6 +157,31 @@ public:
 		return n_faces_;
 	}
 
+	void addVert(Eigen::Vector3f pos) {
+		verts_.push_back(pos(0));
+		verts_.push_back(pos(1));
+		verts_.push_back(pos(2));
+		n_verts_++;
+	}
+
+	void addNorm(Eigen::Vector3f dir) {
+		norms_.push_back(dir(0));
+		norms_.push_back(dir(1));
+		norms_.push_back(dir(2));
+	}
+
+	void addTexCoord(float x, float y) {
+		tex_coords_.push_back(x);
+		tex_coords_.push_back(y);
+	}
+
+	void addFace(int vert1, int vert2, int vert3) {
+		faces_.push_back(vert1);
+		faces_.push_back(vert2);
+		faces_.push_back(vert3);
+		n_faces_ ++;
+	}
+
 	const Eigen::Vector3f& getBoundingBox() const {
 		return bounding_box_;
 	}
@@ -175,6 +199,10 @@ public:
 		box_center_ << 0, 0, 0;
 	}
 
+	int getID() const {
+		std::cerr << "no ID available for Model class";
+		return 0;
+	}
 
 };
 

@@ -37,10 +37,9 @@ private:
 	virtual std::tuple<int, int, size_t> makeDataCache(const GameObject& obj) const override {
 		const Model& model = *(obj.getModel());
 		const Texture& tex = *(obj.getTexture());
-		// = model.flen();
+
 		unsigned int VAO;
 		glGenVertexArrays(1, &(VAO));
-		//this->VAO = static_cast<int>(VAO);
 		unsigned int VBO[3];
 		glGenBuffers(3, VBO);
 		unsigned int EBO;
@@ -63,7 +62,7 @@ private:
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(2);
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);//have to change this to face length not vertex len
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * model.flen() * 3, model.getFaces().data(), GL_STATIC_DRAW);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -111,7 +110,6 @@ public:
 	}
 
 	void beginDraw() const override {
-		Graphics::beginDraw();
 		glEnable(GL_DEPTH_TEST);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -121,7 +119,6 @@ public:
 	}
 
 	void endDraw() const override {
-		Graphics::endDraw();
 		//default3d specific code
 	}
 

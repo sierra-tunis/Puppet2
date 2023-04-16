@@ -11,6 +11,7 @@
 #include "UI.h"
 #include "Default2d.hpp"
 #include "debug_menu.h"
+#include "text_graphics.hpp"
 
 #include <GLFW/glfw3.h>
 
@@ -18,10 +19,12 @@
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
+
 int main(void)
 {
     GLFWwindow* window;
 
+   
     // Initialize the library
     if (!glfwInit())
         return -1;
@@ -48,8 +51,7 @@ int main(void)
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
-    //initialization is horrific rn needs a major improvement (ordering things is the main problem so perhaps it should be done in set phases)
-    
+
     //HboxGraphics hboxGraphics;
 
     std::vector<InternalObject> bases;
@@ -85,6 +87,15 @@ int main(void)
     Default3d default3d(camera);
     Default2d default2d;
     HboxGraphics hbox_graphics(camera, .1, 100, 90);
+    Font test_glyph("test_glyph.png");
+    TextGraphics text_graphics(test_glyph);
+
+
+    Textbox test_tbox;
+    test_tbox.text = "this is a test";
+    test_tbox.box_height = .5;
+    test_tbox.box_width = .5;
+    text_graphics.add(test_tbox);
 
     DebugCamera center(&room1,"obamna");
     room1.add(center);
@@ -93,7 +104,7 @@ int main(void)
     //default3d.add(room2);
     //default3d.add(room3);
 
-    Button test_button(.5, .5, "test_button");
+    //Button test_button(.5, .5, "test_button");
     DebugMenu debugMenu(window,&default2d);
     debugMenu.activateKeyInput(window);
     
@@ -133,11 +144,12 @@ int main(void)
         }
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
 
         default3d.drawAll();
         hbox_graphics.drawAll();
         default2d.drawAll();
+        text_graphics.drawAll();
 
         if (camera.getScreenshotFlag()) {
             default3d.finishScreenshot<uint8_t, GL_UNSIGNED_BYTE>(&screenshot_buffer,"screenshot.png");
