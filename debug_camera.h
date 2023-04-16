@@ -60,17 +60,8 @@ public:
 	collision_info(hitbox_.getEdges().size())
 	//level_bounds_(&current_level_->getZmap())
 	{
-		//setModel(new Model("cube.obj"));
-		Font test_glyph("test_glyph.png");
-
-		Textbox test_tbox;
-		test_tbox.text = "this is a test";
-		test_tbox.box_height = .5;
-		test_tbox.box_width = .5;
-
-		setModel(TextGraphics::makeTextboxModel(test_tbox, test_glyph));
-		//setTexture(new Texture("obamna.jpg"));
-		setTexture(new Texture("test_glyph.png"));
+		setModel(new Model("cube.obj"));
+		setTexture(new Texture("obamna.jpg"));
 		setAcceleration(Eigen::Vector3f(0, -0.81, 0));
 		addMotionConstraint(&level_bounds_);
 	}

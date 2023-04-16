@@ -15,10 +15,10 @@ struct char_info {
 	float glyph_top, glyph_left;
 
 	char_info(char c) {
-		char col = c % 26;
-		char row = c / 26;
+		char row = c / 25;
+		char col = c % 25;
 		unscaled_height = 1./15.;
-		unscaled_width = 1./26.;
+		unscaled_width = 1./25.;
 		glyph_left = static_cast<float>(col)/26.;
 		glyph_top = static_cast<float>(row)/15.;
 	}

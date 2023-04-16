@@ -92,7 +92,7 @@ int main(void)
 
 
     Textbox test_tbox;
-    test_tbox.text = "this is a test";
+    test_tbox.text = "this is a test, abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     test_tbox.box_height = .5;
     test_tbox.box_width = .5;
     text_graphics.add(test_tbox);
