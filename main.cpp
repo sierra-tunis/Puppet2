@@ -95,6 +95,8 @@ int main(void)
     test_tbox.text = "this is a test, abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     test_tbox.box_height = .5;
     test_tbox.box_width = .5;
+    test_tbox.left = .5;
+    test_tbox.top = .5;
     text_graphics.add(test_tbox);
 
     DebugCamera center(&room1,"obamna");

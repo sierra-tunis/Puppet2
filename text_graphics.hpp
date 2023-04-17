@@ -91,7 +91,7 @@ public:
 
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, glyph.width, glyph.height, 0, GL_RGB, GL_UNSIGNED_BYTE, glyph.getData().data());
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, glyph.width, glyph.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, glyph.getData().data());
 		glGenerateMipmap(GL_TEXTURE_2D);
 
 	}
@@ -276,7 +276,9 @@ const char* TextGraphics::fragment_code = "#version 330 core\n"
 
 "void main()\n"
 "{\n"
-"	FragColor = texture(tex,texCoord);\n"
+"	vec4 pointColor = texture(tex,texCoord);\n"
+"	if(pointColor.a < .01) discard;"
+"	FragColor = pointColor;\n"
 //"	FragColor = vec4(0.,0.,0.,1.);\n"
 
 " } ";

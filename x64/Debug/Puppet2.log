@@ -73,7 +73,7 @@ C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(145,1): message : while 
           [
               Object=Textbox
           ]
-C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(98,22): message : see reference to function template instantiation 'void Graphics<Textbox,unsigned int,unsigned int,size_t>::add(const Object &)' being compiled
+C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(100,22): message : see reference to function template instantiation 'void Graphics<Textbox,unsigned int,unsigned int,size_t>::add(const Object &)' being compiled
           with
           [
               Object=Textbox
@@ -81,7 +81,7 @@ C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(98,22): message : see refe
 C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(100,83): message : see reference to class template instantiation 'Graphics<Textbox,unsigned int,unsigned int,size_t>' being compiled
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(164,1): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(164,1): message : while compiling class template member function 'void Graphics<GameObject,int,int,size_t>::startScreenshot(size_t,size_t)'
-C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(143,38): message : see reference to function template instantiation 'void Graphics<GameObject,int,int,size_t>::startScreenshot(size_t,size_t)' being compiled
+C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(145,38): message : see reference to function template instantiation 'void Graphics<GameObject,int,int,size_t>::startScreenshot(size_t,size_t)' being compiled
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Default3d.h(16,62): message : see reference to class template instantiation 'Graphics<GameObject,int,int,size_t>' being compiled
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(164,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.31933\include\utility(172,48): warning C4267: 'initializing': conversion from 'size_t' to '_Ty1', possible loss of data
@@ -108,7 +108,7 @@ C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(145,1): message : while 
           [
               Object=Textbox
           ]
-C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(98,22): message : see reference to function template instantiation 'void Graphics<Textbox,unsigned int,unsigned int,size_t>::add(const Object &)' being compiled
+C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(100,22): message : see reference to function template instantiation 'void Graphics<Textbox,unsigned int,unsigned int,size_t>::add(const Object &)' being compiled
           with
           [
               Object=Textbox
