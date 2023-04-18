@@ -260,6 +260,10 @@ public:
 		direction_(direction){
 	}
 	/*
+	void setState(float new_state) {
+		ConnectorConstraint::setState(Eigen::Vector<float, 1>(new_state));
+	}*/
+	/*
 	PrismaticJoint(const Eigen::Matrix4f* root_transform,Eigen::Vector3f direction) :
 		ConnectorConstraint(root_transform),
 		direction_(direction) {
@@ -368,11 +372,6 @@ protected:
 		const Eigen::Matrix4f& pop_front = pop_conn.computeConnectorTransform(next_input);
 		return pop_front * computeChainTransform<constraint2_,constraints_...>(state_vec(seq(constraint_::getDoF(), Eigen::last)));
 	}
-
-public:
-	ConnectorChain(constraint& constraint0,constraints&... constraint1_end) : ConnectorConstraint< ConnectorChain::getDoF()>(), connectors_(constraint0, constraint1_end...) {
-		
-	}
 	template<Connector constraint_>
 	void setSubstate(Eigen::Vector<float, constraint_::getDoF()> state_vec) const {
 		constraint_& conn = std::get< sizeof...(constraints)>(connectors_); //get last connector
@@ -386,22 +385,30 @@ public:
 		setSubstate<constraint2_, constraints_...>(state_vec(seq(constraint_::getDoF(), Eigen::last)));
 	}
 
-	virtual void setState(Eigen::Vector<float,ConnectorChain::getDoF()> new_state) {
-		//set child states using template magic
-		setSubstate<constraint, constraints...>(new_state); //this can likely be sped up by combining these two calls
-		ConnectorConstraint<ConnectorChain::getDoF()>::setState(new_state);
-		//connector_transform_ = computeConnectorTransform(new_state);
-	}
-	template<int start_index,Connector constraint_>
+	template<int start_index, Connector constraint_>
 	void writeSubstate(Eigen::Vector<float, ConnectorChain::getDoF()>& state_vec) const {
 		constraint_& conn = std::get< sizeof...(constraints)>(connectors_); //get last connector
-		state_vec(seq(start_index,Eigen::last)) = conn.getState();
+		state_vec(seq(start_index, Eigen::last)) = conn.getState();
 	}
 	template<int start_index, Connector constraint_, Connector constraint2_, Connector...constraints_>
 	void writeSubstate(Eigen::Vector<float, ConnectorChain::getDoF()>& state_vec) const {
 		constraint_& pop_conn = std::get<sizeof...(constraints) - sizeof...(constraints_) - 1>(connectors_);
 		state_vec(seq(start_index, start_index + constraint_::getDoF() - 1)) = pop_conn.getState();
-		writeSubstate<start_index + constraint_::getDoF(),constraint2_, constraints_...>(state_vec);
+		writeSubstate<start_index + constraint_::getDoF(), constraint2_, constraints_...>(state_vec);
+	}
+
+
+public:
+	ConnectorChain(constraint& constraint0,constraints&... constraint1_end) : ConnectorConstraint< ConnectorChain::getDoF()>(), connectors_(constraint0, constraint1_end...) {
+		
+	}
+
+
+	virtual void setState(Eigen::Vector<float,ConnectorChain::getDoF()> new_state) {
+		//set child states using template magic
+		setSubstate<constraint, constraints...>(new_state); //this can likely be sped up by combining these two calls
+		ConnectorConstraint<ConnectorChain::getDoF()>::setState(new_state);
+		//connector_transform_ = computeConnectorTransform(new_state);
 	}
 
 	virtual Eigen::Vector<float, ConnectorChain::getDoF()> getState() const override {

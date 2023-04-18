@@ -27,6 +27,12 @@ private:
 	GLFWwindow* window_;
 
 	void onMouseMove(float x, float y, float dx, float dy) override {
+		if (dx != 0) {
+			pan_.setState(Eigen::Vector<float,1>(pan_.getState()(0) + dx * .01));
+		}
+		if (dy != 0) {
+			tilt_.setState(Eigen::Vector<float,1>(tilt_.getState()(0) + dy * .01));
+		}
 		std::cout << "(" << dx << ", " << dy << ")\n";
 	}
 
@@ -41,6 +47,7 @@ private:
 	}
 
 	void onKeyPress(int key) {
+		Camera::onKeyPress(key);
 		if (key == GLFW_KEY_ESCAPE) {
 			glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 			//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);

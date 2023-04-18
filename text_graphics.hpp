@@ -34,6 +34,10 @@ struct Textbox{
 	float top, left;
 	float box_width, box_height;
 	float font_size;
+	enum class wrap_type{};
+	enum class allignment {};
+	float line_space;
+	/*...*/
 
 	Textbox():text(""),font(""),top(0),left(0),box_width(1),box_height(1),font_size(1){}
 
@@ -180,8 +184,6 @@ class TextGraphics : public Graphics<Textbox, unsigned int, unsigned int, size_t
 		glUniformMatrix4fv(position_location_, 1, GL_FALSE, obj.getPosition().data());
 
 		glDrawElements(GL_TRIANGLES, 3 * getNElems(cache), GL_UNSIGNED_INT, 0);
-
-
 	}
 
 
@@ -256,8 +258,10 @@ const char* TextGraphics::vertex_code = "\n"
 "#version 330 core\n"
 "layout (location = 0) in vec3 pos;\n"
 "layout (location = 1) in vec2 vt;\n"
+//"layout (location = 2) int vt_offset;\n"
 
-
+//"uniform float line_height;\n"
+//"uniform float numeric_char_width;\n"
 "uniform mat4 position_matrix;\n"
 
 "out vec2 texCoord;\n"
@@ -265,6 +269,8 @@ const char* TextGraphics::vertex_code = "\n"
 "void main()\n"
 "{\n"
 "   gl_Position = position_matrix * vec4(pos.x, pos.y, 0, 1.0);\n"
+//"	if(vt_offset > 1) {vt.y += line_height;vt.x = numeric_char_width*(vt_offset-2);}\n"
+//"	else if (vt_offset == 1) {vt += numeric_char_width;}\n"
 "	texCoord = vt;\n"
 "}\0";
 

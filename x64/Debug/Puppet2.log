@@ -42,11 +42,11 @@ C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(20,1): warning C4
 C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(21,1): warning C4305: '=': truncation from 'double' to 'float'
 C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(22,39): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(23,38): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(154,1): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(182,1): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(233,1): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(255,39): warning C4356: 'Graphics<Textbox,unsigned int,unsigned int,size_t>::vertex_code': static data member cannot be initialized via derived class
-C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(271,41): warning C4356: 'Graphics<Textbox,unsigned int,unsigned int,size_t>::fragment_code': static data member cannot be initialized via derived class
+C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(158,1): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(186,1): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(235,1): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(257,39): warning C4356: 'Graphics<Textbox,unsigned int,unsigned int,size_t>::vertex_code': static data member cannot be initialized via derived class
+C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(277,41): warning C4356: 'Graphics<Textbox,unsigned int,unsigned int,size_t>::fragment_code': static data member cannot be initialized via derived class
 C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_camera.h(39,1): warning C4305: 'argument': truncation from 'double' to 'float'
 C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_camera.h(42,1): warning C4305: 'argument': truncation from 'double' to 'float'
 C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_camera.h(65,1): warning C4305: 'argument': truncation from 'double' to 'const float'
@@ -78,7 +78,7 @@ C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(100,22): message : see ref
           [
               Object=Textbox
           ]
-C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(100,83): message : see reference to class template instantiation 'Graphics<Textbox,unsigned int,unsigned int,size_t>' being compiled
+C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(104,83): message : see reference to class template instantiation 'Graphics<Textbox,unsigned int,unsigned int,size_t>' being compiled
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(164,1): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(164,1): message : while compiling class template member function 'void Graphics<GameObject,int,int,size_t>::startScreenshot(size_t,size_t)'
 C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(145,38): message : see reference to function template instantiation 'void Graphics<GameObject,int,int,size_t>::startScreenshot(size_t,size_t)' being compiled
