@@ -28,10 +28,13 @@ private:
 
 	void onMouseMove(float x, float y, float dx, float dy) override {
 		if (dx != 0) {
-			pan_.setState(Eigen::Vector<float,1>(pan_.getState()(0) + dx * .01));
+			pan_.setState(Eigen::Vector<float,1>(pan_.getState()(0) - dx * .01));
 		}
 		if (dy != 0) {
-			tilt_.setState(Eigen::Vector<float,1>(tilt_.getState()(0) + dy * .01));
+			float new_state = tilt_.getState()(0) - dy * .01;
+			if (new_state <= M_PI*1.1 / 2. && new_state >= -M_PI*.667/2.) {
+				tilt_.setState(Eigen::Vector<float, 1>(new_state));
+			}
 		}
 		std::cout << "(" << dx << ", " << dy << ")\n";
 	}

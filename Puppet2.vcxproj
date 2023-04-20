@@ -147,10 +147,7 @@
     <ClInclude Include="Debugger.h" />
     <ClInclude Include="debug_menu.h" />
     <ClInclude Include="Default2d.hpp" />
-    <ClInclude Include="glyph.hpp" />
     <ClInclude Include="graph.h" />
-    <ClInclude Include="Header.h" />
-    <ClInclude Include="Descender.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="motion_constraint.h" />
     <ClInclude Include="no_collide_constraint.hpp" />
@@ -165,7 +162,6 @@
     <ClInclude Include="ZMapper.h" />
     <ClInclude Include="InternalObject.h" />
     <ClInclude Include="level.h" />
-    <ClInclude Include="NoDraw.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Texture3d.h" />
     <ClInclude Include="Default3d.h" />

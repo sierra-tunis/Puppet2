@@ -89,15 +89,7 @@ int main(void)
     HboxGraphics hbox_graphics(camera, .1, 100, 90);
     Font test_glyph("test_glyph.png");
     TextGraphics text_graphics(test_glyph);
-
-
-    Textbox test_tbox;
-    test_tbox.text = "this is a test, abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    test_tbox.box_height = .5;
-    test_tbox.box_width = .5;
-    test_tbox.left = .5;
-    test_tbox.top = .5;
-    text_graphics.add(test_tbox);
+   
 
     DebugCamera center(&room1,"obamna");
     room1.add(center);
@@ -107,7 +99,7 @@ int main(void)
     //default3d.add(room3);
 
     //Button test_button(.5, .5, "test_button");
-    DebugMenu debugMenu(window,&default2d);
+    DebugMenu debugMenu(window,default2d,text_graphics);
     debugMenu.activateKeyInput(window);
     
 

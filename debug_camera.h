@@ -42,10 +42,10 @@ class DebugCamera : public InterfaceObject<GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, G
 			rotateY(-.005);
 			break;
 		case GLFW_KEY_SPACE:
-			translate(this->getPosition()(seq(0, 2), 1) * .01);
+			translate(this->getPosition()(seq(0, 2), 1) * .05);
 			break;
 		case GLFW_KEY_LEFT_SHIFT:
-			translate(this->getPosition()(seq(0, 2), 1) * -.01);
+			translate(this->getPosition()(seq(0, 2), 1) * -.05);
 			break;
 		}
 	}
@@ -62,7 +62,6 @@ public:
 	{
 		setModel(new Model("cube.obj"));
 		setTexture(new Texture("obamna.jpg"));
-		setAcceleration(Eigen::Vector3f(0, -0.81, 0));
 		addMotionConstraint(&level_bounds_);
 	}
 
@@ -109,7 +108,7 @@ public:
 		return hitbox_;
 	}
 
-	const std::vector<bool>& getCollisionInfo() const {
+	const std::vector<bool>& getCollisionInfo() const {//this is a terrible way of doing this
 		return collision_info;
 	}
 

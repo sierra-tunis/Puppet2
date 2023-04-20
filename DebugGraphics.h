@@ -6,6 +6,7 @@
 #include "Hitbox.h"
 #include "Graphics.h"
 #include "debug_camera.h"
+#include "text_graphics.hpp"
 
 using Eigen::Matrix4f;
 
