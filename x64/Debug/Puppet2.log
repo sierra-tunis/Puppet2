@@ -5,8 +5,8 @@ C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(79,26): warning C4
 C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(79,21): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(81,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(82,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(242,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(243,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(244,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(105,34): warning C4129: '/': unrecognized character escape sequence
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(107,34): warning C4129: '/': unrecognized character escape sequence
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(109,34): warning C4129: '/': unrecognized character escape sequence
@@ -58,8 +58,8 @@ C:\Users\Justin\source\repos\Puppet2\Puppet2\DebugGraphics.h(151,39): warning C4
 C:\Users\Justin\source\repos\Puppet2\Puppet2\DebugGraphics.h(167,41): warning C4356: 'Graphics<DebugCamera,int,int,size_t,std::vector<float,std::allocator<float>> *>::fragment_code': static data member cannot be initialized via derived class
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Default2d.hpp(96,36): warning C4356: 'Graphics<GameObject,int,int>::vertex_code': static data member cannot be initialized via derived class
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Default2d.hpp(111,38): warning C4356: 'Graphics<GameObject,int,int>::fragment_code': static data member cannot be initialized via derived class
-C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(40,1): warning C4305: 'argument': truncation from 'double' to 'float'
-C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(43,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(47,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(50,1): warning C4305: 'argument': truncation from 'double' to 'float'
 C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(84,78): warning C4305: 'argument': truncation from 'double' to 'float'
 C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(89,51): warning C4305: 'argument': truncation from 'double' to 'float'
 C:\Users\Justin\source\repos\Puppet2\Puppet2\player_camera.h(34,20): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
@@ -71,7 +71,7 @@ C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(152,1): message : while 
           [
               Object=Textbox
           ]
-C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(26,26): message : see reference to function template instantiation 'void Graphics<Textbox,unsigned int,unsigned int,size_t>::remove(const Object &)' being compiled
+C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(32,26): message : see reference to function template instantiation 'void Graphics<Textbox,unsigned int,unsigned int,size_t>::remove(const Object &)' being compiled
           with
           [
               Object=Textbox
@@ -87,14 +87,14 @@ C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(145,1): message : while 
           [
               Object=Textbox
           ]
-C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(24,23): message : see reference to function template instantiation 'void Graphics<Textbox,unsigned int,unsigned int,size_t>::add(const Object &)' being compiled
+C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(29,23): message : see reference to function template instantiation 'void Graphics<Textbox,unsigned int,unsigned int,size_t>::add(const Object &)' being compiled
           with
           [
               Object=Textbox
           ]
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(164,1): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(164,1): message : while compiling class template member function 'void Graphics<GameObject,int,int,size_t>::startScreenshot(size_t,size_t)'
-C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(137,38): message : see reference to function template instantiation 'void Graphics<GameObject,int,int,size_t>::startScreenshot(size_t,size_t)' being compiled
+C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(138,38): message : see reference to function template instantiation 'void Graphics<GameObject,int,int,size_t>::startScreenshot(size_t,size_t)' being compiled
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Default3d.h(16,62): message : see reference to class template instantiation 'Graphics<GameObject,int,int,size_t>' being compiled
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(164,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
 C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.31933\include\utility(172,48): warning C4267: 'initializing': conversion from 'size_t' to '_Ty1', possible loss of data
@@ -121,7 +121,7 @@ C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.h(145,1): message : while 
           [
               Object=Textbox
           ]
-C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(24,23): message : see reference to function template instantiation 'void Graphics<Textbox,unsigned int,unsigned int,size_t>::add(const Object &)' being compiled
+C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(29,23): message : see reference to function template instantiation 'void Graphics<Textbox,unsigned int,unsigned int,size_t>::add(const Object &)' being compiled
           with
           [
               Object=Textbox

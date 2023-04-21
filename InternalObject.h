@@ -216,7 +216,6 @@ public:
 		//so globalPosition = parent.gloabl*getRelativePosition(other)*position_ = other.globalPosition
 	}
 
-
 	int getID() const {
 		return this->id_;
 	}
@@ -309,7 +308,7 @@ public:
 	void rotateY(float angle) {rotateAxisAngle(Eigen::Vector3f(0, 1, 0), angle);};
 	void rotateZ(float angle) {rotateAxisAngle(Eigen::Vector3f(0, 0, 1), angle);};
 
-
+	virtual std::string getDebugInfo() const { return ""; };
 
 };
 

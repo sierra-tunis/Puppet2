@@ -101,7 +101,7 @@ int main(void)
     //Button test_button(.5, .5, "test_button");
     DebugMenu debugMenu(window,default2d,text_graphics);
     debugMenu.activateKeyInput(window);
-    
+    debugMenu.setDebugTarget(&center);
 
     default3d.add(center);
     hbox_graphics.add(center);
@@ -130,6 +130,7 @@ int main(void)
         glfwPollEvents();
 
         room1.update();
+        debugMenu.update(window);
 
         // Render here
         

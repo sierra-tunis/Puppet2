@@ -145,7 +145,7 @@ public:
 	void add(const Object& obj) {
 		draw_targets_.insert({ obj.getID(), &obj });
 		if (cached_data_.find(obj.getID()) == cached_data_.end()) {
-			cached_data_.insert({ obj.getID(),makeDataCache(obj) });
+			cached_data_.insert({ obj.getID(),this->makeDataCache(obj) });
 		}
 	}
 

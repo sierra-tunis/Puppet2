@@ -24,6 +24,10 @@ struct zdata {
 		return (this->z != other.z || this->x_slope != other.x_slope || this->y_slope != other.y_slope);
 	}
 
+	zdata() :z(0), x_slope(0), y_slope(0), room_id(zdata::room_id) {
+
+	}
+
 
 };
 

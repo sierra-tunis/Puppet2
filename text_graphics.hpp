@@ -226,7 +226,7 @@ public:
 			char c = textbox.text[i];
 			char_info char_info_ = font.getCharInfo(c);
 			float char_end = line_length + char_info_.unscaled_width * textbox.font_size;
-			if (char_end > textbox.box_width) {
+			if (char_end > textbox.box_width || c == '\n') {
 				char_end = char_info_.unscaled_width * textbox.font_size;
 				line_num++;
 				line_length = 0;

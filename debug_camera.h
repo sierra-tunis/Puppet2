@@ -112,6 +112,15 @@ public:
 		return collision_info;
 	}
 
+	std::string getDebugInfo() const override {
+		const auto& zdata_pair = current_level_->getZmap().getZdata(getPosition()(seq(0, 2), 3), 0.);
+		const zdata& below = zdata_pair.first;
+		const zdata& above = zdata_pair.second;
+		return "z below: " + std::to_string(below.z) + "\n" +
+			"z above: " + std::to_string(above.z) + "\n" +
+			"current room: " + std::to_string(below.room_id);
+	}
+
 };
 
 //const Model DebugCamera::model_ = Model("cube.obj");

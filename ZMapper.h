@@ -74,7 +74,7 @@ private:
 		
 		ZClip_ << (Eigen::Matrix4f()<<2. / width, 0.0, 0.0, 0.,
 				0.0, 2. / height, 0.0, 0.,
-				0.0, 0.0, 1.0 / z_step, 0.0,
+				0.0, 0.0, 2.0 / z_step, -1.,
 				0.0, 0.0, 0.0, 1.0).finished() * 
 			(Eigen::Matrix4f() << 1., 0.0, 0.0, -x_center,
 				0.0, 1., 0.0, -y_center,
@@ -237,7 +237,7 @@ const char* ZMapper::vertex_code = "\n"
 "{\n"
 "	vec4 position = ZClip * camera * vec4(pos.x, pos.y, pos.z, 1.0);\n"//no model matrix since model does not move
 "   gl_Position = position;\n"
-"	Zdata = vec4(1.-position.z,norm.x/2.+.5,norm.z/2.+.5,room_id);"//red is Z height, green is y slope, blue is x slope, alpha is room_id (for now)
+"	Zdata = vec4(0.5-position.z/2.,norm.x/2.+.5,norm.z/2.+.5,room_id);"//red is Z height, green is y slope, blue is x slope, alpha is room_id (for now)
 "}\0";
 
 const char* ZMapper::fragment_code = "#version 330 core\n"
