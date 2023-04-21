@@ -28,7 +28,6 @@ private:
 
 	
 	static int last_id_;
-	const static std::string no_name_;
 	static std::unordered_map<std::string,const InternalObject*> named_internal_objects_;
 	const int id_;
 	std::string name_;
@@ -154,6 +153,8 @@ protected:
 
 public:
 
+	const static std::string no_name;
+
 	InternalObject(std::string name) :
 		position_(Eigen::Matrix4f::Identity()),
 		id_(last_id_++),//this is only to avoid not wanting to generate random strings
@@ -167,7 +168,7 @@ public:
 	}
 	InternalObject() :
 		position_(Eigen::Matrix4f::Identity()),
-		name_(InternalObject::no_name_),
+		name_(InternalObject::no_name),
 		id_(last_id_++),
 		parent_(nullptr),
 		parent_connector_(nullptr) {
@@ -309,12 +310,14 @@ public:
 	void rotateZ(float angle) {rotateAxisAngle(Eigen::Vector3f(0, 0, 1), angle);};
 
 	virtual std::string getDebugInfo() const { return ""; };
+	
+	const std::string& getName() const { return name_; }
 
 };
 
 InternalObject::callbackInput InternalObject::input_members_;
 int InternalObject::last_id_ = 0;
-const std::string InternalObject::no_name_ = "";
+const std::string InternalObject::no_name = "";
 std::unordered_map<std::string, const InternalObject*> InternalObject::named_internal_objects_;
 
 #endif

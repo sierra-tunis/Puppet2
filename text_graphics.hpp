@@ -43,8 +43,8 @@ struct Textbox{
 
 	Eigen::Matrix4f getPosition() const {
 		Eigen::Matrix4f ret;
-		ret << 1, 0, 0, left * 2 - 1,
-			0, 1, 0, 1 - 2 * top,
+		ret << 1, 0, 0, left,
+			0, 1, 0, top,
 			0, 0, 1, 0,
 			0, 0, 0, 1;
 		return ret;
@@ -206,7 +206,6 @@ public:
 	TextGraphics(Font& default_font):
 		default_font_(default_font),
 		position_location_(glGetUniformLocation(gl_id, "position_matrix")){
-
 	}
 
 	//renamed from get to make since it is allocating memory

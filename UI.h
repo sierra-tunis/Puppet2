@@ -59,7 +59,7 @@ class Button : public GameObject{
 			if (callback_func_ != nullptr){
 				callback_func_();
 			}
-			std::cout << "within button!\n";
+			//std::cout << "within button!\n";
 		}
 	}
 
@@ -72,6 +72,10 @@ public:
 
 		setModel(&button_model_);
 		setTexture(new Texture("rocky.jpg"));
+	}
+
+	void setCallback(void (*callback_func)()) {
+		callback_func_ = callback_func;
 	}
 
 };
