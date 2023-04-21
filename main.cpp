@@ -1,7 +1,8 @@
 #include <Eigen/Dense>
+#define _USE_MATH_DEFINES
+
 #include <cmath>
 #include <chrono>
-
 
 #include "Default3d.h"
 #include "level.h"
@@ -71,7 +72,7 @@ int main(void)
     }*/
 
     //Debugger right((Eigen::Matrix4f()<<1, 0, 0, .5, 0, 1, 0, 0, 0, 0, 1, .5, 0, 0, 0, 1).finished(), 2, default3d);
-    ZMapper zmapper;
+    //ZMapper zmapper;
     Texture rocky_texture("rocky.jpg");
     Level room1(layout,window,new Model("spiral_staircase_cult_exit.obj"),&rocky_texture ,"spiral staircase");
     //Level room2(layout, window, new Model("cult_exit_landing.obj"), &rocky_texture, "cult_exit_landing");
@@ -105,7 +106,7 @@ int main(void)
 
     default3d.add(center);
     hbox_graphics.add(center);
-    room1.initZmap(zmapper,6);
+    room1.initZmap(6);
     //room2.initZmap(zmapper, 2);
     //room3.initZmap(zmapper, 2);
 

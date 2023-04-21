@@ -3,13 +3,16 @@
 #ifndef PUPPET_CAMERA
 #define PUPPET_CAMERA
 
-#include "InternalObject.h"
-#include "Graphics.h"
+#define _USE_MATH_DEFINES
+#include<cmath>
+
+#include "GameObject.h"
+#include "Graphics.hpp"
 
 
 using Eigen::Matrix4f;
 
-class Camera : public InternalObject {
+class Camera : public GameObject {
 
 private:
 	bool screenshot_flag_;
@@ -21,7 +24,7 @@ private:
 public:
 
 	Camera(std::string name) :
-		InternalObject(name), screenshot_flag_(false),
+		GameObject(name), screenshot_flag_(false),
 		near_clip_(0),
 		far_clip_(0),
 		fov_(0),
@@ -29,7 +32,7 @@ public:
 	}
 
 	Camera(float near_clip, float far_clip, float fov,std::string name) : 
-		InternalObject(name),screenshot_flag_(false),
+		GameObject(name),screenshot_flag_(false),
 		near_clip_(near_clip),
 		far_clip_(far_clip),
 		fov_(fov){
@@ -67,7 +70,7 @@ public:
 		return perspective_;
 	}
 
-	const Eigen::Matrix4f& getCameraMatrix() const {
+	const Eigen::Matrix4f getCameraMatrix() const {
 		Eigen::Matrix4f camera_matrix = Eigen::Matrix4f::Identity();
 		camera_matrix(seq(0, 2), seq(0, 2)) = getPosition()(seq(0, 2), seq(0, 2)).transpose();
 		camera_matrix(seq(0, 2), 3) = -camera_matrix(seq(0, 2), seq(0, 2)) * getPosition()(seq(0, 2), 3);

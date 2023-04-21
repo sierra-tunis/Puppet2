@@ -5,7 +5,7 @@
 
 #include <string>
 
-#include "Graphics.h"
+#include "Graphics.hpp"
 
 
 //e.g. of how to implement tediously large number of cached argumend

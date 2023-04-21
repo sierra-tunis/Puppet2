@@ -135,9 +135,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="collision.cpp" />
+    <ClCompile Include="debug_camera.cpp" />
+    <ClCompile Include="DebugGraphics.cpp" />
+    <ClCompile Include="Default2d.cpp" />
+    <ClCompile Include="Default3d.cpp" />
     <ClCompile Include="glad.c" />
+    <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="InternalObject.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="surface.cpp" />
+    <ClCompile Include="Texture.cpp" />
+    <ClCompile Include="zmap.cpp" />
+    <ClCompile Include="ZMapper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
@@ -166,7 +176,7 @@
     <ClInclude Include="Texture3d.h" />
     <ClInclude Include="Default3d.h" />
     <ClInclude Include="GameObject.h" />
-    <ClInclude Include="Graphics.h" />
+    <ClInclude Include="Graphics.hpp" />
     <ClInclude Include="GraphicsObject.h" />
     <ClInclude Include="Hitbox.h" />
     <ClInclude Include="Model.h" />

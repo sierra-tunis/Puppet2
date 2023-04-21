@@ -6,7 +6,7 @@
 #include <map>
 
 #include "GameObject.h"
-#include "Graphics.h"
+#include "Graphics.hpp"
 #include "zmap.h"
 
 #include <GLFW/glfw3.h>
@@ -75,12 +75,12 @@ public:
 		return zmap_;
 	}
 
-	void initZmap(ZMapper& zmapper, unsigned int n_steps) {
+	void initZmap(unsigned int n_steps) {
 		std::vector<const Model*> neighbor_models;
 		for (auto& neig : neighbors_) {
 			neighbor_models.push_back(neig->getModel());
 		}
-		zmap_.createData(zmapper, *getModel(), n_steps, neighbor_models);
+		zmap_.createData(*getModel(), n_steps, neighbor_models);
 	}
 	/*
 	const Model& getModel() const override {
@@ -111,6 +111,11 @@ public:
 		deactivate();
 		neighbors_[neighbor_index]->activate();
 	}
+
+	const std::vector<InternalObject*>& getContents() const {
+		return contents_;
+	}
+
 
 	/*
 	void activate() {
