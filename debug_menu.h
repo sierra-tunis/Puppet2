@@ -4,6 +4,7 @@
 #define PUPPET_DEBUGMENU
 
 #include "GameObject.h"
+#include "motion_constraint.h"
 #include "UI.h"
 #include "zdata.hpp"
 
@@ -16,12 +17,15 @@ class DebugMenu : public GameObject {
 	Textbox test_tbox_;
 	TextGraphics& text_graphics_;
 
+	DebugCamera& debug_cam_;
+	OffsetConnector cam_clamp_;
+
 	const GameObject* debug_target_;
 	Textbox target_name_;
 	Textbox target_dbg_info_;
 
 	const Level* target_level_;
-
+	
 	//Button show_hitboxes_;
 
 	void onKeyPress(int key) override {
@@ -33,29 +37,64 @@ class DebugMenu : public GameObject {
 			if (!isHidden()) {
 				text_graphics_.add(test_tbox_);
 				text_graphics_.add(target_dbg_info_);
+				text_graphics_.add(target_name_);
 			} else {
 				text_graphics_.remove(test_tbox_);
 				text_graphics_.remove(target_dbg_info_);
+				text_graphics_.remove(target_name_);
 			}
 		}
 	}
 
 public:
 
+	static void nextTargetCallback(void* must_be_this) {
+		DebugMenu* this_ = static_cast<DebugMenu*>(must_be_this);
+		if (this_->target_level_ == nullptr) { return; };
+		if (this_->debug_target_ == nullptr) { 
+			this_->setDebugTarget(*this_->target_level_->getContents().begin());
+			return;
+		}
+		auto current_loc = std::find(this_->target_level_->getContents().begin(), this_->target_level_->getContents().end(), this_->debug_target_);
+		if (current_loc != this_->target_level_->getContents().end()-1) {
+			this_->setDebugTarget(*(current_loc + 1));
+		} else {
+			this_->setDebugTarget(nullptr);
+		}
+	}
+
+	static void prevTargetCallback(void* must_be_this) {
+		DebugMenu* this_ = static_cast<DebugMenu*>(must_be_this);
+		if (this_->target_level_ == nullptr) { return; };
+		if (this_->debug_target_ == nullptr) {
+			this_->setDebugTarget(*(this_->target_level_->getContents().end()-1));
+			return;
+		}
+		auto current_loc = std::find(this_->target_level_->getContents().begin(), this_->target_level_->getContents().end(), this_->debug_target_);
+		if (current_loc != this_->target_level_->getContents().begin()) {
+			this_->setDebugTarget(*(current_loc - 1));
+		}
+		else {
+			this_->setDebugTarget(nullptr);
+		}
+	}
+
 	void addButton(Button* button){
 		buttons_.push_back(button);
 	}
 
-	DebugMenu(GLFWwindow* window, Default2d& graphics, TextGraphics& text_graphics): GameObject("debug_menu"),
+	DebugMenu(GLFWwindow* window, Default2d& graphics, TextGraphics& text_graphics, DebugCamera& debug_camera): GameObject("debug_menu"),
 		test_button_(.1, .2, "test_button"),
 		next_target_(.2,.2,"next_target"),
 		prev_target_(.2, .2, "prev_target"),
 		test_tbox_(),
-		text_graphics_(text_graphics){
+		text_graphics_(text_graphics),
+		debug_cam_(debug_camera),//should eventually move debug camera construction and management into DebugMenu
+		cam_clamp_(Eigen::Matrix4f::Identity()){
 
 		test_button_.activateMouseInput(window);
 		test_button_.moveTo(-.8, .9, 0);
-		//addButton(&test_button_);
+		addButton(&test_button_);
 		graphics.add(test_button_);
 
 		test_tbox_.text = "this is a test, abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -74,8 +113,12 @@ public:
 		prev_target_.activateMouseInput(window);
 		graphics.add(prev_target_);
 		next_target_.moveTo(.8, -.4, 0);
-		next_target_.activateKeyInput(window);
+		next_target_.activateMouseInput(window);
 		graphics.add(next_target_);
+		addButton(&next_target_);
+		addButton(&prev_target_);
+		prev_target_.setCallback(prevTargetCallback,this);
+		next_target_.setCallback(nextTargetCallback,this);
 
 		target_name_.box_width = .6;
 		target_name_.box_height = .2;
@@ -85,16 +128,31 @@ public:
 	}
 
 	void update(GLFWwindow* window) override {
-		if (debug_target_ != nullptr && !isHidden()) {
-			std::string dbg_info = debug_target_->getDebugInfo();
+		target_level_ = debug_cam_.getLevel();
+		if (debug_target_ != nullptr) {
+			debug_cam_.connectTo(debug_target_,&cam_clamp_);
+		} else {
+			debug_cam_.disconnect();
+		}
+
+		if (!isHidden()) {
+			std::string dbg_info;
+			std::string name_text;
+			if (debug_target_ == nullptr) {
+				dbg_info = "";
+				name_text = "no Target";
+			}else {
+				dbg_info = debug_target_->getDebugInfo();
+				name_text = debug_target_->getName();
+			}
 			//std::cout << dbg_info << "\n";
 			//std::cout << target_dbg_info_.text << "\n";
-			if (debug_target_->getDebugInfo() != target_dbg_info_.text) {
+
+			if (dbg_info != target_dbg_info_.text) {
 				text_graphics_.remove(target_dbg_info_);
 				target_dbg_info_.text = dbg_info;
 				text_graphics_.add(target_dbg_info_);
 			}
-			std::string name_text = debug_target_->getName();
 			if (name_text == InternalObject::no_name) {
 				name_text = "unnamed";
 			}

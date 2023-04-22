@@ -178,7 +178,7 @@ public:
 	}
 
 
-	virtual void clampTo(const InternalObject* parent) {
+	virtual void clampTo(const InternalObject* parent) {// this has unintuitive behavior
 		this->parent_ = parent;
 		parent_connector_ = new OffsetConnector(parent_->getPosition(), position_);
 	}
@@ -199,6 +199,12 @@ public:
 		connector->setRootTransform(&parent_->getPosition());
 
 	}
+
+	void disconnect() {
+		this->parent_ = nullptr;
+		this->parent_connector_ = nullptr;
+	}
+
 	const PositionConstraint* getConnector() const {
 		return parent_connector_;
 	}

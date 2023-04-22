@@ -56,7 +56,7 @@ int main(void)
     //HboxGraphics hboxGraphics;
 
     std::vector<InternalObject> bases;
-    std::vector<InternalObject*> layout;//this being a vector which rearranges is horrible lol
+    std::vector<GameObject*> layout;//this being a vector which rearranges is horrible lol
     /*int n_debuggers = 10;
     for (int i = 0; i < n_debuggers; i++) {
         bases.emplace_back(Eigen::Matrix4f::Identity(), i + 1);
@@ -94,15 +94,15 @@ int main(void)
 
     DebugCamera center(&room1,"obamna");
     room1.add(center);
-    room1.add(camera); //shouldnt be part of the layout
+    //room1.add(camera); //shouldnt be part of the layout
     default3d.add(room1);
     //default3d.add(room2);
     //default3d.add(room3);
 
     //Button test_button(.5, .5, "test_button");
-    DebugMenu debugMenu(window,default2d,text_graphics);
+    DebugMenu debugMenu(window,default2d,text_graphics,center);
     debugMenu.activateKeyInput(window);
-    debugMenu.setDebugTarget(&center);
+    //debugMenu.setDebugTarget(&center);
 
     default3d.add(center);
     hbox_graphics.add(center);
@@ -131,6 +131,7 @@ int main(void)
         glfwPollEvents();
 
         room1.update();
+        camera.update(window);
         debugMenu.update(window);
 
         // Render here

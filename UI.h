@@ -42,7 +42,8 @@ class Button : public GameObject{
 //	float x_, y_; //center coord
 	Rect2d button_model_;
 
-	void (*callback_func_)();
+	void* callback_input_;
+	void (*callback_func_)(void*);
 
 	float getX() const {
 		return getPosition()(0, 3);
@@ -57,7 +58,7 @@ class Button : public GameObject{
 			x > getX() - width_ / 2 && x < getX() + width_ / 2
 			&& y > getY() - height_ / 2 && y < getY() + height_ / 2) {
 			if (callback_func_ != nullptr){
-				callback_func_();
+				callback_func_(callback_input_);
 			}
 			//std::cout << "within button!\n";
 		}
@@ -74,10 +75,10 @@ public:
 		setTexture(new Texture("rocky.jpg"));
 	}
 
-	void setCallback(void (*callback_func)()) {
+	void setCallback(void (*callback_func)(void*), void* callback_input) {
 		callback_func_ = callback_func;
+		callback_input_ = callback_input;
 	}
-
 };
 
 #endif

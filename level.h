@@ -21,7 +21,7 @@ private:
 	//static std::vector <Level> level_catalog_;
 
 	enum status { active, standby, frozen }; //by default, active is fully loaded and updated, standby is loaded but not updated, frozen is unloaded and unupdated
-	std::vector<InternalObject*> contents_;
+	std::vector<GameObject*> contents_;
 	GLFWwindow* window_;
 	int load_value_;//how "loaded" the level is
 	std::string fname;
@@ -49,7 +49,7 @@ public:
 		}
 	}
 
-	Level(std::vector<InternalObject*> layout, GLFWwindow* window, Model* model, Texture* texture, std::string room_name) :
+	Level(std::vector<GameObject*> layout, GLFWwindow* window, Model* model, Texture* texture, std::string room_name) :
 		GameObject(room_name),
 		window_(window),
 		fname(""),
@@ -94,7 +94,7 @@ public:
 		return neighbors_;
 	}
 
-	void add(InternalObject& obj) {
+	void add(GameObject& obj) {
 		contents_.push_back(&obj);
 	}
 
@@ -112,7 +112,7 @@ public:
 		neighbors_[neighbor_index]->activate();
 	}
 
-	const std::vector<InternalObject*>& getContents() const {
+	const std::vector<GameObject*>& getContents() const {
 		return contents_;
 	}
 

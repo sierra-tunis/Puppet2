@@ -114,6 +114,10 @@ public:
 		}
 	}
 
+	int getRoom(Eigen::Vector3f position) {
+		return getZdata(position, 0).first.room_id;
+	}
+
 	Eigen::Vector3f findMaxTravel(const Eigen::Vector3f& current_pos, const Eigen::Vector3f& delta_pos, float max_step, float min_gap, float max_slope, int iters = 3) const {
 		//assert current_pos is valid
 		//assert return is valid
