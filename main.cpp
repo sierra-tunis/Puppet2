@@ -13,6 +13,7 @@
 #include "Default2d.hpp"
 #include "debug_menu.h"
 #include "text_graphics.hpp"
+#include "Debugger.h"
 
 #include <GLFW/glfw3.h>
 
@@ -75,12 +76,12 @@ int main(void)
     //ZMapper zmapper;
     Texture rocky_texture("rocky.jpg");
     Level room1(layout,window,new Model("spiral_staircase_cult_exit.obj"),&rocky_texture ,"spiral staircase");
-    //Level room2(layout, window, new Model("cult_exit_landing.obj"), &rocky_texture, "cult_exit_landing");
-    //Level room3(layout, window, new Model("cult_exit_hallway.obj"), &rocky_texture, "cult_exit_hallway");
-    //room1.addNeighbor(&room2);
-    //room1.addNeighbor(&room3);
-    //room2.addNeighbor(&room1);
-    //room3.addNeighbor(&room1);
+    Level room2(layout, window, new Model("cult_exit_landing.obj"), &rocky_texture, "cult_exit_landing");
+    Level room3(layout, window, new Model("cult_exit_hallway.obj"), &rocky_texture, "cult_exit_hallway");
+    room1.addNeighbor(&room2);
+    room1.addNeighbor(&room3);
+    room2.addNeighbor(&room1);
+    room3.addNeighbor(&room1);
 
     PlayerCamera camera(.1, 100, 90, 1.0,&room1.getZmap(),window,"player1cam");
     //Camera camera((Eigen::Matrix4f() << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1).finished(), -1);
@@ -96,19 +97,23 @@ int main(void)
     room1.add(center);
     //room1.add(camera); //shouldnt be part of the layout
     default3d.add(room1);
-    //default3d.add(room2);
-    //default3d.add(room3);
+    default3d.add(room2);
+    default3d.add(room3);
 
     //Button test_button(.5, .5, "test_button");
     DebugMenu debugMenu(window,default2d,text_graphics,center);
     debugMenu.activateKeyInput(window);
     //debugMenu.setDebugTarget(&center);
 
+    Debugger dbg1(Eigen::Matrix4f::Identity(), "tester1", room1);
+    room1.add(dbg1);
+    default3d.add(dbg1);
+
     default3d.add(center);
     hbox_graphics.add(center);
     room1.initZmap(6);
-    //room2.initZmap(zmapper, 2);
-    //room3.initZmap(zmapper, 2);
+    room2.initZmap(2);
+    room3.initZmap(2);
 
     glfwSetWindowSize(window, 1600, 1200);
 

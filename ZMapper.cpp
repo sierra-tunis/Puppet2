@@ -9,6 +9,7 @@ const char* ZMapper::vertex_code = "\n"
 "uniform float room_id;\n"
 
 "uniform mat4 camera;\n"
+	
 "uniform mat4 ZClip;"
 
 "out vec4 Zdata;\n"

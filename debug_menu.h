@@ -25,6 +25,7 @@ class DebugMenu : public GameObject {
 	Textbox target_dbg_info_;
 
 	const Level* target_level_;
+	Textbox level_display_;
 	
 	//Button show_hitboxes_;
 
@@ -38,10 +39,12 @@ class DebugMenu : public GameObject {
 				text_graphics_.add(test_tbox_);
 				text_graphics_.add(target_dbg_info_);
 				text_graphics_.add(target_name_);
+				text_graphics_.add(level_display_);
 			} else {
 				text_graphics_.remove(test_tbox_);
 				text_graphics_.remove(target_dbg_info_);
 				text_graphics_.remove(target_name_);
+				text_graphics_.remove(level_display_);
 			}
 		}
 	}
@@ -93,26 +96,26 @@ public:
 		cam_clamp_(Eigen::Matrix4f::Identity()){
 
 		test_button_.activateMouseInput(window);
-		test_button_.moveTo(-.8, .9, 0);
+		test_button_.moveTo(.6, .9, 0);
 		addButton(&test_button_);
 		graphics.add(test_button_);
 
 		test_tbox_.text = "this is a test, abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 		test_tbox_.box_height = .5;
 		test_tbox_.box_width = .5;
-		test_tbox_.left = 0;
-		test_tbox_.top = 1;
+		test_tbox_.left = .5;
+		test_tbox_.top = .6;
 		text_graphics.add(test_tbox_);//for some reason removing this and beginning with the menu hidden causes an error
 
 		target_dbg_info_.box_width = 2;
-		target_dbg_info_.top = 0;
+		target_dbg_info_.top = .95;
 		target_dbg_info_.left = -1.;
 		text_graphics.add(target_dbg_info_);
 
-		prev_target_.moveTo(0, -.4, 0);
+		prev_target_.moveTo(-1, -.4, 0);
 		prev_target_.activateMouseInput(window);
 		graphics.add(prev_target_);
-		next_target_.moveTo(.8, -.4, 0);
+		next_target_.moveTo(-.2, -.4, 0);
 		next_target_.activateMouseInput(window);
 		graphics.add(next_target_);
 		addButton(&next_target_);
@@ -122,9 +125,15 @@ public:
 
 		target_name_.box_width = .6;
 		target_name_.box_height = .2;
-		target_name_.font_size = 1.5;
-		target_name_.left = .2;
+		target_name_.font_size = 1;
+		target_name_.left = -.8;
 		target_name_.top = -.4;
+
+		level_display_.box_width = .6;
+		level_display_.box_height = .2;
+		level_display_.left = -.8;
+		level_display_.top = 0;
+
 	}
 
 	void update(GLFWwindow* window) override {
@@ -145,9 +154,6 @@ public:
 				dbg_info = debug_target_->getDebugInfo();
 				name_text = debug_target_->getName();
 			}
-			//std::cout << dbg_info << "\n";
-			//std::cout << target_dbg_info_.text << "\n";
-
 			if (dbg_info != target_dbg_info_.text) {
 				text_graphics_.remove(target_dbg_info_);
 				target_dbg_info_.text = dbg_info;
@@ -161,6 +167,18 @@ public:
 				target_name_.text = name_text;
 				text_graphics_.add(target_name_);
 			}
+			std::string level_name;
+			if (target_level_ == nullptr) {
+				level_name = "base room";
+			} else {
+				level_name = target_level_->getName();
+			}
+			if (level_name != level_display_.text) {
+				text_graphics_.remove(level_display_);
+				level_display_.text = level_name;
+				text_graphics_.add(level_display_);
+			}
+
 		}
 	}
 

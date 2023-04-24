@@ -11,6 +11,7 @@
 #include "Graphics.hpp"
 #include "camera.h"
 #include "zdata.hpp"
+#include "level.h"
 
 //An alternative, non-zmap based approach would be breaking up the level into large voxels,
 // each voxel contains an array of faces to check collisions on. this way the collision checking is
@@ -24,7 +25,6 @@
 // in fact collision can be tied to hitbox. a primary hitbox would be a mesh based hitbox and then the secondary hitbox would be
 // a primitive with easy to compute collisions and get precise contact positioning. zmap can also be used for true out of bounds
 // information that supercedes mesh collisions
-
 
 class ZMapper : public Graphics<Model, int, size_t, uint8_t> { //note zmap is really the y direction in opengl, however Z usually represents the height dimension
 private:
@@ -113,7 +113,7 @@ private:
 		glBindVertexArray(0);
 
 		//return std::tuple<int, size_t, float, float>{VAO, model.flen(), model.getBoundingBox()[0], model.getBoundingBox()[2]};
-		return std::tuple<int, size_t, uint8_t>{VAO, model.flen(), last_room_id_++};
+		return Cache{VAO, model.flen(), last_room_id_++,};
 	}
 
 	virtual void deleteDataCache(Cache cache) const override {

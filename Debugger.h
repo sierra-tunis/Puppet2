@@ -23,6 +23,10 @@ public:
 		r2_(Eigen::Vector3f(1, 0, 0)),
 		linkage_(clamp_, r1_, r2_){
 		this->connectTo(&parent,&linkage_);
+
+		setModel(new Model("cube.obj"));
+		setTexture(new Texture("obamna.jpg"));
+
 	}
 
 	/*
@@ -88,9 +92,5 @@ private:
 
 };
 
-
-const Model Debugger::model_ = Model("cube.obj");
-const Texture Debugger::texture_ = Texture("obamna.jpg");
-const Hitbox Debugger::hbox_ = Hitbox({ 1.,2.,3. });
 
 #endif

@@ -220,7 +220,6 @@ public:
 	ConnectorConstraint(const Eigen::Matrix4f* root_transform,Eigen::Matrix4f offset) :
 		connector_transform_(offset),
 		root_transform_(root_transform){
-
 	}
 
 	const Eigen::Matrix4f& getConstraintTransform() const override {
@@ -231,6 +230,13 @@ public:
 
 	virtual Eigen::Matrix4f computeConnectorTransform(Eigen::Vector<float, 0> state_vec) {
 		return connector_transform_;
+	}
+
+	Eigen::Vector<float, 0> getState() const {
+		return Eigen::Vector<float, 0>();
+	};
+	void setState(Eigen::Vector<float, 0> state_vec) {
+		return;
 	}
 
 };

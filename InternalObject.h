@@ -17,6 +17,7 @@ using Eigen::Matrix4f;
 using Eigen::Matrix3f;
 using Eigen::seq;
 
+//a good cutoff for what is an internal vs game object is an internal object cannot be added to a level
 
 class InternalObject { //class for non-template dependent values, internal use only functionality (i.e. debug stuff). No update function
 private:
