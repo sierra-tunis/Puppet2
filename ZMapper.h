@@ -11,7 +11,6 @@
 #include "Graphics.hpp"
 #include "camera.h"
 #include "zdata.hpp"
-#include "level.h"
 
 //An alternative, non-zmap based approach would be breaking up the level into large voxels,
 // each voxel contains an array of faces to check collisions on. this way the collision checking is
@@ -26,7 +25,7 @@
 // a primitive with easy to compute collisions and get precise contact positioning. zmap can also be used for true out of bounds
 // information that supercedes mesh collisions
 
-class ZMapper : public Graphics<Model, int, size_t, uint8_t> { //note zmap is really the y direction in opengl, however Z usually represents the height dimension
+class ZMapper : public Graphics<GameObject, int, size_t, uint8_t> { //note zmap is really the y direction in opengl, however Z usually represents the height dimension
 private:
 	//const float step_height_; //data above step height will be clipped leaving only the background (cannot move onto background)
 								//in most cases this is "step height" i.e. the maximum height a player can step over small discontinuities
@@ -39,6 +38,7 @@ private:
 							//(or move to a position that is valid)
 
 	const unsigned int camera_location_;
+	const unsigned int position_location_;
 	const unsigned int ZClip_location_;
 	const unsigned int room_id_location_;
 	static uint8_t last_room_id_;
@@ -71,21 +71,17 @@ private:
 
 	void makeZclip(int y_resolution, int x_resolution, float height, float width,float y_center, float x_center, float z_step) {
 		
-		ZClip_ << (Eigen::Matrix4f()<<2. / width, 0.0, 0.0, 0.,
+		ZClip_ = (Eigen::Matrix4f()<<2. / width, 0.0, 0.0, 0.,
 				0.0, 2. / height, 0.0, 0.,
 				0.0, 0.0, 2.0 / z_step, -1.,
-				0.0, 0.0, 0.0, 1.0).finished() * 
-			(Eigen::Matrix4f() << 1., 0.0, 0.0, -x_center,
-				0.0, 1., 0.0, -y_center,
-				0.0, 0.0, 1.0, 0.0,
 				0.0, 0.0, 0.0, 1.0).finished();
 
 	}
 
 
 	//copy pasted from default3d (i.e. bad practice)
-	virtual Cache makeDataCache(const Model& obj) const override {
-		const Model& model = obj;
+	virtual Cache makeDataCache(const GameObject& obj) const override {
+		const Model& model = *obj.getModel();
 		unsigned int VAO;
 		glGenVertexArrays(1, &(VAO));
 		//this->VAO = static_cast<int>(VAO);
@@ -125,9 +121,12 @@ private:
 		last_room_id_ = 1;
 	}
 
-	void drawObj(const Model& obj, Cache cache) const override {
+	void drawObj(const GameObject& obj, Cache cache) const override {
 		glBindVertexArray(getVAO(cache));
 		glUniform1f(room_id_location_, static_cast<float>(getRoomID(cache))/256.);
+		glUniformMatrix4fv(position_location_, 1, GL_FALSE,obj.getPosition().data());
+		//glUniformMatrix4fv(position_location_, 1, GL_FALSE, Matrix4f( Matrix4f::Identity()).data());
+
 		float tmp = static_cast<float>(getRoomID(cache)) / 256.;
 		//should remove inverse here
 
@@ -138,9 +137,6 @@ private:
 	}
 
 	void beginDraw() const override {
-
-		Graphics::beginDraw();
-
 
 		glEnable(GL_DEPTH_TEST);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -157,7 +153,6 @@ private:
 	}
 
 	void endDraw() const override {
-		Graphics::endDraw();
 		//default3d specific code
 
 		glDisable(GL_CULL_FACE);
@@ -170,43 +165,44 @@ public:
 	ZMapper() :camera_(Camera("zmapper camera")),
 		camera_location_(glGetUniformLocation(gl_id, "camera")),
 		ZClip_location_(glGetUniformLocation(gl_id, "ZClip")),
-		room_id_location_(glGetUniformLocation(gl_id,"room_id")){
-
+		room_id_location_(glGetUniformLocation(gl_id,"room_id")),
+		position_location_(glGetUniformLocation(gl_id, "model_position"))
+	{
 		camera_.rotateX(M_PI / 2);
 	}
 
-	bool renderZstep(const Model& model, int y_resolution, int x_resolution, float z, float z_step,std::vector<uint8_t>* data, std::vector<const Model*> secondary_models) {
+	bool renderZstep(const GameObject& level, int y_resolution, int x_resolution, float z, float z_step,std::vector<uint8_t>* data, const std::vector<const GameObject*>& neighbors,std::string fname) {
 		constexpr int n_channels = 4;
+		const Model& model = *level.getModel();
 		//camera centers on model (primary model)
-		makeZclip(y_resolution, x_resolution, model.getBoundingBox()[2], model.getBoundingBox()[0], model.getBoxCenter()[2], model.getBoxCenter()[0], z_step);
+		makeZclip(y_resolution, x_resolution, model.getBoundingBox()[2], model.getBoundingBox()[0], level.getPosition()(2,3), level.getPosition()(0, 3), z_step);
 		int i = 0;
-		draw_targets_.insert({ i++, &model });
-		for (auto& mod : secondary_models) {
-			draw_targets_.insert({ i++, mod });
+		add(level);
+		for (const auto& neig : neighbors) {
+			add(*neig);
 		}
-		if (cached_data_.find(0) == cached_data_.end()) {
-			i = 0;
-			cached_data_.insert({ i++,makeDataCache(model) });
-			for (auto& mod : secondary_models) {
-				cached_data_.insert({ i++,makeDataCache(*mod) });
-			}
-		}
-		camera_.moveTo(0, z, 0);
+		camera_.moveTo(level.getPosition()(seq(0,2), 3));
+		camera_.translate(0, z, 0);
 		camera_.updatePosition();
 		//create zclip matrix
 		startScreenshot(x_resolution, y_resolution);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearColor(0., 0., 0., 0.);
+		Eigen::Matrix4f mat = Matrix4f(camera_.getPosition().inverse()) * level.getPosition();
 		beginDraw();
 		drawAll();
 		endDraw();
 		//...see https://stackoverflow.com/questions/12157646/how-to-render-offscreen-on-opengl
 		data->reserve(y_resolution * x_resolution * n_channels);
 		//finishScreenshot<int, GL_INT>(data,"zmap_layer.png");
-		finishScreenshot<uint8_t, GL_UNSIGNED_BYTE>(data, "zmap" + std::to_string(z) + "_layer.png");
+		finishScreenshot<uint8_t, GL_UNSIGNED_BYTE>(data,fname);
 		//finishScreenshot<uint8_t, GL_UNSIGNED_BYTE>(data);
 
-		clearCache();
+		remove(level);
+		for (const auto& neig : neighbors) {
+			remove(*neig);
+		}
+		last_room_id_ = 1;
 
 		return true; //here in case I want to do checks on if the data was transfered. should also be [[nodiscard]]
 	}

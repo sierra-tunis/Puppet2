@@ -15,7 +15,6 @@
 #include "Texture.h"
 #include "InternalObject.h"
 #include "motion_constraint.h"
-#include "zmap.h"
 
 
 using Eigen::Matrix4f;
@@ -145,11 +144,12 @@ public:
 		return dt_.count();
 	}//note this is a copy, not a ref
 
+	/*
 	void boundedTranslate(const Eigen::Vector3f& vec, const Zmap& bounds, float max_step) {
 		float height = getHbox().getShape()(1);
 		float width = getHbox().getShape()(0);
 		this->moveTo(bounds.getNewPosition(this->getPosition()(seq(0,2),3), vec, max_step,height,width,.5, freefall_));
-	}
+	}*/
 
 	virtual const Model* getModel() const { //these are virtual to allow for unique model/texture instances, i.e. level
 		return model_;

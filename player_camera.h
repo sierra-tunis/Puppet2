@@ -75,7 +75,7 @@ private:
 
 
 public:
-	PlayerCamera(float near_clip, float far_clip, float fov,float equilibrium_length,const Zmap* bounds, GLFWwindow* window, std::string name) :
+	PlayerCamera(float near_clip, float far_clip, float fov,float equilibrium_length,const Surface<3>* bounds, GLFWwindow* window, std::string name) :
 		Camera(near_clip,far_clip,fov,"PlayerCamera"),
 		equilibrium_length_(equilibrium_length),
 		pan_(RotationJoint(Eigen::Vector3f(0, 1, 0))),
@@ -120,7 +120,9 @@ public:
 		connectTo(player);
 		this->player_ = player;
 	}
+
 	friend void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
+
 };
 
 #endif

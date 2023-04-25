@@ -203,6 +203,10 @@ public:
 		std::cerr << "no ID available for Model class";
 		return 0;
 	}
+	/*
+	void rescale(float scale_factor) {
+		
+	}*/
 
 };
 

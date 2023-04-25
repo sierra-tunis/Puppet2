@@ -14,6 +14,7 @@
 #include "debug_menu.h"
 #include "text_graphics.hpp"
 #include "Debugger.h"
+#include "ZMapper.h"
 
 #include <GLFW/glfw3.h>
 
@@ -75,7 +76,7 @@ int main(void)
     //Debugger right((Eigen::Matrix4f()<<1, 0, 0, .5, 0, 1, 0, 0, 0, 0, 1, .5, 0, 0, 0, 1).finished(), 2, default3d);
     //ZMapper zmapper;
     Texture rocky_texture("rocky.jpg");
-    Level room1(layout,window,new Model("spiral_staircase_cult_exit.obj"),&rocky_texture ,"spiral staircase");
+    Level room1(layout,window,new Model("spiral_staircase_cult_exit.obj"),&rocky_texture ,"spiral_staircase");
     Level room2(layout, window, new Model("cult_exit_landing.obj"), &rocky_texture, "cult_exit_landing");
     Level room3(layout, window, new Model("cult_exit_hallway.obj"), &rocky_texture, "cult_exit_hallway");
     room1.addNeighbor(&room2);
@@ -83,7 +84,13 @@ int main(void)
     room2.addNeighbor(&room1);
     room3.addNeighbor(&room1);
 
-    PlayerCamera camera(.1, 100, 90, 1.0,&room1.getZmap(),window,"player1cam");
+    ZMapper zmapper;
+    room3.createZmapCollisionSurface(4, &zmapper);
+    room1.createZmapCollisionSurface(6,&zmapper);
+    room2.createZmapCollisionSurface(4,&zmapper);
+
+
+    PlayerCamera camera(.1, 100, 90, 1.0,room1.getCollisionSurface(),window,"player1cam");
     //Camera camera((Eigen::Matrix4f() << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1).finished(), -1);
     camera.activateKeyInput(window);
     Default3d default3d(camera);
@@ -111,9 +118,6 @@ int main(void)
 
     default3d.add(center);
     hbox_graphics.add(center);
-    room1.initZmap(6);
-    room2.initZmap(2);
-    room3.initZmap(2);
 
     glfwSetWindowSize(window, 1600, 1200);
 

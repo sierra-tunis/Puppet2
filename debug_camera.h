@@ -21,7 +21,7 @@ class DebugCamera : public InterfaceObject<GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, G
 	Level* current_level_;
 	bool freefall;
 	MeshSurface hitbox_;
-	NoCollideConstraint<Zmap, MeshSurface> level_bounds_;
+	NoCollideConstraint<Surface<3>, MeshSurface> level_bounds_;
 	std::vector<bool> collision_info;
 	//BoundaryConstraint level_bounds_;
 
@@ -56,7 +56,7 @@ public:
 	InterfaceObject(name),
 	current_level_(starting_level),
 	hitbox_("cube.obj"),
-	level_bounds_(&current_level_->getZmap(), &current_level_->getPosition(),hitbox_),
+	level_bounds_(current_level_->getCollisionSurface(), &current_level_->getPosition(),hitbox_),
 	collision_info(hitbox_.getEdges().size())
 	//level_bounds_(&current_level_->getZmap())
 	{
@@ -66,9 +66,17 @@ public:
 	}
 
 	void update(GLFWwindow* window) override {
-		SurfaceNodeCollision(&current_level_->getZmap(), &hitbox_, getPosition(), &collision_info);
+		SurfaceNodeCollision(current_level_->getCollisionSurface(), &hitbox_, getPosition(), &collision_info);
 		InterfaceObject::update(window);
-		int current_room = current_level_->getZmap().getZdata(getPosition()(seq(0, 2), 3)-current_level_->getPosition()(seq(0,2),3), 0.).first.room_id;
+		//if (!current_level_->withinLevel(getPosition()(seq(0, 2), 3))) {
+			int neig_ind = current_level_->neighborAt(getPosition()(seq(0, 2), 3));
+			if (neig_ind != -1) {
+				current_level_->activateNeighbor(neig_ind);
+				current_level_ = current_level_->getNeighbors()[neig_ind];
+			}
+		//}
+		/*
+		int current_room = current_level_->getZmap().getZdata(, 0.).first.room_id;
 		//std::cout << "current room# " << current_room << "\n";
 		if (current_room != 1) {
 			if (current_room == zdata::BaseRoom) {
@@ -78,7 +86,7 @@ public:
 				current_level_->activateNeighbor(current_room - 2);
 				current_level_ = current_level_->getNeighbors()[current_room - 2];
 			}
-		}
+		}*/
 
 		/*if (isInFreefall()) {
 			getVelocity() += getAcceleration() * getdt();
@@ -113,12 +121,13 @@ public:
 	}
 
 	std::string getDebugInfo() const override {
-		const auto& zdata_pair = current_level_->getZmap().getZdata(getPosition()(seq(0, 2), 3), 0.);
+		return "info commented out";
+		/*const std::pair<zdata, zdata>& zdata_pair = current_level_->getZmap().getZdata(getPosition()(seq(0, 2), 3), 0.);
 		const zdata& below = zdata_pair.first;
 		const zdata& above = zdata_pair.second;
 		return "z below: " + std::to_string(below.z) + "\n" +
 			"z above: " + std::to_string(above.z) + "\n" +
-			"current room: " + std::to_string(below.room_id);
+			"current room: " + std::to_string(below.room_id);*/
 	}
 
 };

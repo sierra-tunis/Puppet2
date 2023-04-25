@@ -8,6 +8,7 @@
 #include "GameObject.h"
 #include "Graphics.hpp"
 #include "zmap.h"
+#include "ZMapper.h"
 
 #include <GLFW/glfw3.h>
 
@@ -26,7 +27,8 @@ private:
 	int load_value_;//how "loaded" the level is
 	std::string fname;
 	std::vector<Level*> neighbors_; //neighbors enter standby when this is active
-	Zmap zmap_;
+	Surface<3>* collision_surface_;
+	Region<3>* level_region_;
 
 	//we can render the floor like an image with color corresponding to the height.
 	// use some sentinel color for the background to indicate out of bounds regions.
@@ -41,6 +43,12 @@ private:
 		return ret;
 	}
 
+	void activate() {
+	}
+
+	void deactivate() {
+	}
+
 public:
 
 	void update() {
@@ -53,7 +61,7 @@ public:
 		GameObject(room_name),
 		window_(window),
 		fname(""),
-		zmap_(Level::getWindowSize(window)[1], Level::getWindowSize(window)[0], model)
+		collision_surface_(nullptr)
 		//for now this uses current window size as resolution since thats what ZMapper will output as
 	{
 		setModel(model);
@@ -71,16 +79,19 @@ public:
 		if (fname == "") {/*error*/ }
 	}
 
-	const Zmap& getZmap() const {
-		return zmap_;
+	const Surface<3>* getCollisionSurface() const {
+		return collision_surface_;
 	}
-
-	void initZmap(unsigned int n_steps) {
-		std::vector<const Model*> neighbor_models;
-		for (auto& neig : neighbors_) {
-			neighbor_models.push_back(neig->getModel());
+	
+	void createZmapCollisionSurface(unsigned int n_steps, ZMapper* zmapper) {
+		std::vector<const GameObject*> neighbors;
+		for (const auto& neig : neighbors_) {
+			neighbors.push_back(neig);
 		}
-		zmap_.createData(*getModel(), n_steps, neighbor_models);
+		Zmap* collision_surface = new Zmap(Level::getWindowSize(window_)[1], Level::getWindowSize(window_)[0], getModel());
+		collision_surface->createData(*this, n_steps, neighbors, static_cast<void*>(zmapper));
+		collision_surface_ = collision_surface;
+		level_region_ = collision_surface;
 	}
 	/*
 	const Model& getModel() const override {
@@ -94,6 +105,19 @@ public:
 		return neighbors_;
 	}
 
+	bool withinLevel(Eigen::Vector3f pos) const {
+		return level_region_->insideRegion(pos-getPosition()(seq(0,2),3));
+	}
+
+	int neighborAt(Eigen::Vector3f pos) {
+		for (int i = 0; i < neighbors_.size(); i++) {//could be improved
+			if (neighbors_[i]->withinLevel(pos)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
 	void add(GameObject& obj) {
 		contents_.push_back(&obj);
 	}
@@ -102,10 +126,11 @@ public:
 		neighbors_.push_back(neighbor);
 	}
 
-	void activate() {
-	}
-	void deactivate() {
-	}
+	/*
+	void activateNeighbor(Level* neighbor) {
+		deactivate();
+		neighbor->activate();
+	}*///not sure which version I like more 
 
 	void activateNeighbor(int neighbor_index) {
 		deactivate();
@@ -115,7 +140,6 @@ public:
 	const std::vector<GameObject*>& getContents() const {
 		return contents_;
 	}
-
 
 	/*
 	void activate() {

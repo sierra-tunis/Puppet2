@@ -8,9 +8,10 @@
 #include "zdata.hpp"
 #include "Model.h"
 #include "motion_constraint.h"
+#include "GameObject.h"
 
 
-class Zmap : public Surface<3>{//we can even encode room neighbor information by color coding the out of bounds information
+class Zmap : public Region<3>{//we can even encode room neighbor information by color coding the out of bounds information
 private:
 
 	const int x_resolution_, y_resolution_;
@@ -25,7 +26,8 @@ private:
 		float voxel_height = z_step / data_resolution;
 		for (int i = 0; i < frame_data.size(); i += 4) { //4 channel
 			//reads raw output from fbo as vector of uints and turns it into a zdata which is usefull so we dont have to memorize order of data in fbo
-			zdata pixel_i({ z_step * static_cast<float>(frame_data[i]) / data_resolution + frame_z - z_step,static_cast<float>(frame_data[i + 1]) / data_resolution,static_cast<float>(frame_data[i + 2]) / data_resolution }, frame_data[i + 3]);
+			//zdata pixel_i({ z_step * static_cast<float>(frame_data[i]) / data_resolution + frame_z - z_step,static_cast<float>(frame_data[i + 2]) / data_resolution,static_cast<float>(frame_data[i + 3]) / data_resolution }, frame_data[i + 1]);
+			zdata pixel_i({ z_step * static_cast<float>(frame_data[i]) / data_resolution + frame_z - z_step,0,0}, frame_data[i + 1]);
 			if ((pixel_i.room_id != 0) && (raw_data_[i / 4].size() == 0 || (abs(raw_data_[i / 4].back().z - pixel_i.z) > voxel_height))) {
 				raw_data_[i / 4].push_back(pixel_i);
 			}
@@ -70,7 +72,7 @@ public:
 		}
 	}
 
-	Zmap(int y_resolution, int x_resolution, Model* model) :
+	Zmap(int y_resolution, int x_resolution, const Model* model) :
 		Zmap(y_resolution, x_resolution, model->getBoundingBox()[2], model->getBoundingBox()[0]) {
 
 	}
@@ -114,7 +116,7 @@ public:
 		}
 	}
 
-	int getRoom(Eigen::Vector3f position) {
+	int getRoom(Eigen::Vector3f position) const {
 		return getZdata(position, 0).first.room_id;
 	}
 
@@ -199,7 +201,12 @@ public:
 
 	}
 
-	void createData(const Model& model, unsigned int n_steps, std::vector<const Model*> secondary_models);
+	void createData(const GameObject& level, unsigned int n_steps, const std::vector<const GameObject*>& neighbors,void* ZMapper_ptr);
+
+	bool insideRegion(Eigen::Vector3f state) const {
+		return getRoom(state) == 1;
+	};
+
 };
 
 #endif
