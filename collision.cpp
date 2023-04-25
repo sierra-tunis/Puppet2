@@ -45,3 +45,23 @@ template<>
 bool checkCollision<Ellipse, Ellipse>(const Ellipse* PrimarySurf, const Ellipse* SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition) {
 	return true;
 }
+
+bool triIntersection(Eigen::Vector3f l1, Eigen::Vector3f l2, Eigen::Vector3f t1, Eigen::Vector3f t2, Eigen::Vector3f t3) {
+	Eigen::Vector3f tri_norm = (t1-t2).cross(t3 - t1).normalized();
+	//(k(l2-l1)+l1)*tri_norm = 0
+	float k = l1.dot(tri_norm) / (l2 - l1).dot(tri_norm);
+	if (k > 1 || k < 0) { //line is too "short" to intersect triangle
+		return false;
+	} else {
+		Eigen::Vector3f p = k * (l1 - l2) + l1;
+		//...
+	}
+	return true;
+
+}
+
+template<>
+bool checkCollision<MeshSurface, MeshSurface>(const MeshSurface* PrimarySurf, const MeshSurface* SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition) {
+
+	return true;
+}

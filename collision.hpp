@@ -17,6 +17,10 @@ bool checkCollision<Surface<3>, MeshSurface>(const Surface<3>* PrimarySurf, cons
 template<>
 bool checkCollision<Ellipse, Ellipse>(const Ellipse* PrimarySurf, const Ellipse* SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition);
 
+template<>
+bool checkCollision<MeshSurface, MeshSurface>(const MeshSurface* PrimarySurf, const MeshSurface* SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition);
+
+
 template<class primary>
 concept PrimaryHitbox = std::derived_from<primary, Surface<3>>;
 

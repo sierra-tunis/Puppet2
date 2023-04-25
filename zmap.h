@@ -17,6 +17,7 @@ private:
 	const int x_resolution_, y_resolution_;
 	const float map_width_, map_height_;
 	std::vector<std::vector<zdata>> raw_data_;//array data is {z height, x slope, y slope}, as per the ZMapper shader
+	float xy_padding_;
 	//should really be an ordered vector
 	//const zdata background_;
 
@@ -50,7 +51,7 @@ protected:
 		move_xy(1) = first_state(1);
 		Eigen::Vector3f move_z = first_state;
 		move_z(1) = second_state(1);
-		if (getZdata(second_state,0).first.room_id == zdata::BaseRoom || getZdata(first_state, 0).first.room_id == zdata::BaseRoom) {
+		if (getZdata(second_state, 0).first.room_id == zdata::BaseRoom || getZdata(first_state, 0).first.room_id == zdata::BaseRoom) {
 			return true;
 		} else if(getZdata(second_state, 0).first != getZdata(move_xy, 0).first){
 			return true;
@@ -61,11 +62,12 @@ protected:
 	}
 
 public:
-	Zmap(int y_resolution, int x_resolution, float map_height, float map_width) :
+	Zmap(int y_resolution, int x_resolution, float map_height, float map_width, float xy_padding) :
 		x_resolution_(x_resolution),
 		y_resolution_(y_resolution),
-		map_height_(map_height),
-		map_width_(map_width)
+		map_height_(map_height*(1.+xy_padding)),
+		map_width_(map_width*(1.+xy_padding)),
+		xy_padding_(xy_padding)
 	{
 		for (int i = 0; i < x_resolution * y_resolution; i++) {
 			raw_data_.emplace_back();
@@ -73,7 +75,7 @@ public:
 	}
 
 	Zmap(int y_resolution, int x_resolution, const Model* model) :
-		Zmap(y_resolution, x_resolution, model->getBoundingBox()[2], model->getBoundingBox()[0]) {
+		Zmap(y_resolution, x_resolution, model->getBoundingBox()[2], model->getBoundingBox()[0], .5) {
 
 	}
 
@@ -204,7 +206,7 @@ public:
 	void createData(const GameObject& level, unsigned int n_steps, const std::vector<const GameObject*>& neighbors,void* ZMapper_ptr);
 
 	bool insideRegion(Eigen::Vector3f state) const {
-		return getRoom(state) == 1;
+		return (getRoom(state) == 1);
 	};
 
 };

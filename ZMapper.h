@@ -69,10 +69,10 @@ private:
 		return std::get<3>(cache);
 	}*/
 
-	void makeZclip(int y_resolution, int x_resolution, float height, float width,float y_center, float x_center, float z_step) {
+	void makeZclip(int y_resolution, int x_resolution, float height, float width,float y_center, float x_center, float z_step, float padding) {
 		
-		ZClip_ = (Eigen::Matrix4f()<<2. / width, 0.0, 0.0, 0.,
-				0.0, 2. / height, 0.0, 0.,
+		ZClip_ = (Eigen::Matrix4f()<<2. / (width*(1.+padding)), 0.0, 0.0, 0.,
+				0.0, 2. / (height*(1.+padding)), 0.0, 0.,
 				0.0, 0.0, 2.0 / z_step, -1.,
 				0.0, 0.0, 0.0, 1.0).finished();
 
@@ -171,11 +171,11 @@ public:
 		camera_.rotateX(M_PI / 2);
 	}
 
-	bool renderZstep(const GameObject& level, int y_resolution, int x_resolution, float z, float z_step,std::vector<uint8_t>* data, const std::vector<const GameObject*>& neighbors,std::string fname) {
+	bool renderZstep(const GameObject& level, int y_resolution, int x_resolution, float z, float z_step,float xy_padding, std::vector<uint8_t>* data, const std::vector<const GameObject*>& neighbors,std::string fname) {
 		constexpr int n_channels = 4;
 		const Model& model = *level.getModel();
 		//camera centers on model (primary model)
-		makeZclip(y_resolution, x_resolution, model.getBoundingBox()[2], model.getBoundingBox()[0], level.getPosition()(2,3), level.getPosition()(0, 3), z_step);
+		makeZclip(y_resolution, x_resolution, model.getBoundingBox()[2], model.getBoundingBox()[0], level.getPosition()(2,3), level.getPosition()(0, 3), z_step, xy_padding);
 		int i = 0;
 		add(level);
 		for (const auto& neig : neighbors) {
@@ -198,9 +198,9 @@ public:
 		finishScreenshot<uint8_t, GL_UNSIGNED_BYTE>(data,fname);
 		//finishScreenshot<uint8_t, GL_UNSIGNED_BYTE>(data);
 
-		remove(level);
+		unload(level);
 		for (const auto& neig : neighbors) {
-			remove(*neig);
+			unload(*neig);
 		}
 		last_room_id_ = 1;
 

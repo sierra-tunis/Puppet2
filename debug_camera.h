@@ -21,7 +21,7 @@ class DebugCamera : public InterfaceObject<GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, G
 	Level* current_level_;
 	bool freefall;
 	MeshSurface hitbox_;
-	NoCollideConstraint<Surface<3>, MeshSurface> level_bounds_;
+	NoCollideConstraint<Surface<3>, MeshSurface>* level_bounds_;
 	std::vector<bool> collision_info;
 	//BoundaryConstraint level_bounds_;
 
@@ -50,31 +50,42 @@ class DebugCamera : public InterfaceObject<GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, G
 		}
 	}
 
+	bool fullyOutsideLevel() {
+		for (auto& p : getHitbox().getVerts()) {
+			if (current_level_->withinLevel(p + getPosition()(seq(0, 2), 3))) {
+				return false;
+			}
+		}
+		return true;
+	}
 
 public:
 	DebugCamera(Level* starting_level, std::string name):
 	InterfaceObject(name),
 	current_level_(starting_level),
-	hitbox_("cube.obj"),
-	level_bounds_(current_level_->getCollisionSurface(), &current_level_->getPosition(),hitbox_),
+	hitbox_("small_cube.obj"),
+	level_bounds_(new NoCollideConstraint<Surface<3>, MeshSurface>(current_level_->getCollisionSurface(), &current_level_->getPosition(),&hitbox_)),
 	collision_info(hitbox_.getEdges().size())
 	//level_bounds_(&current_level_->getZmap())
 	{
-		setModel(new Model("cube.obj"));
+		setModel(new Model("small_cube.obj"));
 		setTexture(new Texture("obamna.jpg"));
-		addMotionConstraint(&level_bounds_);
+		addMotionConstraint(level_bounds_);
 	}
 
 	void update(GLFWwindow* window) override {
 		SurfaceNodeCollision(current_level_->getCollisionSurface(), &hitbox_, getPosition(), &collision_info);
 		InterfaceObject::update(window);
-		//if (!current_level_->withinLevel(getPosition()(seq(0, 2), 3))) {
+		if (fullyOutsideLevel()) {
 			int neig_ind = current_level_->neighborAt(getPosition()(seq(0, 2), 3));
 			if (neig_ind != -1) {
-				current_level_->activateNeighbor(neig_ind);
+				// && !checkCollision<Surface<3>, MeshSurface>(current_level_->getNeighbors()[neig_ind]->getCollisionSurface(),&getHitbox(), current_level_->getNeighbors()[neig_ind]->getPosition(),getPosition())
+				/*current_level_->activateNeighbor(neig_ind);
 				current_level_ = current_level_->getNeighbors()[neig_ind];
+				*level_bounds_ = NoCollideConstraint<Surface<3>, MeshSurface>(current_level_->getCollisionSurface(), &current_level_->getPosition(), &hitbox_);
+				*/
 			}
-		//}
+		}
 		/*
 		int current_room = current_level_->getZmap().getZdata(, 0.).first.room_id;
 		//std::cout << "current room# " << current_room << "\n";
@@ -121,13 +132,19 @@ public:
 	}
 
 	std::string getDebugInfo() const override {
-		return "info commented out";
-		/*const std::pair<zdata, zdata>& zdata_pair = current_level_->getZmap().getZdata(getPosition()(seq(0, 2), 3), 0.);
+		const std::pair<zdata, zdata>& zdata_pair = static_cast<const Zmap*>(static_cast<const void*>(current_level_->getCollisionSurface()))->getZdata(getPosition()(seq(0, 2), 3)-current_level_->getPosition()(seq(0,2),3), 0.);
 		const zdata& below = zdata_pair.first;
 		const zdata& above = zdata_pair.second;
-		return "z below: " + std::to_string(below.z) + "\n" +
+		std::string ret_str = "z below: " + std::to_string(below.z) + "\n" +
 			"z above: " + std::to_string(above.z) + "\n" +
-			"current room: " + std::to_string(below.room_id);*/
+			"current room: " + std::to_string(below.room_id) + "\n"+
+			"within current room?:" + (current_level_->withinLevel(getPosition()(seq(0,2),3))?" Yes\n":" No\n");
+		int i = 0;
+		for (const auto& neig : current_level_->getNeighbors()) {
+			ret_str += "within neighbor " + std::to_string(i) + "?:" + (neig->withinLevel(getPosition()(seq(0, 2), 3)) ? " Yes\n" : " No\n");
+			i++;
+		}
+		return ret_str;
 	}
 
 };

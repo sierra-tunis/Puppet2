@@ -155,7 +155,7 @@ public:
 				name_text = debug_target_->getName();
 			}
 			if (dbg_info != target_dbg_info_.text) {
-				text_graphics_.remove(target_dbg_info_);
+				text_graphics_.unload(target_dbg_info_);
 				target_dbg_info_.text = dbg_info;
 				text_graphics_.add(target_dbg_info_);
 			}
@@ -163,7 +163,7 @@ public:
 				name_text = "unnamed";
 			}
 			if (name_text != target_name_.text) {
-				text_graphics_.remove(target_name_);
+				text_graphics_.unload(target_name_);
 				target_name_.text = name_text;
 				text_graphics_.add(target_name_);
 			}
@@ -174,7 +174,7 @@ public:
 				level_name = target_level_->getName();
 			}
 			if (level_name != level_display_.text) {
-				text_graphics_.remove(level_display_);
+				text_graphics_.unload(level_display_);
 				level_display_.text = level_name;
 				text_graphics_.add(level_display_);
 			}

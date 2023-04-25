@@ -85,9 +85,9 @@ int main(void)
     room3.addNeighbor(&room1);
 
     ZMapper zmapper;
-    room3.createZmapCollisionSurface(4, &zmapper);
     room1.createZmapCollisionSurface(6,&zmapper);
     room2.createZmapCollisionSurface(4,&zmapper);
+    room3.createZmapCollisionSurface(4, &zmapper);
 
 
     PlayerCamera camera(.1, 100, 90, 1.0,room1.getCollisionSurface(),window,"player1cam");

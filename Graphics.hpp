@@ -154,7 +154,7 @@ public:
 
 	void unload(const Object& obj) {
 		draw_targets_.erase(obj.getID());
-		deleteCachedData(cached_data_[obj.getID()]);
+		deleteDataCache(cached_data_[obj.getID()]);
 		cached_data_.erase(obj.getID());
 	}
 
