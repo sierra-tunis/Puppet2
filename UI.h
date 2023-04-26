@@ -80,5 +80,88 @@ public:
 		callback_input_ = callback_input;
 	}
 };
+/*
+template<class T>
+concept GameObjectIterator = requires(const T & iterator, unsigned int i) {
+	//{*iterator[i]} ->  std::convertible_to<GameObject*>;
+	{iterator.size()} -> std::convertible_to<size_t>;
+	{iterator.begin()} -> std::convertible_to<std::iterator< std::bidirectional_iterator_tag, GameObject*>>;
+};
 
+template<GameObjectIterator iterator_T>
+class UIIterator : public GameObject{
+	Button next_target_;
+	Button prev_target_;
+
+	const iterator_T* iterable_;
+	std::iterator< std::bidirectional_iterator_tag, GameObject*> target_iterator_;
+	Textbox target_name_;
+
+	void (*callback_on_increment_)(GameObject*, GameObject*);
+	void (*callback_on_decrement_)(GameObject*, GameObject*);
+
+
+	static void nextTargetCallback(void* must_be_this) {
+		UIIterator* this_ = static_cast<DebugMenu*>(must_be_this);
+		if (this_->iterable == nullptr) { return; };
+		if (this_->target_iterator_ == iterable_.end()) {
+			target_iterator_ = iterable_.begin();
+			callback_on_increment_(nullptr, *target_iterator_);
+			return;
+		}
+		GameObject* prev_target = *target_iterator;
+		target_iterator_++;
+		callback_on_increment_(prev_target, *target_iterator_);
+	}
+
+	static void prevTargetCallback(void* must_be_this) {
+		UIIterator* this_ = static_cast<DebugMenu*>(must_be_this);
+		if (this_->iterable == nullptr) { return; };
+		if (this_->target_iterator_ == iterable_.begin()) {
+			target_iterator_ = iterable_.end();
+			callback_on_increment_(*iterator_.begin(),nullptr);
+			return;
+		}
+		GameObject* prev_target = *target_iterator;
+		target_iterator_--;
+		callback_on_increment_(prev_target, *target_iterator_);
+	}
+
+
+public:
+	float button_size;
+	float text_width;
+	float text_height;
+	float top;
+	float left;
+
+	class UIIterator(std::string name, Default2d graphics) :
+		GameObject(name),
+		next_target_(.2, .2, name + "_next_target"),
+		prev_target_(.2, .2, name + "_prev_target") {
+
+
+		prev_target_.moveTo(-1, -.4, 0);
+		prev_target_.activateMouseInput(window);
+		graphics.add(prev_target_);
+		next_target_.moveTo(-.2, -.4, 0);
+		next_target_.activateMouseInput(window);
+		graphics.add(next_target_);
+		prev_target_.setCallback(prevTargetCallback,this);
+		next_target_.setCallback(nextTargetCallback,this);
+
+		target_name_.box_width = .6;
+		target_name_.box_height = .2;
+		target_name_.font_size = 1;
+		target_name_.left = -.8;
+		target_name_.top = -.4;
+
+	}
+
+	GameObject* getTarget() {
+		return *target_iterator_;
+	}
+
+};
+*/
 #endif

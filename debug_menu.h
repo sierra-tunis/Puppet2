@@ -24,7 +24,8 @@ class DebugMenu : public GameObject {
 	Textbox target_name_;
 	Textbox target_dbg_info_;
 
-	const Level* target_level_;
+	Button next_level_;
+	Button prev_level_;
 	Textbox level_display_;
 	
 	//Button show_hitboxes_;
@@ -51,15 +52,28 @@ class DebugMenu : public GameObject {
 
 public:
 
+	static void nextLevelCallback(void* must_be_this) {
+		DebugMenu* this_ = static_cast<DebugMenu*>(must_be_this);
+		Level::nextLevel();
+		//this_->setDebugTarget(Level::getCurrentLevel()->getContents()[0]);
+		this_->setDebugTarget(nullptr);
+	}
+	static void prevLevelCallback(void* must_be_this) {
+		DebugMenu* this_ = static_cast<DebugMenu*>(must_be_this);
+		Level::prevLevel();
+		//this_->setDebugTarget(Level::getCurrentLevel()->getContents()[0]);
+		this_->setDebugTarget(nullptr);
+	}
+
 	static void nextTargetCallback(void* must_be_this) {
 		DebugMenu* this_ = static_cast<DebugMenu*>(must_be_this);
-		if (this_->target_level_ == nullptr) { return; };
+		if (Level::getCurrentLevel() == nullptr) { return; };
 		if (this_->debug_target_ == nullptr) { 
-			this_->setDebugTarget(*this_->target_level_->getContents().begin());
+			this_->setDebugTarget(*Level::getCurrentLevel()->getContents().begin());
 			return;
 		}
-		auto current_loc = std::find(this_->target_level_->getContents().begin(), this_->target_level_->getContents().end(), this_->debug_target_);
-		if (current_loc != this_->target_level_->getContents().end()-1) {
+		auto current_loc = std::find(Level::getCurrentLevel()->getContents().begin(), Level::getCurrentLevel()->getContents().end(), this_->debug_target_);
+		if (current_loc != Level::getCurrentLevel()->getContents().end()-1) {
 			this_->setDebugTarget(*(current_loc + 1));
 		} else {
 			this_->setDebugTarget(nullptr);
@@ -68,13 +82,13 @@ public:
 
 	static void prevTargetCallback(void* must_be_this) {
 		DebugMenu* this_ = static_cast<DebugMenu*>(must_be_this);
-		if (this_->target_level_ == nullptr) { return; };
+		if (Level::getCurrentLevel() == nullptr) { return; };
 		if (this_->debug_target_ == nullptr) {
-			this_->setDebugTarget(*(this_->target_level_->getContents().end()-1));
+			this_->setDebugTarget(*(Level::getCurrentLevel()->getContents().end()-1));
 			return;
 		}
-		auto current_loc = std::find(this_->target_level_->getContents().begin(), this_->target_level_->getContents().end(), this_->debug_target_);
-		if (current_loc != this_->target_level_->getContents().begin()) {
+		auto current_loc = std::find(Level::getCurrentLevel()->getContents().begin(), Level::getCurrentLevel()->getContents().end(), this_->debug_target_);
+		if (current_loc != Level::getCurrentLevel()->getContents().begin()) {
 			this_->setDebugTarget(*(current_loc - 1));
 		}
 		else {
@@ -90,6 +104,8 @@ public:
 		test_button_(.1, .2, "test_button"),
 		next_target_(.2,.2,"next_target"),
 		prev_target_(.2, .2, "prev_target"),
+		next_level_(.2,.2,"next_level"),
+		prev_level_(.2,.2,"prev_level"),
 		test_tbox_(),
 		text_graphics_(text_graphics),
 		debug_cam_(debug_camera),//should eventually move debug camera construction and management into DebugMenu
@@ -129,6 +145,19 @@ public:
 		target_name_.left = -.8;
 		target_name_.top = -.4;
 
+
+		prev_level_.moveTo(-1, 0., 0);
+		prev_level_.activateMouseInput(window);
+		graphics.add(prev_level_);
+		next_level_.moveTo(-.2, 0., 0);
+		next_level_.activateMouseInput(window);
+		graphics.add(next_level_);
+		addButton(&next_level_);
+		addButton(&prev_level_);
+		prev_level_.setCallback(prevLevelCallback, this);
+		next_level_.setCallback(nextLevelCallback, this);
+
+
 		level_display_.box_width = .6;
 		level_display_.box_height = .2;
 		level_display_.left = -.8;
@@ -137,7 +166,6 @@ public:
 	}
 
 	void update(GLFWwindow* window) override {
-		target_level_ = debug_cam_.getLevel();
 		if (debug_target_ != nullptr) {
 			debug_cam_.connectTo(debug_target_,&cam_clamp_);
 		} else {
@@ -168,10 +196,10 @@ public:
 				text_graphics_.add(target_name_);
 			}
 			std::string level_name;
-			if (target_level_ == nullptr) {
+			if (Level::getCurrentLevel() == nullptr) {
 				level_name = "base room";
 			} else {
-				level_name = target_level_->getName();
+				level_name = Level::getCurrentLevel()->getName();
 			}
 			if (level_name != level_display_.text) {
 				text_graphics_.unload(level_display_);

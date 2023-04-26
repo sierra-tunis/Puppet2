@@ -18,7 +18,7 @@ using Eigen::seq;
 class DebugCamera : public InterfaceObject<GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, GLFW_KEY_D, GLFW_KEY_SPACE, GLFW_KEY_LEFT_SHIFT> {
 
 	//const Level* level_;
-	Level* current_level_;
+	const Level* current_level_;
 	bool freefall;
 	MeshSurface hitbox_;
 	NoCollideConstraint<Surface<3>, MeshSurface>* level_bounds_;
@@ -71,6 +71,15 @@ public:
 		setModel(new Model("small_cube.obj"));
 		setTexture(new Texture("obamna.jpg"));
 		addMotionConstraint(level_bounds_);
+	}
+
+	void onRoomActivation() override {
+		current_level_ = Level::getCurrentLevel();
+		*level_bounds_ = NoCollideConstraint<Surface<3>, MeshSurface>(current_level_->getCollisionSurface(), &current_level_->getPosition(), &hitbox_);
+		//Level::getCurrentLevel()->add(*this);
+	}
+	void onRoomDeactivation() override {
+		//Level::getCurrentLevel()->remove(*this);
 	}
 
 	void update(GLFWwindow* window) override {

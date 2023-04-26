@@ -23,8 +23,8 @@ C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(79,26): warning C4
 C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(79,21): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(81,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(82,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(250,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(251,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(255,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(256,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\camera.h(40,11): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\zmap.h(69,13): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\zmap.h(68,14): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
@@ -35,6 +35,8 @@ C:\Users\Justin\source\repos\Puppet2\Puppet2\ZMapper.h(126,70): warning C4244: '
 C:\Users\Justin\source\repos\Puppet2\Puppet2\ZMapper.h(130,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\ZMapper.h(133,1): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\ZMapper.h(171,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\level.h(151,1): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\level.h(169,1): warning C4267: 'initializing': conversion from 'size_t' to 'const int', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(20,1): warning C4305: '=': truncation from 'double' to 'float'
 C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(21,1): warning C4305: '=': truncation from 'double' to 'float'
 C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(22,39): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
@@ -67,13 +69,87 @@ C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.3193
           [
               _Ty1=float
           ]
-C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(259,1): message : see reference to function template instantiation 'std::pair<float,float>::pair<double,double,0>(_Other1 &&,_Other2 &&) noexcept' being compiled
+C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(264,1): message : see reference to function template instantiation 'std::pair<float,float>::pair<double,double,0>(_Other1 &&,_Other2 &&) noexcept' being compiled
           with
           [
               _Other1=double,
               _Other2=double
           ]
-C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(259,3): message : see reference to function template instantiation 'std::pair<float,float>::pair<double,double,0>(_Other1 &&,_Other2 &&) noexcept' being compiled
+C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(264,3): message : see reference to function template instantiation 'std::pair<float,float>::pair<double,double,0>(_Other1 &&,_Other2 &&) noexcept' being compiled
+          with
+          [
+              _Other1=double,
+              _Other2=double
+          ]
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.31933\include\utility(172,54): warning C4244: 'initializing': conversion from '_Ty' to '_Ty2', possible loss of data
+          with
+          [
+              _Ty=double
+          ]
+          and
+          [
+              _Ty2=float
+          ]
+  level.cpp
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(105,34): warning C4129: '/': unrecognized character escape sequence
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(107,34): warning C4129: '/': unrecognized character escape sequence
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(109,34): warning C4129: '/': unrecognized character escape sequence
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(106,39): warning C4244: 'argument': conversion from 'float' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=unsigned int
+          ]
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(108,42): warning C4244: 'argument': conversion from 'float' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=unsigned int
+          ]
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(110,44): warning C4244: 'argument': conversion from 'float' to '_Ty', possible loss of data
+          with
+          [
+              _Ty=unsigned int
+          ]
+C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(76,12): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(77,12): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(79,26): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(79,21): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(81,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(82,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(255,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(256,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\zmap.h(69,13): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\zmap.h(68,14): warning C4244: 'initializing': conversion from 'double' to 'const float', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\camera.h(40,11): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\ZMapper.h(74,35): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\ZMapper.h(75,13): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\ZMapper.h(76,19): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\ZMapper.h(126,70): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\ZMapper.h(130,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\ZMapper.h(133,1): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\ZMapper.h(171,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\level.h(151,1): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\level.h(169,1): warning C4267: 'initializing': conversion from 'size_t' to 'const int', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.hpp(163,1): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.hpp(163,1): message : while compiling class template member function 'void Graphics<GameObject,int,size_t,uint8_t>::startScreenshot(size_t,size_t)'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\ZMapper.h(188,18): message : see reference to function template instantiation 'void Graphics<GameObject,int,size_t,uint8_t>::startScreenshot(size_t,size_t)' being compiled
+C:\Users\Justin\source\repos\Puppet2\Puppet2\ZMapper.h(28,67): message : see reference to class template instantiation 'Graphics<GameObject,int,size_t,uint8_t>' being compiled
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.hpp(163,1): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.34.31933\include\utility(172,16): warning C4244: 'initializing': conversion from '_Ty' to '_Ty1', possible loss of data
+          with
+          [
+              _Ty=double
+          ]
+          and
+          [
+              _Ty1=float
+          ]
+C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(264,1): message : see reference to function template instantiation 'std::pair<float,float>::pair<double,double,0>(_Other1 &&,_Other2 &&) noexcept' being compiled
+          with
+          [
+              _Other1=double,
+              _Other2=double
+          ]
+C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(264,3): message : see reference to function template instantiation 'std::pair<float,float>::pair<double,double,0>(_Other1 &&,_Other2 &&) noexcept' being compiled
           with
           [
               _Other1=double,
@@ -95,8 +171,8 @@ C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(79,26): warning C4
 C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(79,21): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(81,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(82,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(250,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(251,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(255,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\InternalObject.h(256,37): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(105,34): warning C4129: '/': unrecognized character escape sequence
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(107,34): warning C4129: '/': unrecognized character escape sequence
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Model.h(109,34): warning C4129: '/': unrecognized character escape sequence
@@ -126,6 +202,8 @@ C:\Users\Justin\source\repos\Puppet2\Puppet2\ZMapper.h(126,70): warning C4244: '
 C:\Users\Justin\source\repos\Puppet2\Puppet2\ZMapper.h(130,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\ZMapper.h(133,1): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\ZMapper.h(171,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\level.h(151,1): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\level.h(169,1): warning C4267: 'initializing': conversion from 'size_t' to 'const int', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(20,1): warning C4305: '=': truncation from 'double' to 'float'
 C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(21,1): warning C4305: '=': truncation from 'double' to 'float'
 C:\Users\Justin\source\repos\Puppet2\Puppet2\text_graphics.hpp(22,39): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
@@ -142,19 +220,20 @@ C:\Users\Justin\source\repos\Puppet2\Puppet2\DebugGraphics.h(74,1): warning C426
 C:\Users\Justin\source\repos\Puppet2\Puppet2\DebugGraphics.h(103,1): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\DebugGraphics.h(104,1): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\DebugGraphics.h(122,1): warning C4267: 'argument': conversion from 'size_t' to 'GLsizei', possible loss of data
-C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(96,1): warning C4305: 'argument': truncation from 'double' to 'float'
-C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(99,1): warning C4305: 'argument': truncation from 'double' to 'float'
-C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(107,1): warning C4305: '=': truncation from 'double' to 'float'
-C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(111,1): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(112,1): warning C4305: 'argument': truncation from 'double' to 'float'
 C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(115,1): warning C4305: 'argument': truncation from 'double' to 'float'
-C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(118,1): warning C4305: 'argument': truncation from 'double' to 'float'
-C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(126,1): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(123,1): warning C4305: '=': truncation from 'double' to 'float'
 C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(127,1): warning C4305: '=': truncation from 'double' to 'float'
-C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(129,1): warning C4305: '=': truncation from 'double' to 'float'
-C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(130,1): warning C4305: '=': truncation from 'double' to 'float'
-C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(132,1): warning C4305: '=': truncation from 'double' to 'float'
-C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(133,1): warning C4305: '=': truncation from 'double' to 'float'
-C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(134,1): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(131,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(134,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(142,1): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(143,1): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(145,1): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(146,1): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(152,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(161,1): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(162,1): warning C4305: '=': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(163,1): warning C4305: '=': truncation from 'double' to 'float'
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Debugger.h(50,14): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Debugger.h(50,28): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Debugger.h(52,5): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
@@ -171,18 +250,18 @@ C:\Users\Justin\source\repos\Puppet2\Puppet2\Debugger.h(72,11): warning C4244: '
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Debugger.h(72,22): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Debugger.h(73,8): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Debugger.h(73,23): warning C4244: 'argument': conversion from 'double' to 'const float', possible loss of data
-C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(93,89): warning C4305: 'argument': truncation from 'double' to 'float'
-C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(98,51): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(95,89): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(100,51): warning C4305: 'argument': truncation from 'double' to 'float'
 C:\Users\Justin\source\repos\Puppet2\Puppet2\player_camera.h(36,20): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\player_camera.h(31,1): message : while compiling class template member function 'void PlayerCamera<DebugCamera>::onMouseMove(float,float,float,float)'
-C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(93,89): message : see reference to class template instantiation 'PlayerCamera<DebugCamera>' being compiled
+C:\Users\Justin\source\repos\Puppet2\Puppet2\main.cpp(95,89): message : see reference to class template instantiation 'PlayerCamera<DebugCamera>' being compiled
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.hpp(155,1): warning C4267: 'argument': conversion from 'size_t' to 'const int', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.hpp(155,1): message : while compiling class template member function 'void Graphics<Textbox,unsigned int,unsigned int,size_t>::unload(const Object &)'
           with
           [
               Object=Textbox
           ]
-C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(158,26): message : see reference to function template instantiation 'void Graphics<Textbox,unsigned int,unsigned int,size_t>::unload(const Object &)' being compiled
+C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(186,26): message : see reference to function template instantiation 'void Graphics<Textbox,unsigned int,unsigned int,size_t>::unload(const Object &)' being compiled
           with
           [
               Object=Textbox
@@ -195,7 +274,7 @@ C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.hpp(151,1): message : whil
           [
               Object=Textbox
           ]
-C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(44,26): message : see reference to function template instantiation 'void Graphics<Textbox,unsigned int,unsigned int,size_t>::remove(const Object &)' being compiled
+C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(45,26): message : see reference to function template instantiation 'void Graphics<Textbox,unsigned int,unsigned int,size_t>::remove(const Object &)' being compiled
           with
           [
               Object=Textbox
@@ -210,7 +289,7 @@ C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.hpp(144,1): message : whil
           [
               Object=Textbox
           ]
-C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(39,23): message : see reference to function template instantiation 'void Graphics<Textbox,unsigned int,unsigned int,size_t>::add(const Object &)' being compiled
+C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(40,23): message : see reference to function template instantiation 'void Graphics<Textbox,unsigned int,unsigned int,size_t>::add(const Object &)' being compiled
           with
           [
               Object=Textbox
@@ -244,12 +323,11 @@ C:\Users\Justin\source\repos\Puppet2\Puppet2\Graphics.hpp(144,1): message : whil
           [
               Object=Textbox
           ]
-C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(39,23): message : see reference to function template instantiation 'void Graphics<Textbox,unsigned int,unsigned int,size_t>::add(const Object &)' being compiled
+C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_menu.h(40,23): message : see reference to function template instantiation 'void Graphics<Textbox,unsigned int,unsigned int,size_t>::add(const Object &)' being compiled
           with
           [
               Object=Textbox
           ]
   Generating Code...
 C:\Users\Justin\source\repos\Puppet2\Puppet2\motion_constraint.h(92): warning C4172: returning address of local variable or temporary
-LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
   Puppet2.vcxproj -> C:\Users\Justin\source\repos\Puppet2\x64\Debug\Puppet2.exe

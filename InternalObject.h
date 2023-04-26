@@ -154,6 +154,11 @@ protected:
 
 public:
 
+	// these two should probably not be protected
+	inline virtual void onRoomActivation() {};
+
+	inline virtual void onRoomDeactivation() {};
+
 	const static std::string no_name;
 
 	InternalObject(std::string name) :

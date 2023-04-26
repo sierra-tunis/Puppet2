@@ -84,6 +84,8 @@ int main(void)
     room2.addNeighbor(&room1);
     room3.addNeighbor(&room1);
 
+    Level::goToLevel(&room1);
+
     ZMapper zmapper;
     room1.createZmapCollisionSurface(6,&zmapper);
     room2.createZmapCollisionSurface(4,&zmapper);
@@ -102,6 +104,8 @@ int main(void)
 
     DebugCamera center(&room1,"obamna");
     room1.add(center);
+    room2.add(center);
+    room3.add(center);
     //room1.add(camera); //shouldnt be part of the layout
     default3d.add(room1);
     default3d.add(room2);
@@ -139,7 +143,7 @@ int main(void)
     {
         glfwPollEvents();
 
-        room1.update();
+        Level::UpdateCurrentLevel(window);
         camera.update(window);
         debugMenu.update(window);
 
