@@ -179,6 +179,10 @@ public:
 		motion_constraints_.push_back(BC);
 	}
 
+	const std::vector<BoundaryConstraint*>& getMotionConstraints() const {
+		return motion_constraints_;
+	}
+
 	bool isInFreefall() const {
 		return freefall_;
 	}

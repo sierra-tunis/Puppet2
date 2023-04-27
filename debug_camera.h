@@ -83,7 +83,7 @@ public:
 	}
 
 	void update(GLFWwindow* window) override {
-		SurfaceNodeCollision(current_level_->getCollisionSurface(), &hitbox_, getPosition(), &collision_info);
+		SurfaceNodeCollision(current_level_->getCollisionSurface(), &hitbox_, getPosition()-current_level_->getPosition(), &collision_info);
 		InterfaceObject::update(window);
 		if (fullyOutsideLevel()) {
 			int neig_ind = current_level_->neighborAt(getPosition()(seq(0, 2), 3));

@@ -14,6 +14,9 @@ using Eigen::seq;
 
 class BoundaryConstraint{
 
+	const Surface<3>* boundary_;
+	const Eigen::Matrix4f* boundary_position_;
+
 	Eigen::Vector3f limitTranslate(Eigen::Matrix4f position, Eigen::Vector3f delta_pos, int n_iters = 5) const {
 		//Eigen::Vector3f delta_pos = first_guess - position;
 		float delta_norm = delta_pos.norm();
@@ -35,7 +38,6 @@ class BoundaryConstraint{
 		return longest_vec;
 	}
 protected:
-	const Surface<3>* boundary_;
 
 	virtual bool invalidPosition(Eigen::Matrix4f position) const {
 		return false;
@@ -43,7 +45,9 @@ protected:
 
 public:
 	bool breaksConstraint(Eigen::Matrix4f old_tform, Eigen::Matrix4f new_tform) const { 
-		return invalidPosition(new_tform) || boundary_->crossesSurface(old_tform(seq(0,2),3), new_tform(seq(0,2),3));
+		return invalidPosition(new_tform) || 
+			boundary_->crossesSurface(old_tform(seq(0, 2), 3)-(*boundary_position_)(seq(0,2),3),
+										new_tform(seq(0, 2), 3)-(*boundary_position_)(seq(0,2),3));
 	}
 
 	Eigen::Vector3f bestTranslate(Eigen::Matrix4f current, Eigen::Vector3f delta_pos, Eigen::Vector3f normal, Eigen::Vector3f binormal) const {
@@ -63,15 +67,25 @@ public:
 		return fwd + (pos_norm + neg_norm) + (pos_binorm + neg_binorm);
 	}
 
-	BoundaryConstraint() : boundary_(nullptr) {}
+	BoundaryConstraint() : boundary_(nullptr),boundary_position_(nullptr) {}
 
-	BoundaryConstraint(const Surface<3>* boundary) : boundary_(boundary){}
+	BoundaryConstraint(const Surface<3>* boundary, const Eigen::Matrix4f* boundary_position) :
+		boundary_(boundary),
+		boundary_position_(boundary_position){}
 
 	void setBoundary(const Surface<3>* boundary) {
 		boundary = boundary_;
 	}
+	void setBoundaryPosition(const Eigen::Matrix4f* boundary_position) {
+		boundary_position_ = boundary_position;
+	}
+
 	const Surface<3>* getBoundary() const {
 		return boundary_;
+	}
+
+	const Eigen::Matrix4f* getBoundaryPosition() const {
+		return boundary_position_;
 	}
 	// this should be overwritten in the case where both old and new are valid but the movement from one to the other is impossible
 	//virtual bool breaksConstraint(Eigen::Vector3f current_pos, Eigen::Vector3f delta_pos) { return true; }// = 0;
@@ -121,18 +135,23 @@ class ConnectorConstraint : public PositionConstraint {
 	//its possible to make an "observer" derived class which has two connection points and "observes" the inverse kinematics
 
 	//has unintuitive behavior if called publically
-	void boundedMove(Eigen::Vector<float, n_dofs> new_state, const BoundaryConstraint& bounds, int n_iters) {
+	void boundedMove(Eigen::Vector<float, n_dofs> new_state, const std::vector<BoundaryConstraint*>& bounds, int n_iters) {
 		if (n_iters == 0) {
 			return;
 		} else {
-			Eigen::Matrix4f new_transform = computeConnectorTransform(new_state);
+			Eigen::Matrix4f new_tform = computeConnectorTransform(new_state);
+			Eigen::Matrix4f old_tform = getConstraintTransform();
 			Eigen::Vector<float, n_dofs> delta_state = new_state - state_;
-			bool breaks_constraint;
+			bool breaks_constraint = false;
 			if (root_transform_ != nullptr) {
-				breaks_constraint = bounds.breaksConstraint(*root_transform_ * getConstraintTransform(), *root_transform_ * new_transform);
+				old_tform = *root_transform_ * old_tform;
+				new_tform = *root_transform_ * new_tform;
 			}
-			else {
-				breaks_constraint = bounds.breaksConstraint(getConstraintTransform(), new_transform);
+			for (auto& bc : bounds) {
+				if (bc->breaksConstraint(old_tform,new_tform)) {
+					breaks_constraint = true;
+					break;
+				}
 			}
 			if (!breaks_constraint) {
 				setState(new_state);
@@ -182,14 +201,19 @@ public:
 	}
 
 	template<int max_iters = 5>
-	void boundedMove(Eigen::Vector<float, n_dofs> new_state, const BoundaryConstraint& bounds) {
+	void boundedMove(Eigen::Vector<float, n_dofs> new_state, const std::vector<BoundaryConstraint*>& bounds) {
 		Eigen::Matrix4f new_transform = computeConnectorTransform(new_state);
-		bool breaks_constraint;
+		Eigen::Matrix4f old_transform = getConstraintTransform();
+		bool breaks_constraint = false;
 		if (root_transform_ != nullptr) {
-			breaks_constraint = bounds.breaksConstraint(*root_transform_ * getConstraintTransform(), *root_transform_ * new_transform);
+			new_transform = *root_transform_ * new_transform;
+			old_transform = *root_transform_ * old_transform;
 		}
-		else {
-			breaks_constraint = bounds.breaksConstraint(getConstraintTransform(), new_transform);
+		for (auto& bc : bounds) {
+			if (bc->breaksConstraint(old_transform, new_transform)) {
+				breaks_constraint = true;
+				break;
+			}
 		}
 		if (breaks_constraint) {
 			Eigen::Vector<float, n_dofs> delta_state = new_state - state_;

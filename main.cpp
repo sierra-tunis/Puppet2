@@ -92,7 +92,7 @@ int main(void)
     room3.createZmapCollisionSurface(4, &zmapper);
 
 
-    PlayerCamera camera(.1, 100, 90, 1.0,room1.getCollisionSurface(),window,"player1cam");
+    PlayerCamera<DebugCamera> camera(.1, 100, 90, 1.0,window,"player1cam");
     //Camera camera((Eigen::Matrix4f() << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1).finished(), -1);
     camera.activateKeyInput(window);
     Default3d default3d(camera);
