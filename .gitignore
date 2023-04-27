@@ -1,8 +1,8 @@
 
 Descender.h
-*.obj
 *.ilk
 *.log
 *.idb
 *.pdb
 *.tlog
+/x64/Debug/*.obj
