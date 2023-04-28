@@ -59,6 +59,9 @@ int main(void)
 
     std::vector<InternalObject> bases;
     std::vector<GameObject*> layout;//this being a vector which rearranges is horrible lol
+    DebugCamera center("debug_cam");
+    layout.push_back(&center);
+
     /*int n_debuggers = 10;
     for (int i = 0; i < n_debuggers; i++) {
         bases.emplace_back(Eigen::Matrix4f::Identity(), i + 1);
@@ -75,22 +78,41 @@ int main(void)
 
     //Debugger right((Eigen::Matrix4f()<<1, 0, 0, .5, 0, 1, 0, 0, 0, 0, 1, .5, 0, 0, 0, 1).finished(), 2, default3d);
     //ZMapper zmapper;
-    Texture rocky_texture("rocky.jpg");
-    Level room1(layout,window,new Model("spiral_staircase_cult_exit.obj"),&rocky_texture ,"spiral_staircase");
-    Level room2(layout, window, new Model("cult_exit_landing.obj"), &rocky_texture, "cult_exit_landing");
-    Level room3(layout, window, new Model("cult_exit_hallway.obj"), &rocky_texture, "cult_exit_hallway");
-    room1.addNeighbor(&room2);
-    room1.addNeighbor(&room3);
-    room2.addNeighbor(&room1);
-    room3.addNeighbor(&room1);
+    Texture rocky_texture("soil.jpg");
+    Level cult_spiral_stairs(layout,window,new Model("spiral_staircase_cult_exit.obj"),&rocky_texture ,"spiral_staircase");
+    Level cult_landing(layout, window, new Model("cult_exit_landing.obj"), &rocky_texture, "cult_exit_landing");
+    Level cult_hallway1(layout, window, new Model("cult_exit_hallway.obj"), &rocky_texture, "cult_exit_hallway");
+    Level cult_stairs1(layout, window, new Model("cult_ascencion_stairs.obj"), &rocky_texture, "cult_ascension_stairs");
+    Level cult_impluvium(layout, window, new Model("cult_impluvium.obj"), &rocky_texture, "cult_impluvium");
+    Level cult_ritual(layout, window, new Model("cult_ritual_room.obj"), &rocky_texture, "cult_ritual_room");
+    Level path_to_town(layout, window, new Model("path_to_town.obj"), &rocky_texture, "path_to_town");
 
-    Level::goToLevel(&room1);
+
+    cult_spiral_stairs.addNeighbor(&cult_landing);
+    cult_spiral_stairs.addNeighbor(&cult_hallway1);
+    cult_landing.addNeighbor(&path_to_town);
+    cult_landing.addNeighbor(&cult_spiral_stairs);
+    cult_hallway1.addNeighbor(&cult_spiral_stairs);
+    cult_hallway1.addNeighbor(&cult_stairs1);
+    cult_stairs1.addNeighbor(&cult_impluvium);
+    cult_stairs1.addNeighbor(&cult_hallway1);
+    cult_impluvium.addNeighbor(&cult_stairs1);
+    cult_impluvium.addNeighbor(&cult_ritual);
+    cult_ritual.addNeighbor(&cult_impluvium);
+    path_to_town.addNeighbor(&cult_landing);
+    
+
 
     ZMapper zmapper;
-    room1.createZmapCollisionSurface(6,&zmapper);
-    room2.createZmapCollisionSurface(4,&zmapper);
-    room3.createZmapCollisionSurface(4, &zmapper);
+    cult_spiral_stairs.createZmapCollisionSurface(6,&zmapper);
+    cult_hallway1.createZmapCollisionSurface(4,&zmapper);
+    cult_landing.createZmapCollisionSurface(4, &zmapper);
+    cult_stairs1.createZmapCollisionSurface(15, &zmapper);
+    cult_impluvium.createZmapCollisionSurface(4, &zmapper);
+    cult_ritual.createZmapCollisionSurface(4, &zmapper);
+    path_to_town.createZmapCollisionSurface(6, &zmapper);
 
+    Level::goToLevel(&cult_impluvium);
 
     PlayerCamera<DebugCamera> camera(.1, 100, 90, 1.0,window,"player1cam");
     //Camera camera((Eigen::Matrix4f() << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1).finished(), -1);
@@ -102,22 +124,23 @@ int main(void)
     TextGraphics text_graphics(test_glyph);
    
 
-    DebugCamera center(&room1,"obamna");
-    room1.add(center);
-    room2.add(center);
-    room3.add(center);
+
     //room1.add(camera); //shouldnt be part of the layout
-    default3d.add(room1);
-    default3d.add(room2);
-    default3d.add(room3);
+    default3d.add(cult_spiral_stairs);
+    default3d.add(cult_landing);
+    default3d.add(cult_hallway1);
+    default3d.add(cult_stairs1);
+    default3d.add(cult_impluvium);
+    default3d.add(cult_ritual);
+    default3d.add(path_to_town);
 
     //Button test_button(.5, .5, "test_button");
     DebugMenu debugMenu(window,default2d,text_graphics,center);
     debugMenu.activateKeyInput(window);
     //debugMenu.setDebugTarget(&center);
 
-    Debugger dbg1(Eigen::Matrix4f::Identity(), "tester1", room1);
-    room1.add(dbg1);
+    Debugger dbg1(Eigen::Matrix4f::Identity(), "tester1", cult_spiral_stairs);
+    cult_impluvium.add(dbg1);
     default3d.add(dbg1);
 
     default3d.add(center);

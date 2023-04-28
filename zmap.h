@@ -84,10 +84,11 @@ public:
 	std::pair<zdata, zdata> getZdata(Eigen::Matrix4f position, float step_height) const {
 		return getZdata(Eigen::Vector3f(position(seq(0, 2), 3)), step_height);
 	}*/
+	std::pair<zdata, zdata> getZdataDiscrete(float z, int x_ind, int y_ind, float step_height = 0) const {
 
-	std::pair<zdata, zdata> getZdata(Eigen::Vector3f position, float step_height) const {
-		int x_ind = static_cast<int>(this->x_resolution_ * (position(0) / map_width_ + .5));
-		int y_ind = static_cast<int>(this->y_resolution_ * (position(2) / map_height_ + .5));
+		//int x_ind = static_cast<int>(this->x_resolution_ * (position(0) / map_width_ + .5));
+		//int y_ind = static_cast<int>(this->y_resolution_ * (position(2) / map_height_ + .5));
+		
 		if (x_ind < x_resolution_ && x_ind >= 0 && y_ind < y_resolution_ && y_ind >= 0) {
 			//std::cout << "\nx pos: " << position(0) << ", y pos: " << position(2) << "x_ind: " << x_ind << ", y ind: " << y_ind << " index: "<<static_cast<size_t>(y_ind * x_resolution_ + x_ind);
 			const std::vector<zdata>& xy_column = raw_data_[static_cast<size_t>(y_ind * x_resolution_ + x_ind)];
@@ -95,14 +96,14 @@ public:
 				auto zdata_below = xy_column.begin();
 				auto zdata_above = zdata_below + 1;
 				while (zdata_above != xy_column.end()) {
-					if (zdata_above->z > position(1) + step_height && zdata_below->z < position(1) + step_height) {
+					if (zdata_above->z > z + step_height && zdata_below->z < z + step_height) {
 						return std::pair<zdata, zdata>(*zdata_below, *zdata_above); //this can be improved for performance
 					}
 					//zdata_below = zdata_above;
 					zdata_below++;
 					zdata_above++;
 				}
-				if ((xy_column.end() - 1)->z < position(1) + step_height) {
+				if ((xy_column.end() - 1)->z < z + step_height) {
 					return std::pair<zdata, zdata>(*zdata_below, zdata::ceiling());
 				}
 				else {
@@ -117,6 +118,28 @@ public:
 			return std::pair<zdata, zdata>(zdata::floor(), zdata::ceiling());
 		}
 	}
+
+	std::pair<zdata, zdata> getZdata(Eigen::Vector3f position, float step_height) const {
+
+		float x_pos = this->x_resolution_ * (position(0) / map_width_+.5);
+		float y_pos = this->y_resolution_ * (position(2) / map_height_+.5);
+		int x_ind_min = static_cast<int>(x_pos);
+		int x_ind_max = static_cast<int>(x_pos) + 1;
+		int y_ind_min = static_cast<int>(y_pos);
+		int y_ind_max = static_cast<int>(y_pos) + 1;
+		float x_remainder = x_pos - x_ind_min;
+		float y_remainder = y_pos - y_ind_min;
+		auto z11 = getZdataDiscrete(position(1), x_ind_min, y_ind_min,step_height);
+		auto z21 = getZdataDiscrete(position(1), x_ind_max, y_ind_min, step_height);
+		auto z12 = getZdataDiscrete(position(1), x_ind_min, y_ind_max, step_height);
+		auto z22 = getZdataDiscrete(position(1), x_ind_max, y_ind_max, step_height);
+
+		float z_below = y_remainder * (x_remainder * (z22.first.z - z12.first.z) + z12.first.z - x_remainder * (z21.first.z - z11.first.z) - z11.first.z) + x_remainder * (z21.first.z - z11.first.z) + z11.first.z;
+		float z_above = y_remainder * (x_remainder * (z22.second.z - z12.second.z) + z12.second.z - x_remainder * (z21.second.z - z11.second.z) - z11.second.z) + x_remainder * (z21.second.z - z11.second.z) + z11.second.z;
+
+		return std::pair<zdata, zdata>(zdata({ z_below,0,0 }, z11.first.room_id), zdata({ z_above,0,0 }, z11.second.room_id));
+	}
+
 
 	int getRoom(Eigen::Vector3f position) const {
 		return getZdata(position, 0).first.room_id;

@@ -74,7 +74,7 @@ public:
 		boundary_position_(boundary_position){}
 
 	void setBoundary(const Surface<3>* boundary) {
-		boundary = boundary_;
+		boundary_ = boundary;
 	}
 	void setBoundaryPosition(const Eigen::Matrix4f* boundary_position) {
 		boundary_position_ = boundary_position;

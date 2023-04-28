@@ -36,10 +36,10 @@ class DebugCamera : public InterfaceObject<GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, G
 			translate(this->getPosition()(seq(0, 2), 2) * .05);
 			break;
 		case GLFW_KEY_A:
-			rotateY(.005);
+			rotateY(.01);
 			break;
 		case GLFW_KEY_D:
-			rotateY(-.005);
+			rotateY(-.01);
 			break;
 		case GLFW_KEY_SPACE:
 			translate(this->getPosition()(seq(0, 2), 1) * .05);
@@ -60,11 +60,11 @@ class DebugCamera : public InterfaceObject<GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, G
 	}
 
 public:
-	DebugCamera(Level* starting_level, std::string name):
+	DebugCamera( std::string name):
 	InterfaceObject(name),
-	current_level_(starting_level),
+	current_level_(nullptr),
 	hitbox_("small_cube.obj"),
-	level_bounds_(new NoCollideConstraint<Surface<3>, MeshSurface>(current_level_->getCollisionSurface(), &current_level_->getPosition(),&hitbox_)),
+	level_bounds_(new NoCollideConstraint<Surface<3>, MeshSurface>(nullptr, nullptr,&hitbox_)),
 	collision_info(hitbox_.getEdges().size())
 	//level_bounds_(&current_level_->getZmap())
 	{
@@ -75,7 +75,9 @@ public:
 
 	void onRoomActivation() override {
 		current_level_ = Level::getCurrentLevel();
-		*level_bounds_ = NoCollideConstraint<Surface<3>, MeshSurface>(current_level_->getCollisionSurface(), &current_level_->getPosition(), &hitbox_);
+		level_bounds_->setBoundary(current_level_->getCollisionSurface());
+		level_bounds_->setBoundaryPosition(&current_level_->getPosition());
+		//*level_bounds_ = NoCollideConstraint<Surface<3>, MeshSurface>(current_level_->getCollisionSurface(), &current_level_->getPosition(), &hitbox_);
 		//Level::getCurrentLevel()->add(*this);
 	}
 	void onRoomDeactivation() override {
@@ -89,10 +91,10 @@ public:
 			int neig_ind = current_level_->neighborAt(getPosition()(seq(0, 2), 3));
 			if (neig_ind != -1) {
 				// && !checkCollision<Surface<3>, MeshSurface>(current_level_->getNeighbors()[neig_ind]->getCollisionSurface(),&getHitbox(), current_level_->getNeighbors()[neig_ind]->getPosition(),getPosition())
-				/*current_level_->activateNeighbor(neig_ind);
-				current_level_ = current_level_->getNeighbors()[neig_ind];
-				*level_bounds_ = NoCollideConstraint<Surface<3>, MeshSurface>(current_level_->getCollisionSurface(), &current_level_->getPosition(), &hitbox_);
-				*/
+				Level::getCurrentLevel()->goToNeighbor(neig_ind);
+				//current_level_ = current_level_->getNeighbors()[neig_ind];
+				//*level_bounds_ = NoCollideConstraint<Surface<3>, MeshSurface>(current_level_->getCollisionSurface(), &current_level_->getPosition(), &hitbox_);
+				
 			}
 		}
 		/*
@@ -153,6 +155,7 @@ public:
 			ret_str += "within neighbor " + std::to_string(i) + "?:" + (neig->withinLevel(getPosition()(seq(0, 2), 3)) ? " Yes\n" : " No\n");
 			i++;
 		}
+		//ret_str += "\n\nFPS: " + std::to_string(1. / getdt());
 		return ret_str;
 	}
 
