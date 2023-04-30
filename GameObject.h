@@ -62,6 +62,28 @@ protected:
 		texture_ = tex;
 	}
 
+	virtual Eigen::Vector3f onInvalidTranslation(Eigen::Vector3f translation, BoundaryConstraint* broken_constraint) {
+		//motion constraint::bestTranslate/limitTranslate will NEVER return an invalid translation, however if the
+		//user wants to perform some chikanery here and decide to do something else they are allowed
+		Eigen::Vector3f normal;
+		Eigen::Vector3f binormal;
+		if (translation.dot(getPosition()(seq(0, 2), 1)) == translation.norm()) {
+			normal = getPosition()(seq(0, 2), 2);
+			binormal = getPosition()(seq(0, 2), 0);
+		}
+		else {
+			normal = translation.cross(Eigen::Vector3f(getPosition()(seq(0, 2), 1)));
+			binormal = translation.cross(normal);
+			normal.normalize();
+			binormal.normalize();
+		}
+		return broken_constraint->bestTranslate(getPosition(), translation, normal, binormal);
+	}
+
+	virtual void onInvalidConstraintChange(BoundaryConstraint* bc) {
+
+	}
+
 public:
 	
 	GameObject(std::string name) :
@@ -104,25 +126,11 @@ public:
 			collidor_it++;
 			flag_it++;
 		}
-		if (last_position_(seq(0,2),3) != getPosition()(seq(0,2),3)) {
+		/*if (last_position_(seq(0, 2), 3) != getPosition()(seq(0, 2), 3)) {
 			for (auto m_c : motion_constraints_) {
-				Eigen::Vector3f delta_pos = getPosition()(seq(0, 2), 3) - last_position_(seq(0, 2), 3);
-				Eigen::Vector3f normal;
-				Eigen::Vector3f binormal;
-				if (delta_pos.dot(getPosition()(seq(0, 2), 1)) == delta_pos.norm()) {
-					normal = getPosition()(seq(0, 2), 2);
-					binormal = getPosition()(seq(0, 2), 0);
-				}
-				else {
-					normal = delta_pos.cross(Eigen::Vector3f(getPosition()(seq(0, 2), 1)));
-					binormal = delta_pos.cross(normal);
-					normal.normalize();
-					binormal.normalize();
-				}
-				moveTo(last_position_(seq(0, 2), 3) + m_c->bestTranslate(last_position_, delta_pos, normal, binormal));
-				last_position_ = getPosition();
+				
 			}
-		}
+		}*/
 		//move according to velocity and acceleration
 		/*if (freefall_) {
 			velocity_ += acceleration_ * dt_.count();
@@ -158,7 +166,7 @@ public:
 	virtual const Texture* getTexture() const {
 		return texture_;
 	}
-
+	
 	void setVelocity(Eigen::Vector3f velocity) {
 		velocity_ = velocity;
 	}
@@ -205,6 +213,36 @@ public:
 	void show() {
 		hidden_ = false;
 	}
+
+
+	void translate(Eigen::Vector3f vec) {
+		Eigen::Matrix4f new_pos = getPosition();
+		for (auto m_c : motion_constraints_) {
+			new_pos(seq(0,2),3) = getPosition()(seq(0,2),3) + vec;
+			if (m_c->breaksConstraint(getPosition(), new_pos)) {
+				vec = onInvalidTranslation(vec, m_c);
+			}
+		}
+		moveTo(getPosition()(seq(0,2),3) + vec);
+		//stale_global_position_ = true;
+	};
+	void translate(float dx, float dy, float dz) {
+		translate(Eigen::Vector3f(dx, dy, dz));
+		//stale_global_position_ = true;
+	};
+
+	
+
+	//needs to be reworked
+	/*void moveToGlobal(Eigen::Vector3f vec) {
+		//parent*new_pos = vec
+		//new_pos = parent^-1*vec
+		//global = parent*local
+		//parent = global*local^-1
+		Eigen::Matrix4f tmp = inverseTform(position_ * inverseTform(position_));
+		position_(seq(0, 2), 3) = tmp(seq(0, 2), seq(0, 2)) * vec + tmp(seq(0, 2), 3);
+	}*/
+
 };
 //template <class G, int ... Keys>
 //const std::array<int, sizeof(Keys)> GameObject<G, Keys...>::keys{ { Keys... } };

@@ -40,7 +40,7 @@ private:
 				tilt_.setState(Eigen::Vector<float, 1>(new_state));
 			}
 		}
-		std::cout << "(" << dx << ", " << dy << ")\n";
+		//std::cout << "(" << dx << ", " << dy << ")\n";
 	}
 
 	void onMouseDown(int key, float x, float y) override {
@@ -93,17 +93,15 @@ public:
 
 	void update(GLFWwindow* window) override {
 		Camera::update(window);
-		//kinematics are atrocoious here need to resolve eventually
-		//Vector3f parent_pos = getParent()->getPosition()(seq(0, 2), 3);
-		//Vector3f current_local_delta = getLocalPosition();
-		float damped_return_to_equilibrium = (equilibrium_length_ + 9*tether_.getState()(2)) / 10;
-		Eigen::Vector3f damped_equilibrium_state = tether_.getState();
-		Eigen::Vector3f no_extension = tether_.getState();
-		damped_equilibrium_state(2) = damped_return_to_equilibrium;
-		no_extension(2) = 0;
-		tether_.setState(damped_equilibrium_state);
-		tether_.setState(no_extension);
-		tether_.boundedMove<20>(damped_equilibrium_state, player_->getMotionConstraints());
+		float current_extension_ = tether_.getState()(2);
+		dist_.setState(Eigen::Vector<float, 1>(0));
+		Eigen::Vector<float, 3> equilibrium_state(pan_.getState()(0), tilt_.getState()(0), equilibrium_length_);
+		tether_.boundedMove<10>(equilibrium_state, player_->getMotionConstraints());
+		float new_extension_ = tether_.getState()(2);
+		float damped_return_to_equilibrium = (new_extension_ + (19) * current_extension_) / (20);
+		dist_.setState(Eigen::Vector<float,1>(damped_return_to_equilibrium));
+		tether_.setState(tether_.getState());
+		
 		//float delta_len = getParent()->getPosition()(seq(0, 2), seq(0, 2)) * damped_return_to_equilibrium;
 		//float new_len = bounds_->findMaxTravel(getParent()->getPosition(), delta_pos, 0, 0, 10, 100).norm();
 		//std::cout << (getParent()->getGlobalPosition()(seq(0, 2), seq(0, 2)).transpose() * (new_pos-parent_pos)).transpose() << "\n";

@@ -194,9 +194,8 @@ public:
 		endDraw();
 		//...see https://stackoverflow.com/questions/12157646/how-to-render-offscreen-on-opengl
 		data->reserve(y_resolution * x_resolution * n_channels);
-		//finishScreenshot<int, GL_INT>(data,"zmap_layer.png");
-		finishScreenshot<uint8_t, GL_UNSIGNED_BYTE>(data,fname);
-		//finishScreenshot<uint8_t, GL_UNSIGNED_BYTE>(data);
+		//finishScreenshot<uint8_t, GL_UNSIGNED_BYTE>(data,fname);
+		finishScreenshot<uint8_t, GL_UNSIGNED_BYTE>(data);
 
 		unload(level);
 		for (const auto& neig : neighbors) {

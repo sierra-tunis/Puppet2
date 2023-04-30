@@ -122,6 +122,8 @@ public://needs to be changed later, only did this for debugging xzmapper
 
 protected:
 
+
+
 	void unclamp() {
 		this->parent_ = nullptr;
 	}
@@ -271,16 +273,9 @@ public:
 	
 	// virtual std::vector<bool> unitTest() = 0;
 
-	void translate(Eigen::Vector3f vec) {
-		position_(seq(0, 2), 3) += vec;
-		//stale_global_position_ = true;
-	};
-	void translate(float dx, float dy, float dz) {
-		position_(0, 3) += dx;
-		position_(1, 3) += dy;
-		position_(2, 3) += dz;
-		//stale_global_position_ = true;
-	};
+	void setPosition(Eigen::Matrix4f new_position) {
+		position_ = new_position;
+	}
 
 	void moveTo(Eigen::Vector3f vec) {
 		position_(seq(0, 2), 3) = vec;
@@ -293,33 +288,23 @@ public:
 		//stale_global_position_ = true;
 	};
 
-	//needs to be reworked
-	/*void moveToGlobal(Eigen::Vector3f vec) {
-		//parent*new_pos = vec
-		//new_pos = parent^-1*vec
-		//global = parent*local
-		//parent = global*local^-1
-		Eigen::Matrix4f tmp = inverseTform(position_ * inverseTform(position_));
-		position_(seq(0, 2), 3) = tmp(seq(0, 2), seq(0, 2)) * vec + tmp(seq(0, 2), 3);
-	}*/
-
 	void rotate(Eigen::Matrix3f rot) {
-		position_(seq(0, 2), seq(0, 2)) = rot * position_(seq(0, 2), seq(0, 2));
+		position_(seq(0, 2), seq(0, 2)) = rot * getPosition()(seq(0, 2), seq(0, 2));
 		//stale_global_position_ = true;
 	};
 
-	void rotateAxisAngle(Eigen::Vector3f axis,float angle) {
+	void rotateAxisAngle(Eigen::Vector3f axis, float angle) {
 		Matrix3f w_hat;
 		w_hat << 0, -axis(2), axis(1),
-					axis(2), 0, -axis(0),
-					-axis(1), axis(0), 0;
+			axis(2), 0, -axis(0),
+			-axis(1), axis(0), 0;
 		Matrix3f rot = Matrix3f::Identity() + w_hat * sin(angle) + w_hat * w_hat * (1 - cos(angle));
 		rotate(rot);
 	};
 
-	void rotateX(float angle) {rotateAxisAngle(Eigen::Vector3f(1, 0, 0), angle);};
-	void rotateY(float angle) {rotateAxisAngle(Eigen::Vector3f(0, 1, 0), angle);};
-	void rotateZ(float angle) {rotateAxisAngle(Eigen::Vector3f(0, 0, 1), angle);};
+	void rotateX(float angle) { rotateAxisAngle(Eigen::Vector3f(1, 0, 0), angle); };
+	void rotateY(float angle) { rotateAxisAngle(Eigen::Vector3f(0, 1, 0), angle); };
+	void rotateZ(float angle) { rotateAxisAngle(Eigen::Vector3f(0, 0, 1), angle); };
 
 	virtual std::string getDebugInfo() const { return ""; };
 	

@@ -23,6 +23,7 @@ class DebugCamera : public InterfaceObject<GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, G
 	MeshSurface hitbox_;
 	NoCollideConstraint<Surface<3>, MeshSurface>* level_bounds_;
 	std::vector<bool> collision_info;
+	constexpr static float max_step = .5f;
 	//BoundaryConstraint level_bounds_;
 
 
@@ -58,17 +59,31 @@ class DebugCamera : public InterfaceObject<GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, G
 		}
 		return true;
 	}
+protected:
+	
+	Eigen::Vector3f onInvalidTranslation(Eigen::Vector3f translation, BoundaryConstraint* broken_constraint) {
+		Eigen::Vector3f step(0, .33, 0);
+		//should rewrite this using bestTranslate since its in the engine part of the code
+		Eigen::Vector3f best_translate = GameObject::onInvalidTranslation(translation, broken_constraint);
+		if (best_translate != translation) {
+			//this makes sense as a logical implementation of step 
+			//best_translate = GameObject::onInvalidTranslation(translation + step, broken_constraint);
+			best_translate = GameObject::onInvalidTranslation(translation.normalized() * max_step, broken_constraint);
+			best_translate = best_translate.normalized() * translation.norm();
+		}
+		return best_translate;
+	}
 
 public:
 	DebugCamera( std::string name):
 	InterfaceObject(name),
 	current_level_(nullptr),
-	hitbox_("small_cube.obj"),
+	hitbox_("cube.obj"),
 	level_bounds_(new NoCollideConstraint<Surface<3>, MeshSurface>(nullptr, nullptr,&hitbox_)),
 	collision_info(hitbox_.getEdges().size())
 	//level_bounds_(&current_level_->getZmap())
 	{
-		setModel(new Model("small_cube.obj"));
+		setModel(new Model("cube.obj"));
 		setTexture(new Texture("obamna.jpg"));
 		addMotionConstraint(level_bounds_);
 	}

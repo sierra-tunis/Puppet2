@@ -141,7 +141,7 @@ class ConnectorConstraint : public PositionConstraint {
 		} else {
 			Eigen::Matrix4f new_tform = computeConnectorTransform(new_state);
 			Eigen::Matrix4f old_tform = getConstraintTransform();
-			Eigen::Vector<float, n_dofs> delta_state = new_state - state_;
+			Eigen::Vector<float, n_dofs> delta_state = new_state - getState();
 			bool breaks_constraint = false;
 			if (root_transform_ != nullptr) {
 				old_tform = *root_transform_ * old_tform;
@@ -156,7 +156,7 @@ class ConnectorConstraint : public PositionConstraint {
 			if (!breaks_constraint) {
 				setState(new_state);
 			}
-			boundedMove(state_ + delta_state / 2, bounds, n_iters - 1);
+			boundedMove(getState() + delta_state / 2, bounds, n_iters - 1);
 		}
 
 	}
@@ -216,8 +216,8 @@ public:
 			}
 		}
 		if (breaks_constraint) {
-			Eigen::Vector<float, n_dofs> delta_state = new_state - state_;
-			boundedMove(state_ + delta_state / 2, bounds, max_iters);
+			Eigen::Vector<float, n_dofs> delta_state = new_state - getState();
+			boundedMove(getState() + delta_state / 2, bounds, max_iters);
 		} else {
 			setState(new_state);
 		}
@@ -434,14 +434,16 @@ public:
 	}
 
 
-	virtual void setState(Eigen::Vector<float,ConnectorChain::getDoF()> new_state) {
+	void setState(Eigen::Vector<float,ConnectorChain::getDoF()> new_state) override {
 		//set child states using template magic
 		setSubstate<constraint, constraints...>(new_state); //this can likely be sped up by combining these two calls
 		ConnectorConstraint<ConnectorChain::getDoF()>::setState(new_state);
+		/*issue is HERE the connector_transform_ is only recomputed here so we have to check that all children are 
+		not stale before using connector_transform_ to get connector tform*/
 		//connector_transform_ = computeConnectorTransform(new_state);
 	}
 
-	virtual Eigen::Vector<float, ConnectorChain::getDoF()> getState() const override {
+	Eigen::Vector<float, ConnectorChain::getDoF()> getState() const override {
 		Eigen::Vector<float,ConnectorChain::getDoF()> state;
 		writeSubstate<0,constraint, constraints...>(state);
 		//read from children using template magic
