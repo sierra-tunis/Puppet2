@@ -75,7 +75,7 @@ public:
 	}
 
 	Zmap(int y_resolution, int x_resolution, const Model* model) :
-		Zmap(y_resolution, x_resolution, model->getBoundingBox()[2], model->getBoundingBox()[0], .5) {
+		Zmap(y_resolution, x_resolution, model->getBoundingBox()[2], model->getBoundingBox()[0], .1) {
 
 	}
 

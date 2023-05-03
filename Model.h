@@ -21,6 +21,7 @@ private:
 	std::vector<unsigned int> faces_;
 	std::vector<unsigned int> face_norms_;
 	std::vector<unsigned int> face_tex_;
+	std::vector<unsigned int> lines_;
 
 	Eigen::Vector3f bounding_box_;
 	Eigen::Vector3f box_center_;
@@ -110,6 +111,12 @@ public:
 					face_norms_.push_back(std::stof(value)-1);
 				}
 			}
+			else if (line[0] == 'l') {
+				while (std::getline(ss, value, ' ')) {
+					lines_.push_back(std::stof(value)-1);
+
+				}
+			}
 		}
 		objFile.close();
 		n_verts_ = verts_.size()/3;
@@ -133,21 +140,27 @@ public:
 
 	}	
 
-	const std::vector<float> getVerts() const {
+	const std::vector<float>& getVerts() const {
 		return verts_;
 	}
 
-	const std::vector<float> getNorms() const {
+	const std::vector<float>& getNorms() const {
 		return norms_;
 	}
 
-	const std::vector<unsigned int> getFaces() const {
+	const std::vector<unsigned int>& getFaces() const {
 		return faces_;
 	}
 
-	const std::vector<float> getTexCoords() const {
+	const std::vector<float>& getTexCoords() const {
 		return tex_coords_;
 	}
+
+
+	const std::vector<unsigned int>& getLines() const {
+		return lines_;
+	}
+
 
 	constexpr size_t vlen() const {
 		return n_verts_;

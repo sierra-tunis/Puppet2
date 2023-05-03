@@ -20,10 +20,11 @@ template<std::derived_from<GameObject> PlayerType>
 class PlayerCamera : public Camera {
 private:
 	const float equilibrium_length_;
+	OffsetConnector anchor_;
 	RotationJoint pan_;
 	RotationJoint tilt_;
 	PrismaticJoint dist_;
-	ConnectorChain<RotationJoint, RotationJoint, PrismaticJoint> tether_;
+	ConnectorChain<OffsetConnector,RotationJoint, RotationJoint, PrismaticJoint> tether_;
 	PlayerType* player_;
 	BoundaryConstraint level_bounds_;
 	MeshSurface cam_box_;
@@ -80,10 +81,11 @@ public:
 	PlayerCamera(float near_clip, float far_clip, float fov,float equilibrium_length,GLFWwindow* window, std::string name) :
 		Camera(near_clip,far_clip,fov,"PlayerCamera"),
 		equilibrium_length_(equilibrium_length),
+		anchor_(OffsetConnector((Eigen::Matrix4f()<<1.,0.,0.,0.,  0.,1.,0.,.7,  0.,0.,1.,0.,  0., 0., 0., 1.).finished())),
 		pan_(RotationJoint(Eigen::Vector3f(0, 1, 0))),
 		tilt_(RotationJoint(Eigen::Vector3f(1, 0, 0))),
 		dist_(PrismaticJoint(Eigen::Vector3f(0, 1.5, 3))),
-		tether_(ConnectorChain<RotationJoint, RotationJoint, PrismaticJoint>(pan_,tilt_,dist_)),
+		tether_(ConnectorChain<OffsetConnector, RotationJoint, RotationJoint, PrismaticJoint>(anchor_,pan_,tilt_,dist_)),
 		cam_box_("cam_box.obj") {
 
 		enableMouseControl(window);

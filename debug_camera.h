@@ -78,12 +78,12 @@ public:
 	DebugCamera( std::string name):
 	InterfaceObject(name),
 	current_level_(nullptr),
-	hitbox_("cube.obj"),
+	hitbox_("human_skeleton.obj"),
 	level_bounds_(new NoCollideConstraint<Surface<3>, MeshSurface>(nullptr, nullptr,&hitbox_)),
 	collision_info(hitbox_.getEdges().size())
 	//level_bounds_(&current_level_->getZmap())
 	{
-		setModel(new Model("cube.obj"));
+		setModel(new Model("human.obj"));
 		setTexture(new Texture("obamna.jpg"));
 		addMotionConstraint(level_bounds_);
 	}
