@@ -16,6 +16,7 @@
 #include "text_graphics.hpp"
 #include "Debugger.h"
 #include "ZMapper.h"
+#include "sound.hpp"
 
 #include <GLFW/glfw3.h>
 
@@ -26,6 +27,11 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 
 int main(void)
 {
+    
+    Sound bkg_music("bkg_music", "EldenRingOSTGodskinApostles.wav");
+    bkg_music.load();
+    bkg_music.play();
+
     GLFWwindow* window;
 
    

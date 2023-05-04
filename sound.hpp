@@ -4,31 +4,29 @@
 #ifndef PUPPET_SOUND
 #define PUPPET_SOUND
 
+
 class Sound {
 	bool looping_;
 
 	std::string fname_;
+	std::string name_;
+
+
 
 public:
 
-	Sound(std::string fname);
+	Sound(std::string name, std::string fname) :name_(name), fname_(fname) {}
 
 
-	void play() {
-
-	}
+	void play();
 
 	void stop() {
 
 	}
 
-	void load() {
+	void load();
 
-	}
-
-	void unload() {
-
-	}
+	void unload();
 
 };
 
