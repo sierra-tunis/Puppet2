@@ -5,6 +5,7 @@
 #include <chrono>
 
 #include "Default3d.h"
+#include "Dynamic3d.hpp"
 #include "level.h"
 #include "player_camera.h"
 #include "debug_camera.h"
@@ -118,6 +119,7 @@ int main(void)
     //Camera camera((Eigen::Matrix4f() << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1).finished(), -1);
     camera.activateKeyInput(window);
     Default3d default3d(camera);
+    Dynamic3d dynamic3d(camera);
     Default2d default2d;
     HboxGraphics hbox_graphics(camera, .1, 100, 90);
     Font test_glyph("test_glyph.png");
@@ -143,7 +145,7 @@ int main(void)
     cult_impluvium.add(dbg1);
     default3d.add(dbg1);
 
-    default3d.add(center);
+    dynamic3d.add(center);
     hbox_graphics.add(center);
 
     glfwSetWindowSize(window, 1600, 1200);
@@ -180,6 +182,7 @@ int main(void)
         glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
 
         default3d.drawAll();
+        dynamic3d.drawAll();
         hbox_graphics.drawAll();
         default2d.drawAll();
         text_graphics.drawAll();

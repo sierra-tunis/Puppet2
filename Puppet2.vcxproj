@@ -140,6 +140,7 @@
     <ClCompile Include="DebugGraphics.cpp" />
     <ClCompile Include="Default2d.cpp" />
     <ClCompile Include="Default3d.cpp" />
+    <ClCompile Include="Dynamic3d.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="InternalObject.cpp" />
@@ -159,6 +160,8 @@
     <ClInclude Include="Debugger.h" />
     <ClInclude Include="debug_menu.h" />
     <ClInclude Include="Default2d.hpp" />
+    <ClInclude Include="Dynamic3d.hpp" />
+    <ClInclude Include="dynamic_model.hpp" />
     <ClInclude Include="graph.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="motion_constraint.h" />

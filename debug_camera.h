@@ -10,6 +10,7 @@
 #include "level.h"
 #include "collision.hpp"
 #include "no_collide_constraint.hpp"
+#include "dynamic_model.hpp"
 
 #include "text_graphics.hpp"
 
@@ -24,6 +25,8 @@ class DebugCamera : public InterfaceObject<GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, G
 	NoCollideConstraint<Surface<3>, MeshSurface>* level_bounds_;
 	std::vector<bool> collision_info;
 	constexpr static float max_step = .5f;
+
+	Eigen::Matrix4f test_tform_;
 	//BoundaryConstraint level_bounds_;
 
 
@@ -80,10 +83,19 @@ public:
 	current_level_(nullptr),
 	hitbox_("human_skeleton.obj"),
 	level_bounds_(new NoCollideConstraint<Surface<3>, MeshSurface>(nullptr, nullptr,&hitbox_)),
-	collision_info(hitbox_.getEdges().size())
+	collision_info(hitbox_.getEdges().size()),
+	test_tform_(Eigen::Matrix4f::Identity())
 	//level_bounds_(&current_level_->getZmap())
 	{
-		setModel(new Model("human.obj"));
+		DynamicModel* model = new DynamicModel("human.obj");
+		std::vector<const Eigen::Matrix4f*> vert_tforms;
+		for (int i = 0; i < model->vlen(); i++) {
+			vert_tforms.push_back(i % 2 == 0 ? &getPosition() : &test_tform_);
+		}
+		model->setVertTforms(vert_tforms);
+		setModel(model);
+		//setModel(new Model("human.obj"));
+
 		setTexture(new Texture("obamna.jpg"));
 		addMotionConstraint(level_bounds_);
 	}
