@@ -144,16 +144,16 @@ public:
 		return verts_;
 	}
 
-	virtual const float* getVertData() const {
-		return verts_.data();
+	virtual void getVertData(std::vector<float>& data) const {
+		data = verts_;
 	}
 
 	const std::vector<float>& getNorms() const {
 		return norms_;
 	}
 	
-	virtual const float* getNormData() const {
-		return norms_.data();
+	virtual void getNormData(std::vector<float>& data) const {
+		data = norms_;
 	}
 
 	const std::vector<unsigned int>& getFaces() const {

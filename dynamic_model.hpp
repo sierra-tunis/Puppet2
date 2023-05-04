@@ -34,30 +34,25 @@ public:
 		vert_tforms_ = vert_tforms;
 	}
 
-	const float* getVertData() const override {
-		std::vector<float>* tformed_verts = new std::vector<float>;
-		tformed_verts->reserve(vlen() * 3);
+	void getVertData(std::vector<float>& data) const override {
+		//data->reserve(vlen() * 3);
 		for (int i = 0; i < vlen(); i++) {
 			Eigen::Vector3f pos = vert_mat_(seq(0, 2), i);
 			pos = (*vert_tforms_[i])(seq(0, 2), seq(0, 2)) * pos + (*vert_tforms_[i])(seq(0, 2), 3);
-			tformed_verts->push_back(pos(0));
-			tformed_verts->push_back(pos(1));
-			tformed_verts->push_back(pos(2));
+			data[3*i] = pos(0);
+			data[3*i+1] = pos(1);
+			data[3*i+2] = pos(2);
 		}
-		return tformed_verts->data();
 	}
 
-	const float* getNormData() const override {
-		std::vector<float>* tformed_norms = new std::vector<float>;
-		tformed_norms->reserve(vlen() * 3);
+	void getNormData(std::vector<float>& data) const override {
 		for (int i = 0; i < vlen(); i++) {
 			Eigen::Vector3f norm = norm_mat_(seq(0, 2), i);
 			norm = (*vert_tforms_[i])(seq(0, 2), seq(0, 2)) * norm;
-			tformed_norms->push_back(norm(0));
-			tformed_norms->push_back(norm(1));
-			tformed_norms->push_back(norm(2));
+			data[3 * i] = norm(0);
+			data[3 * i + 1] = norm(1);
+			data[3 * i + 2] = norm(2);
 		}
-		return tformed_norms->data();
 	}
 
 };
