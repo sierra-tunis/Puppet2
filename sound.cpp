@@ -43,7 +43,7 @@ void Sound::unload() {
 }
 
 void Sound::play() {
-	std::string full_command = std::string("play ") + name_ + std::string(" wait");
+	std::string full_command = std::string("play ") + name_ + std::string("");
 	msiSendString(full_command);
 
 
