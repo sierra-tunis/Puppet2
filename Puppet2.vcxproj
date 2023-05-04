@@ -145,6 +145,7 @@
     <ClCompile Include="InternalObject.cpp" />
     <ClCompile Include="level.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="sound.cpp" />
     <ClCompile Include="surface.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="zmap.cpp" />
@@ -165,6 +166,7 @@
     <ClInclude Include="physics.hpp" />
     <ClInclude Include="player_camera.h" />
     <ClInclude Include="sequence.h" />
+    <ClInclude Include="sound.hpp" />
     <ClInclude Include="stb_image_write.h" />
     <ClInclude Include="surface.hpp" />
     <ClInclude Include="text_graphics.hpp" />

@@ -8,7 +8,9 @@ struct StateSequence {//building block upon which animations will be based
 	//second dim isnt a template because it would be annoying to look up in a file after its created how many frames the animation is, but you probably know how many dofs the model is
 	Eigen::Matrix<float, n_dofs + 1, -1> sequence;//[x | t]
 
-	bool looping_;
+	bool looping_; //if not looping, then any time after the end will return the last frame
+
+	enum interpolation_type{nearest,linear,spline,fourier};
 
 public:
 
