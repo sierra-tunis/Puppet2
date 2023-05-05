@@ -10,6 +10,7 @@
 #include "Graphics.hpp"
 #include "zmap.h"
 #include "ZMapper.h"
+#include "sound.hpp"
 
 #include <GLFW/glfw3.h>
 
@@ -36,6 +37,8 @@ private:
 	static Level* current_level_;
 	static std::vector<Level*> all_levels_;
 
+	Sound theme_;
+
 	//we can render the floor like an image with color corresponding to the height.
 	// use some sentinel color for the background to indicate out of bounds regions.
 	//this lets us rectangularize the whole level and only need to figure out the player position
@@ -50,10 +53,12 @@ private:
 	}
 
 	void enterStandby() {
-		if (load_state_ = active) {
+		if (load_state_ == active) {
 			deactivate();
 		}
 		load_state_ = standby;
+		theme_.load();
+
 	}
 
 	void activate() {
@@ -64,7 +69,7 @@ private:
 		for (auto& obj : contents_) {
 			obj->onRoomActivation();
 		}
-
+		theme_.play();
 	}
 
 	void freeze() {
@@ -72,6 +77,7 @@ private:
 			deactivate();
 		}
 		load_state_ = frozen;
+		theme_.unload();
 	}
 
 	void deactivate() {
@@ -79,6 +85,7 @@ private:
 		for (auto& obj : contents_) {
 			obj->onRoomActivation();
 		}
+		theme_.stop();
 	}
 
 public:
@@ -161,6 +168,7 @@ public:
 
 	Level(std::vector<GameObject*> layout, GLFWwindow* window, Model* model, Texture* texture, std::string room_name) :
 		GameObject(room_name),
+		load_state_(frozen),
 		window_(window),
 		fname(""),
 		collision_surface_(nullptr),
@@ -251,6 +259,10 @@ public:
 
 	int getLevelNum() const {
 		return level_number_;
+	}
+
+	void setTheme(Sound theme) {
+		theme_ = theme;
 	}
 
 	/*
