@@ -27,31 +27,26 @@ public:
 			norm_mat_(1, i) = getNorms()[3 * i+1];
 			norm_mat_(2, i) = getNorms()[3 * i+2];
 		}
-
 	}
 
 	void setVertTforms(std::vector<const Eigen::Matrix4f*> vert_tforms) {
 		vert_tforms_ = vert_tforms;
 	}
 
-	void getVertData(std::vector<float>& data) const override {
-		//data->reserve(vlen() * 3);
+	void updateData() {
 		for (int i = 0; i < vlen(); i++) {
+			const Eigen::Matrix3f& rot = (*vert_tforms_[i])(seq(0, 2), seq(0, 2));
 			Eigen::Vector3f pos = vert_mat_(seq(0, 2), i);
-			pos = (*vert_tforms_[i])(seq(0, 2), seq(0, 2)) * pos + (*vert_tforms_[i])(seq(0, 2), 3);
-			data[3*i] = pos(0);
-			data[3*i+1] = pos(1);
-			data[3*i+2] = pos(2);
-		}
-	}
+			pos = rot * pos + (*vert_tforms_[i])(seq(0, 2), 3);
+			verts_[3 * i] = pos(0);
+			verts_[3 * i + 1] = pos(1);
+			verts_[3 * i + 2] = pos(2);
 
-	void getNormData(std::vector<float>& data) const override {
-		for (int i = 0; i < vlen(); i++) {
 			Eigen::Vector3f norm = norm_mat_(seq(0, 2), i);
-			norm = (*vert_tforms_[i])(seq(0, 2), seq(0, 2)) * norm;
-			data[3 * i] = norm(0);
-			data[3 * i + 1] = norm(1);
-			data[3 * i + 2] = norm(2);
+			norm = rot * norm;
+			norms_[3 * i] = norm(0);
+			norms_[3 * i + 1] = norm(1);
+			norms_[3 * i + 2] = norm(2);
 		}
 	}
 

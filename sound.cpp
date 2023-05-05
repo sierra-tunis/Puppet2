@@ -20,14 +20,14 @@ bool msiSendString(std::string string) {
 	mbstowcs_s(&n_converted, wmsg, strlen(msg) + 1, msg, strlen(msg) + 1);
 
 	MCIERROR error = mciSendString(wmsg, NULL, 0, NULL);
-//	return error;
-	TCHAR lpszErrorText[250];
+	return error;
+/*	TCHAR lpszErrorText[250];
 	UINT cchErrorText;
 
 	mciGetErrorString(error,lpszErrorText,250);
 	//memory deallocation - must do to avoid memory leak!
 	delete[]wmsg;
-	return error;
+	return error;*/
 }
 
 

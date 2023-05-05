@@ -13,7 +13,7 @@
 #define MODEL_PATH "C:\\Users\\Justin\\source\\repos\\Puppet2\\Puppet2\\assets\\"
 //this is conceptually the same as "mesh" may want to rename since a model can also be nurbs, but a mesh is always a mesh
 class Model {
-private:
+protected:
 	//std::unordered_map<std::vector<float>,std::string> vertex_data;
 	std::vector<float> verts_;
 	std::vector<float> norms_;
@@ -31,7 +31,7 @@ private:
 	const std::string fname_;
 
 	bool loaded;
-
+private:
 	void reassign_vtx() {
 		std::vector<float> tex_temp(tex_coords_);
 		tex_coords_ = std::vector<float>(n_verts_*2);
@@ -144,18 +144,10 @@ public:
 		return verts_;
 	}
 
-	virtual void getVertData(std::vector<float>& data) const {
-		data = verts_;
-	}
-
 	const std::vector<float>& getNorms() const {
 		return norms_;
 	}
 	
-	virtual void getNormData(std::vector<float>& data) const {
-		data = norms_;
-	}
-
 	const std::vector<unsigned int>& getFaces() const {
 		return faces_;
 	}

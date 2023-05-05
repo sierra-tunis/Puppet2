@@ -27,6 +27,7 @@ class DebugCamera : public InterfaceObject<GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, G
 	constexpr static float max_step = .5f;
 
 	Eigen::Matrix4f test_tform_;
+	DynamicModel kin_model_;
 	//BoundaryConstraint level_bounds_;
 
 
@@ -84,16 +85,16 @@ public:
 	hitbox_("human_skeleton.obj"),
 	level_bounds_(new NoCollideConstraint<Surface<3>, MeshSurface>(nullptr, nullptr,&hitbox_)),
 	collision_info(hitbox_.getEdges().size()),
-	test_tform_(Eigen::Matrix4f::Identity())
+	test_tform_(Eigen::Matrix4f::Identity()),
+	kin_model_("human.obj")
 	//level_bounds_(&current_level_->getZmap())
 	{
-		DynamicModel* model = new DynamicModel("human.obj");
 		std::vector<const Eigen::Matrix4f*> vert_tforms;
-		for (int i = 0; i < model->vlen(); i++) {
+		for (int i = 0; i < kin_model_.vlen(); i++) {
 			vert_tforms.push_back(i % 2 == 0 ? &getPosition() : &test_tform_);
 		}
-		model->setVertTforms(vert_tforms);
-		setModel(model);
+		kin_model_.setVertTforms(vert_tforms);
+		setModel(&kin_model_);
 		//setModel(new Model("human.obj"));
 
 		setTexture(new Texture("obamna.jpg"));
@@ -124,6 +125,7 @@ public:
 				
 			}
 		}
+		kin_model_.updateData();
 		/*
 		int current_room = current_level_->getZmap().getZdata(, 0.).first.room_id;
 		//std::cout << "current room# " << current_room << "\n";

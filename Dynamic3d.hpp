@@ -13,7 +13,7 @@
 
 using Eigen::Matrix4f;
 
-class Dynamic3d : public Graphics<GameObject,int, int, size_t, unsigned int, unsigned int, std::vector<float>*, std::vector<float>*> { //VAO, tex_id, n_elems, pos vbo, norm vbo, pos_vector, norm_vector
+class Dynamic3d : public Graphics<GameObject,int, int, size_t, unsigned int, unsigned int> { //VAO, tex_id, n_elems, pos vbo, norm vbo, pos_vector, norm_vector
 
 private:
 	const unsigned int perspective_location_;
@@ -39,14 +39,6 @@ private:
 
 	constexpr unsigned int& getNormVBO(Cache cache) const {
 		return std::get<4>(cache);
-	}
-
-	constexpr std::vector<float>* getPosVec(Cache cache) const {
-		return std::get<5>(cache);
-	}
-
-	constexpr std::vector<float>* getNormsVec(Cache cache) const {
-		return std::get<6>(cache);
 	}
 
 	virtual Cache makeDataCache(const GameObject& obj) const override {
@@ -100,7 +92,7 @@ private:
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex.width, tex.height, 0, GL_RGB, GL_UNSIGNED_BYTE, tex.getData().data());
 		glGenerateMipmap(GL_TEXTURE_2D);
 
-		return Cache{VAO,tex_id, model.flen(), VBO[0], VBO[1], vert_pos, vert_norm};
+		return Cache{VAO,tex_id, model.flen(), VBO[0], VBO[1]};
 	}
 
 	virtual void deleteDataCache(Cache cache) const override {
@@ -116,14 +108,12 @@ public:
 
 			glBindBuffer(GL_ARRAY_BUFFER, getPosVBO(cache));
 
-			obj.getModel()->getVertData(*getPosVec(cache));
-			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * obj.getModel()->vlen() * 3, getPosVec(cache)->data(), GL_DYNAMIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * obj.getModel()->vlen() * 3, obj.getModel()->getVerts().data(), GL_DYNAMIC_DRAW);
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 			glEnableVertexAttribArray(0);
 
-			obj.getModel()->getNormData(*getNormsVec(cache));
 			glBindBuffer(GL_ARRAY_BUFFER, getNormVBO(cache));
-			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * obj.getModel()->getNorms().size(), getNormsVec(cache)->data(), GL_DYNAMIC_DRAW);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * obj.getModel()->getNorms().size(), obj.getModel()->getNorms().data(), GL_DYNAMIC_DRAW);
 			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 			glEnableVertexAttribArray(1);
 
