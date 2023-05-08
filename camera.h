@@ -44,9 +44,6 @@ public:
 			0, 0, -1., 0;
 	}
 
-	/*void bindTo(const InternalObject& target) {
-		clampTo(target);
-	}*/
 
 	void onKeyPress(int key) override {
 		if (key == GLFW_KEY_F1) {
@@ -60,10 +57,6 @@ public:
 
 	void clearScreenshotFlag() {
 		this->screenshot_flag_ = false;
-	}
-
-	void update(GLFWwindow* window) override {
-		InternalObject::update(window);
 	}
 
 	const Eigen::Matrix4f& getPerspective() const {

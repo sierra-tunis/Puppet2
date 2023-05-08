@@ -37,6 +37,10 @@ struct Textbox{
 	enum class wrap_type{};
 	enum class allignment {};
 	float line_space;
+	bool hidden_;
+	bool isHidden() const {
+		return hidden_;
+	}
 	/*...*/
 
 	Textbox():text(""),font(""),top(0),left(0),box_width(1),box_height(1),font_size(1){}

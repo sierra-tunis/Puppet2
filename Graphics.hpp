@@ -8,12 +8,6 @@
 #include <unordered_map>
 #include <concepts>
 
-
-#include "InternalObject.h"
-#include "GraphicsObject.h"
-
-//#include <gl/GL.h>
-
 /*
 template<class T>
 concept Cachable = std::is_base_of<DataCache,T>::value;
@@ -33,6 +27,7 @@ class Graphics {
 template<class T>
 concept Identifiable = requires(const T & t) {
 	{t.getID()}->std::convertible_to<size_t>;
+	{t.isHidden()}->std::convertible_to<bool>;
 };
 
 template <Identifiable Object, class ... data>
@@ -131,7 +126,9 @@ public:
 		glUseProgram(gl_id);
 		beginDraw();
 		for (const auto& obj : draw_targets_) {
-			this->drawObj(*(obj.second), cached_data_[obj.first]);
+			if (!((obj.second)->isHidden())) {
+				this->drawObj(*(obj.second), cached_data_[obj.first]);
+			}
 		}
 		endDraw();
 		glBindVertexArray(0);

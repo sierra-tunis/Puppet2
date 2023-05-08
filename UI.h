@@ -36,6 +36,7 @@ public:
 	Model(RectVerts(height,width),RectNorms(),RectTex(1.,1.,0.,0.),RectFace(),RectFaceNorm(),RectFaceTex()){}
 };
 
+
 class Button : public GameObject{
 
 	const float height_, width_;
@@ -65,6 +66,16 @@ class Button : public GameObject{
 	}
 
 public:
+
+	Button(float height, float width) :
+		height_(height),
+		width_(width),
+		button_model_(height_, width_) {
+
+		setModel(&button_model_);
+		setTexture(new Texture("rocky.jpg"));
+	}
+
 	Button(float height, float width, std::string name) : 
 		GameObject(name),
 		height_(height),
@@ -80,6 +91,51 @@ public:
 		callback_input_ = callback_input;
 	}
 };
+
+class Slider : public GameObject {
+	float lower_limit_, upper_limit_;
+	float current_position_;
+	float height_, width_;
+	float increment_amount_;
+
+	void (*slider_change_callback_)(float, void*); //float being the new slider value
+
+	Button increment_;
+	Button decrement_;
+	Button slider_;
+
+	Textbox current_value_;
+	Textbox lower_limit_value_;
+	Textbox upper_limit_value_;
+
+	OffsetConnector increment_offset_;
+	OffsetConnector decrement_offset_;
+	PrismaticJoint slider_connector_;
+
+public:
+	Slider(float height, float width, float lower_limit, float upper_limit):
+	GameObject(),
+	height_(height),
+	width_(width),
+	increment_(height_,width_/20),
+	decrement_(height_,width_/20),
+	slider_(height_,width/100),
+	slider_change_callback_(nullptr),
+	lower_limit_(lower_limit),
+	upper_limit_(upper_limit),
+	current_position_(lower_limit/2 + upper_limit/2),
+	increment_offset_(width_*(.5 + 1./20.),0,0),
+	decrement_offset_(width_*(-.5-1./20.),0,0),
+	slider_connector_(Eigen::Vector3f(1.,0.,0.)){
+		
+		increment_.connectTo(this, &increment_offset_);
+		decrement_.connectTo(this, &decrement_offset_);
+
+		slider_.connectTo(this, &slider_connector_);
+
+	}
+};
+
 /*
 template<class T>
 concept GameObjectIterator = requires(const T & iterator, unsigned int i) {

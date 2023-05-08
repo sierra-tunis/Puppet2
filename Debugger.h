@@ -16,7 +16,7 @@ class Debugger : public InterfaceObject<GLFW_KEY_UP, GLFW_KEY_DOWN, GLFW_KEY_LEF
 	RotationJoint r2_;
 	ConnectorChain<OffsetConnector, RotationJoint, RotationJoint> linkage_;
 public:
-	Debugger(Eigen::Matrix4f position, std::string name, const InternalObject& parent) : 
+	Debugger(Eigen::Matrix4f position, std::string name, const GameObject& parent) : 
 		InterfaceObject(name),
 		clamp_(position),
 		r1_(Eigen::Vector3f(0,1,0)),
@@ -78,7 +78,7 @@ private:
 		}
 	}
 
-	void onCollision(const InternalObject& other) override {
+	void onCollision(const GameObject& other) override {
 		this->collision_flag_= true;//grobj is copied into graphics, not passed by reference so this doesnt work
 	}
 

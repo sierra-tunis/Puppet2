@@ -183,7 +183,6 @@ public:
 		}
 		camera_.moveTo(level.getPosition()(seq(0,2), 3));
 		camera_.translate(0, z, 0);
-		camera_.updatePosition();
 		//create zclip matrix
 		startScreenshot(x_resolution, y_resolution);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

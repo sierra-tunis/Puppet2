@@ -105,7 +105,6 @@ public:
 	virtual const Eigen::Matrix4f& getConstraintTransform() const {
 		return Eigen::Matrix4f::Identity();
 	};
-	//PositionConstraint():bounds_(nullptr){}
 
 	void setRootTransform(const Eigen::Matrix4f* root_transform) {
 		root_transform_ = root_transform;
@@ -350,6 +349,14 @@ public:
 	OffsetConnector(Eigen::Matrix4f offset) :
 		ConnectorConstraint(offset) {
 	}
+
+	OffsetConnector(float x, float y, float z) :
+		ConnectorConstraint((Eigen::Matrix4f() << 1., 0., 0., x,
+												  0., 1., 0., y,
+												  0., 0., 1., z,
+												  0., 0., 0., 1).finished()) {
+
+	}
 };
 
 //can this be vastly simplified to a linked list? i.e.
@@ -377,11 +384,6 @@ template<Connector constraint, Connector...constraints>
 class ConnectorChain : public ConnectorConstraint<sumDoF<constraint,constraints...>()> {
 	std::tuple<constraint&, constraints&...> connectors_;
 
-	//this shouldnt be necessary
-	/*template<int i>
-	consteval auto getConnector() const {
-		return std::get<i>(connectors_);
-	}*/
 	static_assert(ConnectorChain::getDoF() == sumDoF<constraint, constraints...>());
 
 protected:
@@ -409,7 +411,6 @@ protected:
 	}
 	template<Connector constraint_, Connector constraint2_, Connector...constraints_>
 	void setSubstate(Eigen::Vector<float, sumDoF<constraint_, constraint2_, constraints_...>()> state_vec) {
-		//Eigen::Vector<float, constraint_::getDoF()>& substate = state_vec(seq(0, constraint_::getDoF() - 1));
 		constraint_& pop_conn = std::get<sizeof...(constraints) - sizeof...(constraints_) - 1>(connectors_);
 		pop_conn.setState(state_vec(seq(0, constraint_::getDoF() - 1)));
 		setSubstate<constraint2_, constraints_...>(state_vec(seq(constraint_::getDoF(), Eigen::last)));
@@ -449,11 +450,6 @@ public:
 		//read from children using template magic
 		return state;
 	}
-	/*
-	ConnectorChain(const Eigen::Matrix4f* root_transform,constraint& constraint0, constraints&... constraint1_end) :
-		ConnectorConstraint< ConnectorChain::getDoF()>(root_transform), connectors_(constraint0, constraint1_end...) {
-
-	}*/
 
 };
 

@@ -163,7 +163,6 @@
     <ClInclude Include="Dynamic3d.hpp" />
     <ClInclude Include="dynamic_model.hpp" />
     <ClInclude Include="graph.h" />
-    <ClInclude Include="Menu.h" />
     <ClInclude Include="motion_constraint.h" />
     <ClInclude Include="no_collide_constraint.hpp" />
     <ClInclude Include="physics.hpp" />
@@ -171,6 +170,7 @@
     <ClInclude Include="sequence.h" />
     <ClInclude Include="sound.hpp" />
     <ClInclude Include="stb_image_write.h" />
+    <ClInclude Include="sub_ui.hpp" />
     <ClInclude Include="surface.hpp" />
     <ClInclude Include="text_graphics.hpp" />
     <ClInclude Include="UI.h" />

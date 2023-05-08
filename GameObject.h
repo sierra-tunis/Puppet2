@@ -36,23 +36,31 @@ private:
 	Texture* texture_; //texture has all the texture packed into it like color, normal etc, and can just be subclassed to add more
 	bool hidden_;
 
+	Eigen::Matrix4f position_;
 	Eigen::Vector3f velocity_; //yes this could be a twist, but simplicity over technical accuracy
 	Eigen::Vector3f acceleration_;
 	std::vector<BoundaryConstraint*> motion_constraints_;
-	bool freefall_;
 
 	time_point<system_clock> t_ref_;
 	std::chrono::duration<float> dt_;
 	Eigen::Matrix4f last_position_;
 
-	std::vector<const InternalObject*> collidors; //should be a safe pointer
+	Surface<3>* hitbox;
+	std::vector<const GameObject*> collidors; //should be a safe pointer
 	std::vector<bool> collision_flags_;
+
+	const GameObject* parent_;
+	PositionConstraint* parent_connector_;
+
 
 	/*
 	variable which contains information about constrainst on motion relative to parent
 	*/
 
+	
+
 protected:
+	
 	//virtual G makeGrobj(G shared_grobj) {}
 	void setModel(Model* model) {
 		model_ = model;
@@ -84,25 +92,43 @@ protected:
 
 	}
 
+
+	inline virtual void onCollision(const GameObject& other) {};
+
+	inline virtual void onDecollision(const GameObject& other) {};
+
 public:
-	
-	GameObject(std::string name) :
-		InternalObject(name),
-		last_position_(getPosition()),
-		//shared_grobj_(GameObject::model_, GameObject::texture_, Matrix4f::Identity()),//still needs rework
-		t_ref_(system_clock::now()) {
-		/*if (!shared_grobj_.isInitialized()) {
-			shared_grobj_.initialize(GameObject::model_, GameObject::texture_);
-		}
-		grobj_.VAO = shared_grobj_.VAO;
-		grobj_.tex_id = shared_grobj_.tex_id;
-		grobj_.n_elems = shared_grobj_.n_elems;
-		this->graphics_->add(this->getID(), this->grobj_);
-		*/
+
+	virtual void load() {
+
 	}
 
+	virtual void unload() {
+
+	}
+
+	void updatePosition() {
+		if (parent_ != nullptr && parent_connector_ != nullptr) {
+			this->position_ = parent_->getPosition() * (parent_connector_->getConstraintTransform());
+		}
+	}
+	GameObject(std::string name) :
+		position_(Eigen::Matrix4f::Identity()),
+		InternalObject(name),
+		t_ref_(system_clock::now()),
+		parent_(nullptr),
+		parent_connector_(nullptr) {
+
+	}
+
+	GameObject():
+		position_(Eigen::Matrix4f::Identity()),
+		t_ref_(system_clock::now()),
+		parent_(nullptr),
+		parent_connector_(nullptr) {}
+
 	void update(GLFWwindow* window) override{
-		InternalObject::update(window);
+		updatePosition();
 		//update time
 		time_point<system_clock> t = system_clock::now();
 		dt_ = (t - t_ref_);
@@ -112,8 +138,8 @@ public:
 		auto collidor_it = collidors.begin();
 		auto flag_it = collision_flags_.begin();
 		for (int i = 0; i < collidors.size(); i++) {
-			const InternalObject* c = *collidor_it;
-			if (this->getHbox().checkCollision(c->getHbox(), getPosition(), c->getPosition())) [[unlikely]] {
+			const GameObject* c = *collidor_it;
+			/*if (this->getHbox().checkCollision(c->getHbox(), getPosition(), c->getPosition())) [[unlikely]] {
 				*flag_it = true;
 				onCollision(*c);
 			}
@@ -122,7 +148,7 @@ public:
 				onDecollision(*c);
 			}
 			else [[likely]] {}
-
+			*/
 			collidor_it++;
 			flag_it++;
 		}
@@ -166,7 +192,54 @@ public:
 	virtual const Texture* getTexture() const {
 		return texture_;
 	}
-	
+
+	const GameObject* getParent() const {
+		return parent_;
+	}
+
+	const Matrix4f& getPosition() const {
+		return this->position_;
+	}
+
+	const Matrix4f getRelativePosition(GameObject& other) const {
+		//this is almost certainly wrong
+		return inverseTform(parent_->getPosition()) * other.getPosition() * inverseTform(position_);
+		//so globalPosition = parent.gloabl*getRelativePosition(other)*position_ = other.globalPosition
+	}
+
+	void setPosition(Eigen::Matrix4f new_position) {
+		position_ = new_position;
+	}
+
+	void moveTo(Eigen::Vector3f vec) {
+		position_(seq(0, 2), 3) = vec;
+		//stale_global_position_ = true;
+	};
+	void moveTo(float x, float y, float z) {
+		position_(0, 3) = x;
+		position_(1, 3) = y;
+		position_(2, 3) = z;
+		//stale_global_position_ = true;
+	};
+
+	void rotate(Eigen::Matrix3f rot) {
+		position_(seq(0, 2), seq(0, 2)) = rot * getPosition()(seq(0, 2), seq(0, 2));
+		//stale_global_position_ = true;
+	};
+
+	void rotateAxisAngle(Eigen::Vector3f axis, float angle) {
+		Matrix3f w_hat;
+		w_hat << 0, -axis(2), axis(1),
+			axis(2), 0, -axis(0),
+			-axis(1), axis(0), 0;
+		Matrix3f rot = Matrix3f::Identity() + w_hat * sin(angle) + w_hat * w_hat * (1 - cos(angle));
+		rotate(rot);
+	};
+
+	void rotateX(float angle) { rotateAxisAngle(Eigen::Vector3f(1, 0, 0), angle); };
+	void rotateY(float angle) { rotateAxisAngle(Eigen::Vector3f(0, 1, 0), angle); };
+	void rotateZ(float angle) { rotateAxisAngle(Eigen::Vector3f(0, 0, 1), angle); };
+
 	void setVelocity(Eigen::Vector3f velocity) {
 		velocity_ = velocity;
 	}
@@ -191,12 +264,38 @@ public:
 		return motion_constraints_;
 	}
 
-	bool isInFreefall() const {
-		return freefall_;
+	virtual void clampTo(const GameObject* parent) {// this has unintuitive behavior
+		this->parent_ = parent;
+		parent_connector_ = new OffsetConnector(parent_->getPosition(), position_);
 	}
 
+	void connectTo(const GameObject* parent, PositionConstraint* connector) {
+		this->parent_ = parent;
+		parent_connector_ = connector;
+		connector->setRootTransform(&parent_->getPosition());
+	}
+	void connectTo(const GameObject* parent) {
+		this->parent_ = parent;
+		if (parent_connector_ != nullptr) {
+			parent_connector_->setRootTransform(&parent_->getPosition());
+		}
+	}
+	void setConnector(PositionConstraint* connector) {
+		this->parent_connector_ = connector;
+		connector->setRootTransform(&parent_->getPosition());
+
+	}
+
+	void disconnect() {
+		this->parent_ = nullptr;
+		this->parent_connector_ = nullptr;
+	}
+
+	const PositionConstraint* getConnector() const {
+		return parent_connector_;
+	}
 	bool isHidden() const {
-		return hidden_;
+		return hidden_ || (getParent() != nullptr && getParent()->isHidden());
 	}
 
 	void toggleHidden() {
@@ -231,18 +330,10 @@ public:
 		//stale_global_position_ = true;
 	};
 
+	virtual std::string getDebugInfo() const { return ""; };
+	virtual void openDebugUI(float bounds_height, float bounds_width, float bounds_top, float bounds_left) {};
+	virtual void closeDebugUI(float bounds_height, float bounds_width, float bounds_top, float bounds_left) {};
 	
-
-	//needs to be reworked
-	/*void moveToGlobal(Eigen::Vector3f vec) {
-		//parent*new_pos = vec
-		//new_pos = parent^-1*vec
-		//global = parent*local
-		//parent = global*local^-1
-		Eigen::Matrix4f tmp = inverseTform(position_ * inverseTform(position_));
-		position_(seq(0, 2), 3) = tmp(seq(0, 2), seq(0, 2)) * vec + tmp(seq(0, 2), 3);
-	}*/
-
 };
 //template <class G, int ... Keys>
 //const std::array<int, sizeof(Keys)> GameObject<G, Keys...>::keys{ { Keys... } };
@@ -277,6 +368,8 @@ public:
 	}
 	InterfaceObject(std::string name) :
 		GameObject(name){}
+
+
 };
 
 
