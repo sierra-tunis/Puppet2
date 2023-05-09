@@ -99,14 +99,6 @@ protected:
 
 public:
 
-	virtual void load() {
-
-	}
-
-	virtual void unload() {
-
-	}
-
 	void updatePosition() {
 		if (parent_ != nullptr && parent_connector_ != nullptr) {
 			this->position_ = parent_->getPosition() * (parent_connector_->getConstraintTransform());
@@ -152,6 +144,7 @@ public:
 			collidor_it++;
 			flag_it++;
 		}
+		onStep();
 		/*if (last_position_(seq(0, 2), 3) != getPosition()(seq(0, 2), 3)) {
 			for (auto m_c : motion_constraints_) {
 				
@@ -331,8 +324,8 @@ public:
 	};
 
 	virtual std::string getDebugInfo() const { return ""; };
-	virtual void openDebugUI(float bounds_height, float bounds_width, float bounds_top, float bounds_left) {};
-	virtual void closeDebugUI(float bounds_height, float bounds_width, float bounds_top, float bounds_left) {};
+	//virtual void openDebugUI(const GameObject* UI_container, Default2d& graphics_2d, TextGraphics& text_graphics) {};
+	//virtual void closeDebugUI(const GameObject* UI_container, Default2d& graphics_2d, TextGraphics& text_graphics) {};
 	
 };
 //template <class G, int ... Keys>

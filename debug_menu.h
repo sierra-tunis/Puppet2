@@ -16,6 +16,7 @@ class DebugMenu : public GameObject {
 	Button prev_target_;
 	Textbox test_tbox_;
 	TextGraphics& text_graphics_;
+	Slider test_slider_;
 
 	DebugCamera& debug_cam_;
 	OffsetConnector cam_clamp_;
@@ -95,13 +96,17 @@ public:
 			this_->setDebugTarget(nullptr);
 		}
 	}
+	static void testSliderCallback(float new_val, void* must_be_nullptr) {
+		std::cout << new_val << "\n";
+	}
 
 	void addButton(Button* button){
 		buttons_.push_back(button);
 	}
 
-	DebugMenu(GLFWwindow* window, Default2d& graphics, TextGraphics& text_graphics, DebugCamera& debug_camera): GameObject("debug_menu"),
+	DebugMenu(GLFWwindow* window, Default2d& graphics, TextGraphics& text_graphics, DebugCamera& debug_camera) : GameObject("debug_menu"),
 		test_button_(.1, .2, "test_button"),
+		test_slider_(.1, .3, 0, 1),
 		next_target_(.2,.2,"next_target"),
 		prev_target_(.2, .2, "prev_target"),
 		next_level_(.2,.2,"next_level"),
@@ -122,6 +127,10 @@ public:
 		test_tbox_.left = .5;
 		test_tbox_.top = .6;
 		text_graphics.add(test_tbox_);//for some reason removing this and beginning with the menu hidden causes an error
+
+		test_slider_.load(window, graphics, text_graphics);
+		test_slider_.moveTo(.5, -.5, 0);
+		test_slider_.setSliderChangeCallback(&testSliderCallback);
 
 		target_dbg_info_.box_width = 2;
 		target_dbg_info_.top = .95;
@@ -166,6 +175,7 @@ public:
 	}
 
 	void update(GLFWwindow* window) override {
+		test_slider_.update(window);
 		if (debug_target_ != nullptr) {
 			debug_cam_.connectTo(debug_target_,&cam_clamp_);
 		} else {

@@ -276,6 +276,12 @@ public:
 		return computeConnectorTransform(Eigen::Vector<float, 1>(length));
 	} //maybe this should be the other way around?
 	*/
+	using ConnectorConstraint::setState;
+
+	void setState(float new_state) {
+		setState(Eigen::Vector<float, 1>(new_state));
+	}
+
 	Eigen::Matrix4f computeConnectorTransform(Eigen::Vector<float, 1> state_vec) const override {
 		Eigen::Matrix4f ret(Eigen::Matrix4f::Identity());
 		ret << 1, 0, 0, direction_(0)* state_vec(0),
@@ -324,6 +330,10 @@ public:
 		ret(seq(0, 2), seq(0, 2)) += w_hat_ * sin(state_vec(0)) + w_hat_ * w_hat_ * (1 - cos(state_vec(0)));
 		return ret;
 	}
+	using ConnectorConstraint::setState;
+	void setState(float new_state) {
+		setState(Eigen::Vector<float, 1>(new_state));
+	}
 
 	RotationJoint(Eigen::Vector3f axis) :
 		ConnectorConstraint(),
@@ -357,6 +367,10 @@ public:
 												  0., 0., 0., 1).finished()) {
 
 	}
+};
+
+class BallJoint : public ConnectorConstraint<3> {
+	//...
 };
 
 //can this be vastly simplified to a linked list? i.e.

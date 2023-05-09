@@ -44,7 +44,6 @@ public:
 			0, 0, -1., 0;
 	}
 
-
 	void onKeyPress(int key) override {
 		if (key == GLFW_KEY_F1) {
 			this->screenshot_flag_ = true;
