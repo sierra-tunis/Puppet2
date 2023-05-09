@@ -264,6 +264,14 @@ public:
 	}
 };
 
+template<std::derived_from<GameObject> T>
+void openDebugUI(T obj, const GameObject* UI_container, Default2d& graphics_2d, TextGraphics& text_graphics) {};
+template<std::derived_from<GameObject> T>
+void closeDebugUI(T obj, const GameObject* UI_container, Default2d& graphics_2d, TextGraphics& text_graphics) {};
+//virtual void openDebugUI(const GameObject* UI_container, Default2d& graphics_2d, TextGraphics& text_graphics) {};
+//virtual void closeDebugUI(const GameObject* UI_container, Default2d& graphics_2d, TextGraphics& text_graphics) {};
+
+
 /*
 template<class T>
 concept GameObjectIterator = requires(const T & iterator, unsigned int i) {

@@ -8,6 +8,8 @@
 #include <unordered_map>
 #include <concepts>
 
+#include "graphics_raw.hpp"
+
 /*
 template<class T>
 concept Cachable = std::is_base_of<DataCache,T>::value;
@@ -24,14 +26,8 @@ template <class Object, Cacher cache_T>
 class Graphics {
 */
 
-template<class T>
-concept Identifiable = requires(const T & t) {
-	{t.getID()}->std::convertible_to<size_t>;
-	{t.isHidden()}->std::convertible_to<bool>;
-};
-
 template <Identifiable Object, class ... data>
-class Graphics {
+class Graphics : public GraphicsRaw<Object>{
 private:
 	int FBO_;
 	int render_buffer_;
@@ -122,6 +118,11 @@ protected:
 
 public:
 	
+
+	/*template<class... data_>
+	Graphics(Graphics<Object, data_...> convert_from):Graphics(){
+	}*/
+
 	void drawAll() const {
 		glUseProgram(gl_id);
 		beginDraw();
@@ -138,18 +139,18 @@ public:
 
 
 	//instead of getID it should just hash obj. the hash for GameObj can just be return id_
-	void add(const Object& obj) {
+	void add(const Object& obj) override {
 		draw_targets_.insert({ obj.getID(), &obj });
 		if (cached_data_.find(obj.getID()) == cached_data_.end()) {
 			cached_data_.insert({ obj.getID(),this->makeDataCache(obj) });
 		}
 	}
 
-	void remove(const Object& obj){
+	void remove(const Object& obj) override {
 		draw_targets_.erase(obj.getID());
 	}
 
-	void unload(const Object& obj) {
+	void unload(const Object& obj) override {
 		draw_targets_.erase(obj.getID());
 		deleteDataCache(cached_data_[obj.getID()]);
 		cached_data_.erase(obj.getID());

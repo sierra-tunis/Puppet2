@@ -265,6 +265,7 @@ public:
 		theme_ = theme;
 	}
 
+
 	/*
 	void activate() {
 		this->load_value_ = active;

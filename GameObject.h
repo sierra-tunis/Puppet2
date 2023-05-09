@@ -15,6 +15,8 @@
 #include "Texture.h"
 #include "InternalObject.h"
 #include "motion_constraint.h"
+#include "graphics_raw.hpp"
+#include "text.hpp"
 
 
 using Eigen::Matrix4f;
@@ -306,7 +308,6 @@ public:
 		hidden_ = false;
 	}
 
-
 	void translate(Eigen::Vector3f vec) {
 		Eigen::Matrix4f new_pos = getPosition();
 		for (auto m_c : motion_constraints_) {
@@ -324,8 +325,8 @@ public:
 	};
 
 	virtual std::string getDebugInfo() const { return ""; };
-	//virtual void openDebugUI(const GameObject* UI_container, Default2d& graphics_2d, TextGraphics& text_graphics) {};
-	//virtual void closeDebugUI(const GameObject* UI_container, Default2d& graphics_2d, TextGraphics& text_graphics) {};
+	virtual void openDebugUI(const GameObject* UI_container, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {};
+	virtual void closeDebugUI(const GameObject* UI_container, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {};
 	
 };
 //template <class G, int ... Keys>
