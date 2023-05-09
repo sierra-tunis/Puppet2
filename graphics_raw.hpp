@@ -11,7 +11,7 @@ concept Identifiable = requires(const T & t) {
 	{t.isHidden()}->std::convertible_to<bool>;
 };
 
-template <Identifiable Object>
+template <class Object>
 class GraphicsRaw {
 public:
 	virtual void add(const Object& obj) = 0;
