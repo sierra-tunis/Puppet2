@@ -370,7 +370,41 @@ public:
 };
 
 class BallJoint : public ConnectorConstraint<3> {
-	//...
+private:
+	Eigen::Matrix4f computeConnectorTransform(Eigen::Vector<float, 3> state_vec) const override {
+		Eigen::Matrix4f ret;
+		const float& alpha = state_vec(0);
+		const float& beta = state_vec(1);
+		const float& gamma = state_vec(2);
+
+		float c1 = cos(alpha);
+		float c2 = cos(beta);
+		float c3 = cos(gamma);
+		float s1 = sin(alpha);
+		float s2 = sin(beta);
+		float s3 = sin(gamma);
+
+		if (angle_order_ == XZX) {
+			ret << c2, -c3 * s2, s2* s3, 0,
+				c1* s2, c1* c2* c3 - s1 * s3, -c3 * s1 - c1 * c2 * s3, 0,
+				s1* s2, c1* s3 + c2 * c3 * s1, c1* c3 - c2 * s1 * s3, 0,
+				0, 0, 0, 1;
+		}
+	}
+
+
+
+public:
+	enum EulerAngleOrder_T { XYZ, XZY, XYX, XZX, YZX, YXZ, YXY, YZY, ZXY, ZYX, ZXZ, ZYZ };
+
+	BallJoint(EulerAngleOrder_T angle_order) : angle_order_(angle_order) {
+
+	}
+
+
+private:
+	const EulerAngleOrder_T angle_order_;
+
 };
 
 //can this be vastly simplified to a linked list? i.e.

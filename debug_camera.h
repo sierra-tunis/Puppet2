@@ -86,7 +86,7 @@ public:
 	level_bounds_(new NoCollideConstraint<Surface<3>, MeshSurface>(nullptr, nullptr,&hitbox_)),
 	collision_info(hitbox_.getEdges().size()),
 	test_tform_(Eigen::Matrix4f::Identity()),
-	kin_model_("human.obj")
+	kin_model_("human.obj","human.txt")
 	//level_bounds_(&current_level_->getZmap())
 	{
 		std::vector<const Eigen::Matrix4f*> vert_tforms;

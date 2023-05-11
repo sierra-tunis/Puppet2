@@ -14,8 +14,8 @@ class DynamicModel : public Model {
 
 public:
 
-	DynamicModel(std::string fname):
-	Model(fname){
+	DynamicModel(std::string model_fname, std::string vertex_groups_fname):
+	Model(model_fname){
 		vert_mat_.resize(3,vlen());
 		norm_mat_.resize(3, vlen());
 		for (int i = 0; i < vlen(); i++) {

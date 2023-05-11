@@ -163,6 +163,7 @@
     <ClInclude Include="Dynamic3d.hpp" />
     <ClInclude Include="dynamic_model.hpp" />
     <ClInclude Include="graph.h" />
+    <ClInclude Include="Humanoid.hpp" />
     <ClInclude Include="motion_constraint.h" />
     <ClInclude Include="no_collide_constraint.hpp" />
     <ClInclude Include="physics.hpp" />
