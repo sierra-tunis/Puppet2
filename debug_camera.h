@@ -90,7 +90,7 @@ public:
 	//level_bounds_(&current_level_->getZmap())
 	{
 		std::vector<const Eigen::Matrix4f*> vert_tforms;
-		for (int i = 0; i < kin_model_.vlen(); i++) {
+		for (int i = 0; i < kin_model_.glen(); i++) {
 			vert_tforms.push_back(i % 2 == 0 ? &getPosition() : &test_tform_);
 		}
 		kin_model_.setVertTforms(vert_tforms);

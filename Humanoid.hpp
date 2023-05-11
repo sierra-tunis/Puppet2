@@ -90,11 +90,43 @@ public:
 		leg_R_(hip_offset_R_, hip_R_, knee_offset_R_, knee_R_, ankle_offset_R_, ankle_R_),
 		n_dofs(RotationJoint::getDoF() + BallJoint::getDoF() + 4*LimbConnector::getDoF()){
 
-		DynamicModel model("human.obj");
-		for (int i = 0; i < model.vlen(); i++) {
-
+		DynamicModel model("human.obj", "human.txt");
+		std::vector<const Eigen::Matrix4f*> vert_tforms;
+		for (int i = 0; i < model.glen(); i++) {
+			vert_tforms.push_back(nullptr);
 		}
-		model.setVertTforms();
+
+		vert_tforms[model.getInd("fingers_L")] = &wrist_L_.getConstraintTransform();
+		vert_tforms[model.getInd("thumb_L")] = &wrist_L_.getConstraintTransform();
+		vert_tforms[model.getInd("palm_L")] = &wrist_L_.getConstraintTransform();
+		vert_tforms[model.getInd("forearm_L")] = &elbow_L_.getConstraintTransform();
+		vert_tforms[model.getInd("humerus_L")] = &shoulder_L_.getConstraintTransform();
+		vert_tforms[model.getInd("shoulder_L")] = &shoulder_offset_L_.getConstraintTransform();
+
+		vert_tforms[model.getInd("fingers_R")] = &wrist_R_.getConstraintTransform();
+		vert_tforms[model.getInd("thumb_R")] = &wrist_R_.getConstraintTransform();
+		vert_tforms[model.getInd("palm_R")] = &wrist_R_.getConstraintTransform();
+		vert_tforms[model.getInd("forearm_R")] = &elbow_R_.getConstraintTransform();
+		vert_tforms[model.getInd("humerus_R")] = &shoulder_R_.getConstraintTransform();
+		vert_tforms[model.getInd("shoulder_R")] = &shoulder_offset_R_.getConstraintTransform();
+
+		vert_tforms[model.getInd("ribcage")] = &chest_rotation_.getConstraintTransform();
+		vert_tforms[model.getInd("waist")] = &waist_rotation_.getConstraintTransform();
+
+		vert_tforms[model.getInd("hip_L")] = &hip_offset_L_.getConstraintTransform();
+		vert_tforms[model.getInd("thigh_L")] = &hip_L_.getConstraintTransform();
+		vert_tforms[model.getInd("calf_L")] = &knee_L_.getConstraintTransform();
+		vert_tforms[model.getInd("foot_L")] = &ankle_L_.getConstraintTransform();
+
+		vert_tforms[model.getInd("hip_R")] = &hip_offset_R_.getConstraintTransform();
+		vert_tforms[model.getInd("thigh_R")] = &hip_R_.getConstraintTransform();
+		vert_tforms[model.getInd("calf_R")] = &knee_R_.getConstraintTransform();
+		vert_tforms[model.getInd("foot_R")] = &ankle_R_.getConstraintTransform();
+
+		vert_tforms[model.getInd("neck")] = &getPosition();
+		vert_tforms[model.getInd("head")] = &getPosition();
+
+		model.setVertTforms(vert_tforms);
 
 	}
 
