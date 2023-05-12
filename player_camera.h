@@ -93,8 +93,9 @@ public:
 
 	}
 
-	void update(GLFWwindow* window) override {
-		Camera::update(window);
+	//void update(GLFWwindow* window) override {
+	void onStep() override {
+		//Camera::update(window);
 		float current_extension_ = tether_.getState()(2);
 		dist_.setState(Eigen::Vector<float, 1>(0));
 		Eigen::Vector<float, 3> equilibrium_state(pan_.getState()(0), tilt_.getState()(0), equilibrium_length_);

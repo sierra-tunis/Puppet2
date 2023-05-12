@@ -94,6 +94,7 @@ public:
 			vert_tforms.push_back(i % 2 == 0 ? &getPosition() : &test_tform_);
 		}
 		kin_model_.setVertTforms(vert_tforms);
+		kin_model_.offsetVerts();
 		setModel(&kin_model_);
 		//setModel(new Model("human.obj"));
 
@@ -112,9 +113,10 @@ public:
 		//Level::getCurrentLevel()->remove(*this);
 	}
 
-	void update(GLFWwindow* window) override {
+	//void update(GLFWwindow* window) override {
+	void onStep() override {
 		SurfaceNodeCollision(current_level_->getCollisionSurface(), &hitbox_, getPosition()-current_level_->getPosition(), &collision_info);
-		InterfaceObject::update(window);
+		//InterfaceObject::update(window);
 		if (fullyOutsideLevel()) {
 			int neig_ind = current_level_->neighborAt(getPosition()(seq(0, 2), 3));
 			if (neig_ind != -1) {

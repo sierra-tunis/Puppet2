@@ -14,7 +14,7 @@ class DebugMenu : public GameObject {
 	Button test_button_;
 	Button next_target_;
 	Button prev_target_;
-	Textbox test_tbox_;
+	Textbox fps_tbox_;
 	TextGraphics& text_graphics_;
 	Slider test_slider_;
 
@@ -29,6 +29,9 @@ class DebugMenu : public GameObject {
 	Button prev_level_;
 	Textbox level_display_;
 	
+	float avg_fps_;
+	float time_since_last_fps_avg_;
+	int frame_counter_;
 	//Button show_hitboxes_;
 
 	void onKeyPress(int key) override {
@@ -38,12 +41,12 @@ class DebugMenu : public GameObject {
 				b->setHideState(isHidden());
 			}
 			if (!isHidden()) {
-				text_graphics_.add(test_tbox_);
+				text_graphics_.add(fps_tbox_);
 				text_graphics_.add(target_dbg_info_);
 				text_graphics_.add(target_name_);
 				text_graphics_.add(level_display_);
 			} else {
-				text_graphics_.remove(test_tbox_);
+				text_graphics_.remove(fps_tbox_);
 				text_graphics_.remove(target_dbg_info_);
 				text_graphics_.remove(target_name_);
 				text_graphics_.remove(level_display_);
@@ -107,11 +110,12 @@ public:
 	DebugMenu(GLFWwindow* window, Default2d& graphics, TextGraphics& text_graphics, DebugCamera& debug_camera) : GameObject("debug_menu"),
 		test_button_(.1, .2, "test_button"),
 		test_slider_(.1, .3, 0, 1),
-		next_target_(.2,.2,"next_target"),
+		next_target_(.2, .2, "next_target"),
 		prev_target_(.2, .2, "prev_target"),
-		next_level_(.2,.2,"next_level"),
-		prev_level_(.2,.2,"prev_level"),
-		test_tbox_(),
+		next_level_(.2, .2, "next_level"),
+		prev_level_(.2, .2, "prev_level"),
+		fps_tbox_(),
+		frame_counter_(0),
 		text_graphics_(text_graphics),
 		debug_cam_(debug_camera),//should eventually move debug camera construction and management into DebugMenu
 		cam_clamp_(Eigen::Matrix4f::Identity()){
@@ -121,12 +125,12 @@ public:
 		addButton(&test_button_);
 		graphics.add(test_button_);
 
-		test_tbox_.text = "this is a test, abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
-		test_tbox_.box_height = .5;
-		test_tbox_.box_width = .5;
-		test_tbox_.left = .5;
-		test_tbox_.top = .6;
-		text_graphics.add(test_tbox_);//for some reason removing this and beginning with the menu hidden causes an error
+		fps_tbox_.text = "0";
+		fps_tbox_.box_height = .5;
+		fps_tbox_.box_width = .5;
+		fps_tbox_.left = .5;
+		fps_tbox_.top = .6;
+		text_graphics.add(fps_tbox_);//for some reason removing this and beginning with the menu hidden causes an error
 
 		test_slider_.load(window, graphics, text_graphics);
 		test_slider_.moveTo(.5, -.5, 0);
@@ -175,6 +179,19 @@ public:
 	}
 
 	void update(GLFWwindow* window) override {
+		GameObject::update(window);
+
+		frame_counter_++;
+		time_since_last_fps_avg_ += getdt();
+		if (time_since_last_fps_avg_ > 1.) {
+			avg_fps_ = static_cast<float>(frame_counter_) / time_since_last_fps_avg_;
+			time_since_last_fps_avg_ = 0.;
+			frame_counter_ = 0;
+			text_graphics_.unload(fps_tbox_);
+			fps_tbox_.text = std::to_string(avg_fps_);
+			text_graphics_.add(fps_tbox_);
+		}
+
 		test_slider_.update(window);
 		if (debug_target_ != nullptr) {
 			debug_cam_.connectTo(debug_target_,&cam_clamp_);

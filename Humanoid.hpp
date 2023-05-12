@@ -6,7 +6,7 @@
 #include "GameObject.h"
 #include "dynamic_model.hpp"
 
-typedef ConnectorChain <OffsetConnector, BallJoint, OffsetConnector, RotationJoint, OffsetConnector, BallJoint> LimbConnector;
+using LimbConnector = ConnectorChain<OffsetConnector, BallJoint, OffsetConnector, RotationJoint, OffsetConnector, BallJoint>;
 
 //template <class T>
 //using LRpair = std::pair<T, T>;
@@ -127,7 +127,7 @@ public:
 		vert_tforms[model.getInd("head")] = &getPosition();
 
 		model.setVertTforms(vert_tforms);
-
+		model.offsetVerts();
 	}
 
 

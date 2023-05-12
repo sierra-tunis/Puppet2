@@ -160,7 +160,7 @@ public:
 		}
 	}
 
-	void update(GLFWwindow* window) override {
+	void onStep() override {
 		for (auto& c : contents_) {
 			c->update(window_);
 		}

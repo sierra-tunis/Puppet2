@@ -18,6 +18,13 @@ using Eigen::Matrix3f;
 using Eigen::seq;
 
 //a good cutoff for what is an internal vs game object is an internal object cannot be added to a level
+extern class InternalObject;
+
+class KeyStateCallback_base {	
+public:
+	inline virtual void pollInputs(GLFWwindow* window,InternalObject& this_){}
+};
+
 
 class InternalObject { //class for non-template dependent values, internal use only functionality (i.e. debug stuff). No update function
 private:
@@ -33,6 +40,8 @@ private:
 
 	//std::vector<InternalObject*> children_; //children should be created and managed by parent. in this way each game object is a sub world object
 	//this might be a terrible idea:
+	KeyStateCallback_base& key_state_callback_;
+	static KeyStateCallback_base no_key_state_callback_;
 
 	struct callbackInput {
 		std::vector<InternalObject*> key_;
@@ -116,10 +125,6 @@ protected:
 
 	inline virtual void onKeyRelease(int key) {};//triggers once
 
-	inline virtual void onKeyDown(int key) {}; //triggers repeatedly
-
-	inline virtual void onKeyUp(int key) {}; //triggers repeatedly
-
 	inline virtual void onMouseMove(float x, float y, float dx, float dy) {}; //triggers repeatedly
 
 	inline virtual void onMouseDown(int key, float x, float y) {};
@@ -130,6 +135,7 @@ protected:
 
 	inline virtual void onStep() {};
 
+
 public:
 
 	// these two should probably not be protected
@@ -137,11 +143,17 @@ public:
 
 	inline virtual void onRoomDeactivation() {};
 
+	inline virtual void onKeyDown(int key) {}; //triggers repeatedly
+
+	inline virtual void onKeyUp(int key) {}; //triggers repeatedly, probably not useful
+
+
 	const static std::string no_name;
 
 	InternalObject(std::string name) :
 		id_(last_id_++),//this is only to avoid not wanting to generate random strings
-		name_(name) {
+		name_(name),
+		key_state_callback_(no_key_state_callback_){
 
 		this->onCreation();//i dont think this works since you cant use virtual functions in a constructor
 		InternalObject::named_internal_objects_[name] = this;
@@ -149,15 +161,26 @@ public:
 	}
 	InternalObject() :
 		name_(InternalObject::no_name),
-		id_(last_id_++){
+		id_(last_id_++),
+		key_state_callback_(no_key_state_callback_){
 
 		this->onCreation();
 
 	}
+	InternalObject(std::string name, KeyStateCallback_base& key_state_callback) :
+		id_(last_id_++),//this is only to avoid not wanting to generate random strings
+		name_(name),
+		key_state_callback_(key_state_callback) {
+
+		this->onCreation();//i dont think this works since you cant use virtual functions in a constructor
+		InternalObject::named_internal_objects_[name] = this;
+
+	}
 
 
-
-	virtual void update(GLFWwindow* window) {
+	inline virtual void update(GLFWwindow* window) {
+		//this should be rewritten to be consteval eventually
+		key_state_callback_.pollInputs(window,*this);
 	}
 
 	int getID() const {
@@ -200,6 +223,24 @@ public:
 
 	const std::string& getName() const { return name_; }
 
+};
+
+template<int... Keys>
+class KeyStateCallback : public KeyStateCallback_base{
+private:
+	static constexpr std::array<int, sizeof...(Keys)> keys{ { Keys... } };
+public:
+	inline void pollInputs(GLFWwindow* window, InternalObject& this_) override {
+		for (int k : keys) {
+			if (glfwGetKey(window, k) == GLFW_PRESS) {
+				this_.onKeyDown(k);
+			}
+			else if (glfwGetKey(window, k) == GLFW_RELEASE) {
+				this_.onKeyUp(k);
+			}
+		}
+	}
+	
 };
 
 #endif

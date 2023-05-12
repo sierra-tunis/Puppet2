@@ -19,11 +19,8 @@ class DynamicModel : public Model {
 	std::unordered_map<std::string, int> group_index_by_name_;
 	int n_groups_;
 
-public:
-
-	DynamicModel(std::string model_fname, std::string vertex_groups_fname):
-	Model(model_fname){
-		vert_mat_.resize(3,vlen());
+	void loadMatrices() {
+		vert_mat_.resize(3, vlen());
 		norm_mat_.resize(3, vlen());
 		for (int i = 0; i < vlen(); i++) {
 			vert_mat_(0, i) = getVerts()[3 * i];
@@ -31,9 +28,18 @@ public:
 			vert_mat_(2, i) = getVerts()[3 * i + 2];
 
 			norm_mat_(0, i) = getNorms()[3 * i];
-			norm_mat_(1, i) = getNorms()[3 * i+1];
-			norm_mat_(2, i) = getNorms()[3 * i+2];
+			norm_mat_(1, i) = getNorms()[3 * i + 1];
+			norm_mat_(2, i) = getNorms()[3 * i + 2];
 		}
+	}
+
+public:
+
+	DynamicModel(std::string model_fname, std::string vertex_groups_fname):
+	Model(model_fname){
+		
+		loadMatrices();
+
 		std::string line;
 		std::string type;
 		std::string value;
@@ -79,6 +85,30 @@ public:
 			norms_[3 * i + 2] = norm(2);
 		}
 	}
+
+	void offsetVerts(std::vector<const Eigen::Matrix4f*> initial_positions) {
+		std::vector<const Eigen::Matrix4f*> tmp = vert_tforms_;
+		std::vector<Eigen::Matrix4f> inverse_positions_data;
+		std::vector<const Eigen::Matrix4f*> inverse_positions = vert_tforms_;
+		for (int i = 0; i < glen(); i++) {
+			inverse_positions_data.emplace_back(initial_positions[i]->inverse());
+		}
+		for (int i = 0; i < glen(); i++) {
+			inverse_positions.push_back(&inverse_positions_data[i]);
+		}
+		vert_tforms_ = inverse_positions;
+		updateData();
+		loadMatrices();
+		vert_tforms_ = tmp;
+		//offsets each vert such that when the vert tforms are equal to initial_positions then the
+		//model will look as it is in the .obj file
+
+	}
+
+	void offsetVerts() {
+		offsetVerts(vert_tforms_);
+	}
+
 
 	int glen() const {
 		return n_groups_;

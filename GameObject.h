@@ -17,6 +17,7 @@
 #include "motion_constraint.h"
 #include "graphics_raw.hpp"
 #include "text.hpp"
+#include "interface.hpp"
 
 
 using Eigen::Matrix4f;
@@ -106,14 +107,6 @@ public:
 			this->position_ = parent_->getPosition() * (parent_connector_->getConstraintTransform());
 		}
 	}
-	GameObject(std::string name) :
-		position_(Eigen::Matrix4f::Identity()),
-		InternalObject(name),
-		t_ref_(system_clock::now()),
-		parent_(nullptr),
-		parent_connector_(nullptr) {
-
-	}
 
 	GameObject():
 		position_(Eigen::Matrix4f::Identity()),
@@ -121,7 +114,25 @@ public:
 		parent_(nullptr),
 		parent_connector_(nullptr) {}
 
+	GameObject(std::string name, KeyStateCallback_base& key_state_callback_caller) :
+		position_(Eigen::Matrix4f::Identity()),
+		InternalObject(name, key_state_callback_caller),
+		t_ref_(system_clock::now()),
+		parent_(nullptr),
+		parent_connector_(nullptr) {
+
+	}
+	GameObject(std::string name) :
+		position_(Eigen::Matrix4f::Identity()),
+		InternalObject(name),
+		t_ref_(system_clock::now()),
+		parent_(nullptr),
+		parent_connector_(nullptr) {
+	}
+
+
 	void update(GLFWwindow* window) override{
+		InternalObject::update(window); //should rename this function eventually
 		updatePosition();
 		//update time
 		time_point<system_clock> t = system_clock::now();
@@ -335,10 +346,10 @@ public:
 //template <class G, int ... Keys>
 //const G GameObject<G, Keys...>::shared_grobj_(GameObject::model_, GameObject::texture_, NULL);
 
-
-template <int ... Keys> //this has to change eventually i think
+//DEPRECATED keeping for now for backwards compatability
+template <int ... Keys> //this has to change eventually i think. 5/11/23 indeed it has
 class InterfaceObject : public GameObject {
-
+	KeyStateCallback<Keys...> key_state_callback_caller_;
 private:
 	static constexpr std::array<int, sizeof...(Keys)> keys{ { Keys... } };
 
@@ -346,14 +357,7 @@ public:
 	//poll inputs
 	void update(GLFWwindow* window) override {
 		//poll inputs first
-		for (int k : keys) {
-			if (glfwGetKey(window, k) == GLFW_PRESS) {
-				this->onKeyDown(k);
-			}
-			else if (glfwGetKey(window, k) == GLFW_RELEASE) {
-				this->onKeyUp(k);
-			}
-		}
+		
 		this->onStep();
 		//this way inputs are parsed with main() pollInputs input parsing
 		//then update GameObject
@@ -361,9 +365,8 @@ public:
 
 	}
 	InterfaceObject(std::string name) :
-		GameObject(name){}
-
-
+		GameObject(name, key_state_callback_caller_){
+	}
 };
 
 
