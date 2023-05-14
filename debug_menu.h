@@ -21,7 +21,7 @@ class DebugMenu : public GameObject {
 	DebugCamera& debug_cam_;
 	OffsetConnector cam_clamp_;
 
-	const GameObject* debug_target_;
+	GameObject* debug_target_;
 	Textbox target_name_;
 	Textbox target_dbg_info_;
 
@@ -32,6 +32,10 @@ class DebugMenu : public GameObject {
 	float avg_fps_;
 	float time_since_last_fps_avg_;
 	int frame_counter_;
+
+	GLFWwindow* window_;
+	Default2d& graphics_2d_;
+
 	//Button show_hitboxes_;
 
 	void onKeyPress(int key) override {
@@ -71,32 +75,52 @@ public:
 
 	static void nextTargetCallback(void* must_be_this) {
 		DebugMenu* this_ = static_cast<DebugMenu*>(must_be_this);
-		if (Level::getCurrentLevel() == nullptr) { return; };
-		if (this_->debug_target_ == nullptr) { 
-			this_->setDebugTarget(*Level::getCurrentLevel()->getContents().begin());
-			return;
+		if (this_->debug_target_ != nullptr) {
+			this_->debug_target_->closeDebugUI(this_, this_->window_, this_->graphics_2d_, this_->text_graphics_);
 		}
-		auto current_loc = std::find(Level::getCurrentLevel()->getContents().begin(), Level::getCurrentLevel()->getContents().end(), this_->debug_target_);
-		if (current_loc != Level::getCurrentLevel()->getContents().end()-1) {
-			this_->setDebugTarget(*(current_loc + 1));
+		if (Level::getCurrentLevel() == nullptr) { return; };
+		if (this_->debug_target_ == nullptr) {
+			this_->setDebugTarget(*Level::getCurrentLevel()->getContents().begin());
 		} else {
-			this_->setDebugTarget(nullptr);
+			auto current_loc = std::find(Level::getCurrentLevel()->getContents().begin(), Level::getCurrentLevel()->getContents().end(), this_->debug_target_);
+			if (current_loc != Level::getCurrentLevel()->getContents().end()-1) {
+				this_->setDebugTarget(*(current_loc + 1));
+			} else {
+				this_->setDebugTarget(nullptr);
+			}
+		}
+		if (this_->debug_target_ == &this_->debug_cam_) {
+			nextTargetCallback(must_be_this);
+		}
+		if (this_->debug_target_ != nullptr) {
+			this_->debug_target_->openDebugUI(this_, this_->window_, this_->graphics_2d_, this_->text_graphics_);
 		}
 	}
 
 	static void prevTargetCallback(void* must_be_this) {
 		DebugMenu* this_ = static_cast<DebugMenu*>(must_be_this);
+		if (this_->debug_target_ != nullptr) {
+			this_->debug_target_->closeDebugUI(this_, this_->window_, this_->graphics_2d_, this_->text_graphics_);
+		}
 		if (Level::getCurrentLevel() == nullptr) { return; };
 		if (this_->debug_target_ == nullptr) {
 			this_->setDebugTarget(*(Level::getCurrentLevel()->getContents().end()-1));
-			return;
-		}
-		auto current_loc = std::find(Level::getCurrentLevel()->getContents().begin(), Level::getCurrentLevel()->getContents().end(), this_->debug_target_);
-		if (current_loc != Level::getCurrentLevel()->getContents().begin()) {
-			this_->setDebugTarget(*(current_loc - 1));
+			
 		}
 		else {
-			this_->setDebugTarget(nullptr);
+			auto current_loc = std::find(Level::getCurrentLevel()->getContents().begin(), Level::getCurrentLevel()->getContents().end(), this_->debug_target_);
+			if (current_loc != Level::getCurrentLevel()->getContents().begin()) {
+				this_->setDebugTarget(*(current_loc - 1));
+			}
+			else {
+				this_->setDebugTarget(nullptr);
+			}
+		}
+		if (this_->debug_target_ == &this_->debug_cam_) {
+			prevTargetCallback(must_be_this);
+		}
+		if (this_->debug_target_ != nullptr) {
+			this_->debug_target_->openDebugUI(this_, this_->window_, this_->graphics_2d_, this_->text_graphics_);
 		}
 	}
 	static void testSliderCallback(float new_val, void* must_be_nullptr) {
@@ -117,8 +141,10 @@ public:
 		fps_tbox_(),
 		frame_counter_(0),
 		text_graphics_(text_graphics),
+		graphics_2d_(graphics),
 		debug_cam_(debug_camera),//should eventually move debug camera construction and management into DebugMenu
-		cam_clamp_(Eigen::Matrix4f::Identity()){
+		cam_clamp_(Eigen::Matrix4f::Identity()),
+		window_(window){
 
 		test_button_.activateMouseInput(window);
 		test_button_.moveTo(.6, .9, 0);
@@ -134,7 +160,7 @@ public:
 
 		test_slider_.load(window, graphics, text_graphics);
 		test_slider_.moveTo(.5, -.5, 0);
-		test_slider_.setSliderChangeCallback(&testSliderCallback);
+		test_slider_.setSliderChangeCallback(&testSliderCallback,nullptr);
 
 		target_dbg_info_.box_width = 2;
 		target_dbg_info_.top = .95;
@@ -237,7 +263,7 @@ public:
 		}
 	}
 
-	void setDebugTarget(const GameObject* target) {
+	void setDebugTarget(GameObject* target) {
 		debug_target_ = target;
 	}
 

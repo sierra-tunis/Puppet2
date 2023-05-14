@@ -9,6 +9,7 @@
 #include "level.h"
 #include "player_camera.h"
 #include "debug_camera.h"
+#include "debug_player.hpp"
 #include "DebugGraphics.h"
 #include "UI.h"
 #include "Default2d.hpp"
@@ -64,7 +65,9 @@ int main(void)
     std::vector<InternalObject> bases;
     std::vector<GameObject*> layout;//this being a vector which rearranges is horrible lol
     DebugCamera center("debug_cam");
+    DebugPlayer dbg_player;
     layout.push_back(&center);
+    layout.push_back(&dbg_player);
 
     /*int n_debuggers = 10;
     for (int i = 0; i < n_debuggers; i++) {
@@ -140,6 +143,7 @@ int main(void)
     default3d.add(cult_impluvium);
     default3d.add(cult_ritual);
     default3d.add(path_to_town);
+    dynamic3d.add(dbg_player);
 
     //Button test_button(.5, .5, "test_button");
     DebugMenu debugMenu(window,default2d,text_graphics,center);
@@ -148,7 +152,7 @@ int main(void)
 
     Debugger dbg1(Eigen::Matrix4f::Identity(), "tester1", cult_spiral_stairs);
     cult_impluvium.add(dbg1);
-    default3d.add(dbg1);
+    //default3d.add(dbg1);
 
     dynamic3d.add(center);
     hbox_graphics.add(center);

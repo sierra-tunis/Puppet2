@@ -68,7 +68,7 @@ public:
 		vert_tforms_ = vert_tforms;
 	}
 
-	void updateData() {
+	void updateData() override {
 		for (int i = 0; i < vlen(); i++) {
 			const Eigen::Matrix4f& tform = (*vert_tforms_[vert_groups_[i]]);
 			const Eigen::Matrix3f& rot = tform(seq(0, 2), seq(0, 2));

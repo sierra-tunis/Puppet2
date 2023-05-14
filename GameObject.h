@@ -55,6 +55,7 @@ private:
 	const GameObject* parent_;
 	PositionConstraint* parent_connector_;
 
+	std::unordered_set<GameObject*> dependents_; //dependents get updated and modified by this object
 
 	/*
 	variable which contains information about constrainst on motion relative to parent
@@ -158,6 +159,9 @@ public:
 			flag_it++;
 		}
 		onStep();
+		for (auto& child : dependents_) {
+			child->update(window);
+		}
 		/*if (last_position_(seq(0, 2), 3) != getPosition()(seq(0, 2), 3)) {
 			for (auto m_c : motion_constraints_) {
 				
@@ -220,18 +224,18 @@ public:
 	void moveTo(Eigen::Vector3f vec) {
 		position_(seq(0, 2), 3) = vec;
 		//stale_global_position_ = true;
-	};
+	}
 	void moveTo(float x, float y, float z) {
 		position_(0, 3) = x;
 		position_(1, 3) = y;
 		position_(2, 3) = z;
 		//stale_global_position_ = true;
-	};
+	}
 
 	void rotate(Eigen::Matrix3f rot) {
 		position_(seq(0, 2), seq(0, 2)) = rot * getPosition()(seq(0, 2), seq(0, 2));
 		//stale_global_position_ = true;
-	};
+	}
 
 	void rotateAxisAngle(Eigen::Vector3f axis, float angle) {
 		Matrix3f w_hat;
@@ -240,7 +244,7 @@ public:
 			-axis(1), axis(0), 0;
 		Matrix3f rot = Matrix3f::Identity() + w_hat * sin(angle) + w_hat * w_hat * (1 - cos(angle));
 		rotate(rot);
-	};
+	}
 
 	void rotateX(float angle) { rotateAxisAngle(Eigen::Vector3f(1, 0, 0), angle); };
 	void rotateY(float angle) { rotateAxisAngle(Eigen::Vector3f(0, 1, 0), angle); };
@@ -336,9 +340,17 @@ public:
 	};
 
 	virtual std::string getDebugInfo() const { return ""; };
-	virtual void openDebugUI(const GameObject* UI_container, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {};
-	virtual void closeDebugUI(const GameObject* UI_container, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {};
+	virtual void openDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {};
+	virtual void closeDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {};
 	
+
+	void addDependent(GameObject* child) {
+		dependents_.insert(child);
+	}
+	void removeDependent(GameObject* child) {
+		dependents_.erase(child);
+	}
+
 };
 //template <class G, int ... Keys>
 //const std::array<int, sizeof(Keys)> GameObject<G, Keys...>::keys{ { Keys... } };
@@ -357,8 +369,6 @@ public:
 	//poll inputs
 	void update(GLFWwindow* window) override {
 		//poll inputs first
-		
-		this->onStep();
 		//this way inputs are parsed with main() pollInputs input parsing
 		//then update GameObject
 		GameObject::update(window);

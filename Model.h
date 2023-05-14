@@ -216,6 +216,8 @@ public:
 		std::cerr << "no ID available for Model class";
 		return 0;
 	}
+
+	virtual void updateData(){}
 	/*
 	void rescale(float scale_factor) {
 		

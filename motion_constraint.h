@@ -371,6 +371,8 @@ public:
 
 class BallJoint : public ConnectorConstraint<3> {
 private:
+
+public:
 	Eigen::Matrix4f computeConnectorTransform(Eigen::Vector<float, 3> state_vec) const override {
 		Eigen::Matrix4f ret;
 		const float& alpha = state_vec(0);
@@ -390,11 +392,10 @@ private:
 				s1* s2, c1* s3 + c2 * c3 * s1, c1* c3 - c2 * s1 * s3, 0,
 				0, 0, 0, 1;
 		}
+		return ret;
 	}
 
 
-
-public:
 	enum EulerAngleOrder_T { XYZ, XZY, XYX, XZX, YZX, YXZ, YXY, YZY, ZXY, ZYX, ZXZ, ZYZ };
 
 	BallJoint(EulerAngleOrder_T angle_order) : angle_order_(angle_order) {

@@ -89,16 +89,17 @@ private:
 		//InternalObject* input_callback_ = static_cast<InternalObject*>(glfwGetWindowUserPointer(window));
 		callbackInput* input_members = static_cast<callbackInput*>(glfwGetWindowUserPointer(window));
 		std::pair<float, float> cursor_pos;
+		std::vector<InternalObject*> mouse_members = input_members->mouse_;//copy to avoid input members changing during execution
 		switch (action) {
 		case GLFW_PRESS:
 			cursor_pos = getCursorPosition(window);
-			for (InternalObject* obj : input_members->mouse_) {
+			for (InternalObject* obj : mouse_members) {
 				obj->onMouseDown(button,cursor_pos.first,cursor_pos.second);
 			}
 			break;
 		case GLFW_RELEASE:
 			cursor_pos = getCursorPosition(window);
-			for (InternalObject* obj : input_members->mouse_) {
+			for (InternalObject* obj : mouse_members) {
 				obj->onMouseUp(button, cursor_pos.first, cursor_pos.second);
 			}
 			break;

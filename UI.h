@@ -123,6 +123,7 @@ class Slider : public GameObject {
 	Rect2d slider_model_;
 
 	void (*slider_change_callback_)(float, void*); //float being the new slider value
+	void* callback_input_;
 
 	Button increment_;
 	Button decrement_;
@@ -139,8 +140,8 @@ class Slider : public GameObject {
 	OffsetConnector upper_lim_offset_;
 	PrismaticJoint slider_connector_;
 
-	Default2d* graphics_2d_;
-	TextGraphics* text_graphics_;
+	GraphicsRaw<GameObject>* graphics_2d_;
+	GraphicsRaw<Textbox>* text_graphics_;
 
 	static void incrementCallback(void* must_be_this) {
 		Slider* this_ = static_cast<Slider*>(must_be_this);
@@ -196,7 +197,7 @@ public:
 
 	}
 
-	void load(GLFWwindow* window, Default2d& graphics_2d, TextGraphics& text_graphics) {
+	void load(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {
 		graphics_2d_ = &graphics_2d;
 		text_graphics_ = &text_graphics;
 
@@ -241,7 +242,7 @@ public:
 		if (new_val <= upper_limit_ && new_val >= lower_limit_) {
 			current_position_ = new_val;
 			if (slider_change_callback_ != nullptr) {
-				slider_change_callback_(new_val, this);
+				slider_change_callback_(new_val, callback_input_);
 			}
 		}
 	}
@@ -259,15 +260,16 @@ public:
 		current_value_.update(window);
 	}
 
-	void setSliderChangeCallback(void (*slider_change_callback)(float, void*)) {
+	void setSliderChangeCallback(void (*slider_change_callback)(float, void*), void* callback_input) {
 		slider_change_callback_ = slider_change_callback;
+		callback_input_ = callback_input;
 	}
 };
 
 template<std::derived_from<GameObject> T>
-void openDebugUI(T obj, const GameObject* UI_container, Default2d& graphics_2d, TextGraphics& text_graphics) {};
+std::vector<GameObject*> openDebugUI(T obj, const GameObject* UI_container, Default2d& graphics_2d, TextGraphics& text_graphics) {};
 template<std::derived_from<GameObject> T>
-void closeDebugUI(T obj, const GameObject* UI_container, Default2d& graphics_2d, TextGraphics& text_graphics) {};
+std::vector<GameObject*> closeDebugUI(T obj, const GameObject* UI_container, Default2d& graphics_2d, TextGraphics& text_graphics) {};
 //virtual void openDebugUI(const GameObject* UI_container, Default2d& graphics_2d, TextGraphics& text_graphics) {};
 //virtual void closeDebugUI(const GameObject* UI_container, Default2d& graphics_2d, TextGraphics& text_graphics) {};
 
