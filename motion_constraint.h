@@ -101,14 +101,22 @@ class PositionConstraint {
 	//MotionConstraint* bounds_;
 protected:
 	const Eigen::Matrix4f* root_transform_;
+
 public:
 	virtual const Eigen::Matrix4f& getConstraintTransform() const {
 		return Eigen::Matrix4f::Identity();
 	};
+	virtual const Eigen::Matrix4f& getEndTransform() const {
+		return Eigen::Matrix4f::Identity();
+	}
 
-	void setRootTransform(const Eigen::Matrix4f* root_transform) {
+	virtual void setRootTransform(const Eigen::Matrix4f* root_transform) {
 		root_transform_ = root_transform;
 	}
+	const Eigen::Matrix4f* getRootTransform() const {
+		return root_transform_;
+	}
+	//PositionConstraint() :root_transform_(nullptr){}
 
 };
 
@@ -128,6 +136,8 @@ class ConnectorConstraint : public PositionConstraint {
 	Eigen::Vector<float, n_dofs> upper_bounds;
 
 	Eigen::Matrix4f connector_transform_;
+	Eigen::Matrix4f end_transform_;
+
 
 	//this must be a member of ConnectorConstraint and not simply a new type of connector
 	//is because you can only ever have one of these per chain transform
@@ -173,7 +183,9 @@ public:
 
 	ConnectorConstraint() :
 		state_(Eigen::Vector<float, n_dofs>::Constant(0)),
-		connector_transform_(Eigen::Matrix4f::Identity()){
+		connector_transform_(Eigen::Matrix4f::Identity()),
+		end_transform_(Eigen::Matrix4f::Identity()){
+		setRootTransform(nullptr);//this could be bad: calling virtual function in constructor
 
 	}
 	/*
@@ -190,9 +202,18 @@ public:
 		//probably not correct kinematics lol
 	}
 
+	const Eigen::Matrix4f& getEndTransform() const override {
+		return end_transform_;
+	}
+
 	virtual void setState(Eigen::Vector<float,n_dofs> new_state) {
 		state_ = new_state;
 		connector_transform_ = computeConnectorTransform(new_state);
+		if (root_transform_ == nullptr) {
+			end_transform_ = connector_transform_;
+		} else {
+			end_transform_ = *root_transform_ * connector_transform_;
+		}
 	}
 
 	virtual Eigen::Vector<float, n_dofs> getState() const {
@@ -229,7 +250,7 @@ template <>
 class ConnectorConstraint<0> : public PositionConstraint {
 private:
 	const Eigen::Matrix4f connector_transform_;
-	const Eigen::Matrix4f* root_transform_;
+	Eigen::Matrix4f end_transform_;
 
 protected:
 public:
@@ -237,18 +258,22 @@ public:
 
 	ConnectorConstraint(Eigen::Matrix4f offset) :
 		connector_transform_(offset),
-		root_transform_(nullptr){
-
+		end_transform_(offset){
+		setRootTransform(nullptr);
 	}
 	ConnectorConstraint(const Eigen::Matrix4f* root_transform,Eigen::Matrix4f offset) :
 		connector_transform_(offset),
-		root_transform_(root_transform){
+		end_transform_(*root_transform*offset){
+		setRootTransform(root_transform);
 	}
 
 	const Eigen::Matrix4f& getConstraintTransform() const override {
 		//i think child position needs to be inverted?
 		return connector_transform_;
 		//probably not correct kinematics lol
+	}
+	const Eigen::Matrix4f& getEndTransform() const override {
+		return end_transform_;
 	}
 
 	virtual Eigen::Matrix4f computeConnectorTransform(Eigen::Vector<float, 0> state_vec) {
@@ -258,8 +283,14 @@ public:
 	Eigen::Vector<float, 0> getState() const {
 		return Eigen::Vector<float, 0>();
 	};
+
 	void setState(Eigen::Vector<float, 0> state_vec) {
-		return;
+		if (root_transform_ == nullptr) {
+			end_transform_ = connector_transform_;
+		}
+		else {
+			end_transform_ = *root_transform_ * connector_transform_;
+		}
 	}
 
 };
@@ -386,19 +417,21 @@ public:
 		float s2 = sin(beta);
 		float s3 = sin(gamma);
 
-		if (angle_order_ == XZX) {
+		//if (angle_order_ == XZX) {
 			ret << c2, -c3 * s2, s2* s3, 0,
 				c1* s2, c1* c2* c3 - s1 * s3, -c3 * s1 - c1 * c2 * s3, 0,
 				s1* s2, c1* s3 + c2 * c3 * s1, c1* c3 - c2 * s1 * s3, 0,
 				0, 0, 0, 1;
-		}
+		//}
 		return ret;
 	}
 
 
 	enum EulerAngleOrder_T { XYZ, XZY, XYX, XZX, YZX, YXZ, YXY, YZY, ZXY, ZYX, ZXZ, ZYZ };
 
-	BallJoint(EulerAngleOrder_T angle_order) : angle_order_(angle_order) {
+	BallJoint(EulerAngleOrder_T angle_order) :
+		ConnectorConstraint(),
+		angle_order_(angle_order) {
 
 	}
 
@@ -454,7 +487,7 @@ protected:
 		return pop_front * computeChainTransform<constraint2_,constraints_...>(state_vec(seq(constraint_::getDoF(), Eigen::last)));
 	}
 	template<Connector constraint_>
-	void setSubstate(Eigen::Vector<float, constraint_::getDoF()> state_vec) const {
+	void setSubstate(Eigen::Vector<float, constraint_::getDoF()> state_vec) {
 		constraint_& conn = std::get< sizeof...(constraints)>(connectors_); //get last connector
 		conn.setState(state_vec);
 	}
@@ -477,10 +510,20 @@ protected:
 		writeSubstate<start_index + constraint_::getDoF(), constraint2_, constraints_...>(state_vec);
 	}
 
+	template<Connector constraint_>
+	void setSubconnectorRootTransforms() {
+	}
+	template<Connector constraint_, Connector constraint2_, Connector...constraints_>
+	void setSubconnectorRootTransforms() {
+		constraint_& root_conn = std::get<sizeof...(constraints) - sizeof...(constraints_) - 1>(connectors_);
+		constraint2_& pop_conn = std::get<sizeof...(constraints) - sizeof...(constraints_)>(connectors_);
+		pop_conn.setRootTransform(&root_conn.getEndTransform());
+		setSubconnectorRootTransforms<constraint2_, constraints_...>();
+	}
 
 public:
 	ConnectorChain(constraint& constraint0,constraints&... constraint1_end) : ConnectorConstraint< ConnectorChain::getDoF()>(), connectors_(constraint0, constraint1_end...) {
-		
+		setSubconnectorRootTransforms<constraint,constraints...>();
 	}
 
 
@@ -492,12 +535,19 @@ public:
 		not stale before using connector_transform_ to get connector tform*/
 		//connector_transform_ = computeConnectorTransform(new_state);
 	}
+	void setRootTransform(const Eigen::Matrix4f* root_transform) {
+		ConnectorConstraint<ConnectorChain::getDoF()>::setRootTransform(root_transform);
+		std::get<0>(connectors_).setRootTransform(root_transform);
+	}
 
 	Eigen::Vector<float, ConnectorChain::getDoF()> getState() const override {
 		Eigen::Vector<float,ConnectorChain::getDoF()> state;
 		writeSubstate<0,constraint, constraints...>(state);
 		//read from children using template magic
 		return state;
+	}
+	void refresh() {
+		setState(getState());
 	}
 
 };

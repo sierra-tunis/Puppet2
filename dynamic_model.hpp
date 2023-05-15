@@ -89,7 +89,7 @@ public:
 	void offsetVerts(std::vector<const Eigen::Matrix4f*> initial_positions) {
 		std::vector<const Eigen::Matrix4f*> tmp = vert_tforms_;
 		std::vector<Eigen::Matrix4f> inverse_positions_data;
-		std::vector<const Eigen::Matrix4f*> inverse_positions = vert_tforms_;
+		std::vector<const Eigen::Matrix4f*> inverse_positions;
 		for (int i = 0; i < glen(); i++) {
 			inverse_positions_data.emplace_back(initial_positions[i]->inverse());
 		}

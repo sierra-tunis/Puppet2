@@ -112,6 +112,7 @@ public:
 	GameObject():
 		position_(Eigen::Matrix4f::Identity()),
 		t_ref_(system_clock::now()),
+
 		parent_(nullptr),
 		parent_connector_(nullptr) {}
 
@@ -277,12 +278,17 @@ public:
 	virtual void clampTo(const GameObject* parent) {// this has unintuitive behavior
 		this->parent_ = parent;
 		parent_connector_ = new OffsetConnector(parent_->getPosition(), position_);
+		if (parent != nullptr) {
+			parent_connector_->setRootTransform(&parent->getPosition());
+		}
 	}
 
 	void connectTo(const GameObject* parent, PositionConstraint* connector) {
 		this->parent_ = parent;
 		parent_connector_ = connector;
-		connector->setRootTransform(&parent_->getPosition());
+		if (parent != nullptr) {
+			connector->setRootTransform(&parent_->getPosition());
+		}
 	}
 	void connectTo(const GameObject* parent) {
 		this->parent_ = parent;
@@ -292,7 +298,9 @@ public:
 	}
 	void setConnector(PositionConstraint* connector) {
 		this->parent_connector_ = connector;
-		connector->setRootTransform(&parent_->getPosition());
+		if (parent_ != nullptr) {
+			connector->setRootTransform(&parent_->getPosition());
+		}
 
 	}
 
