@@ -234,8 +234,17 @@ public:
 
 	}
 
-	void unload() {
-
+	void unload(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {
+		graphics_2d.unload(*this);
+		increment_.deactivateMouseInput(window);
+		decrement_.deactivateMouseInput(window);
+		slider_.deactivateMouseInput(window);
+		graphics_2d.unload(increment_);
+		graphics_2d.unload(decrement_);
+		graphics_2d.unload(slider_);
+		text_graphics.unload(current_value_);
+		text_graphics.unload(lower_limit_value_);
+		text_graphics.unload(upper_limit_value_);
 	}
 	
 	void setCurrentValue(float new_val) {

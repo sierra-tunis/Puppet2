@@ -44,9 +44,9 @@ private:
 	static KeyStateCallback_base no_key_state_callback_;
 
 	struct callbackInput {
-		std::vector<InternalObject*> key_;
-		std::vector<InternalObject*> mouse_;
-		std::vector<InternalObject*> controller_callback_members_;
+		std::unordered_set<InternalObject*> key_;
+		std::unordered_set<InternalObject*> mouse_;
+		std::unordered_set<InternalObject*> controller_callback_members_;
 
 		float mouse_xpos_last_, mouse_ypos_last_;
 
@@ -89,17 +89,17 @@ private:
 		//InternalObject* input_callback_ = static_cast<InternalObject*>(glfwGetWindowUserPointer(window));
 		callbackInput* input_members = static_cast<callbackInput*>(glfwGetWindowUserPointer(window));
 		std::pair<float, float> cursor_pos;
-		std::vector<InternalObject*> mouse_members = input_members->mouse_;//copy to avoid input members changing during execution
+		//std::unordered_set<InternalObject*> mouse_members = input_members->mouse_;//copy to avoid input members changing during execution
 		switch (action) {
 		case GLFW_PRESS:
 			cursor_pos = getCursorPosition(window);
-			for (InternalObject* obj : mouse_members) {
+			for (InternalObject* obj : input_members->mouse_) {
 				obj->onMouseDown(button,cursor_pos.first,cursor_pos.second);
 			}
 			break;
 		case GLFW_RELEASE:
 			cursor_pos = getCursorPosition(window);
-			for (InternalObject* obj : mouse_members) {
+			for (InternalObject* obj : input_members->mouse_) {
 				obj->onMouseUp(button, cursor_pos.first, cursor_pos.second);
 			}
 			break;
@@ -191,13 +191,16 @@ public:
 
 	void activateKeyInput(GLFWwindow* window) {
 		//input_objs = InternalObject * this_ = static_cast<InternalObject*>(glfwGetWindowUserPointer(window));
-		input_members_.key_.push_back(this);
+		input_members_.key_.insert(this);
 		glfwSetWindowUserPointer(window, &input_members_);
 		glfwSetKeyCallback(window, InternalObject::keyCallback);
 	}
+	void deactivateKeyInput(GLFWwindow* window) {
+		input_members_.key_.erase(this);
+	}
 
 	void activateMouseInput(GLFWwindow* window) {
-		input_members_.mouse_.push_back(this);
+		input_members_.mouse_.insert(this);
 		//glfwSetWindowUserPointer(window, this);
 		glfwSetCursorPosCallback(window, cursor_position_callback);
 		double x, y;
@@ -207,6 +210,9 @@ public:
 		input_members_.mouse_ypos_last_ = y;
 
 		glfwSetMouseButtonCallback(window, InternalObject::mousebuttonCallback);
+	}
+	void deactivateMouseInput(GLFWwindow* window) {
+		input_members_.mouse_.erase(this);
 	}
 
 	static std::pair<float, float> getCursorPosition(GLFWwindow* window) {

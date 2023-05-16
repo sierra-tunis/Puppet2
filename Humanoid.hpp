@@ -81,10 +81,10 @@ class Humanoid : public GameObject {
 		//this can all be automatically generated via templates
 		waist_rotation_.setState(new_state(seq(0, 0)));
 		chest_rotation_.setState(new_state(seq(1, 3)));
-		arm_L_.setState(new_state(seq(4, 4 + LimbConnector::getDoF())));
-		arm_R_.setState(new_state(seq(11, 11 + LimbConnector::getDoF())));
-		leg_L_.setState(new_state(seq(18, 18 + LimbConnector::getDoF())));
-		leg_R_.setState(new_state(seq(25, 25 + LimbConnector::getDoF())));
+		arm_L_.setState(new_state(seq(4, 10)));
+		arm_R_.setState(new_state(seq(11,17)));
+		leg_L_.setState(new_state(seq(18,24)));
+		leg_R_.setState(new_state(seq(25,31)));
 		head_chain_.setState(new_state(seq(32, 35)));
 	}
 
@@ -92,7 +92,7 @@ class Humanoid : public GameObject {
 		Eigen::Vector<float, n_dofs> ret;
 		ret(seq(0,0)) = waist_rotation_.getState();
 		ret(seq(1, 3)) = chest_rotation_.getState();
-		ret(seq(4, 11)) = arm_L_.getState();
+		ret(seq(4, 10)) = arm_L_.getState();
 		ret(seq(11, 17)) = arm_R_.getState();
 		ret(seq(18, 24)) = leg_L_.getState();
 		ret(seq(25, 31)) = leg_R_.getState();
@@ -301,7 +301,12 @@ public:
 		setSliderCallbacks();
 	}
 	void closeDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) override {
-		
+		for (int i = 0; i < n_dofs; i++) {
+			removeDependent(debug_sliders_[i]);
+			debug_sliders_[i]->unload(window, graphics_2d, text_graphics);
+			delete debug_sliders_[i];
+			debug_sliders_[i] = nullptr;
+		}
 	}
 
 

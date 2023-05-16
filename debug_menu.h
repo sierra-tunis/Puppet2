@@ -89,11 +89,11 @@ public:
 				this_->setDebugTarget(nullptr);
 			}
 		}
-		if (this_->debug_target_ == &this_->debug_cam_) {
-			nextTargetCallback(must_be_this);
-		}
 		if (this_->debug_target_ != nullptr) {
 			this_->debug_target_->openDebugUI(this_, this_->window_, this_->graphics_2d_, this_->text_graphics_);
+		}
+		if (this_->debug_target_ == &this_->debug_cam_) {
+			nextTargetCallback(must_be_this);
 		}
 	}
 
@@ -116,11 +116,11 @@ public:
 				this_->setDebugTarget(nullptr);
 			}
 		}
-		if (this_->debug_target_ == &this_->debug_cam_) {
-			prevTargetCallback(must_be_this);
-		}
 		if (this_->debug_target_ != nullptr) {
 			this_->debug_target_->openDebugUI(this_, this_->window_, this_->graphics_2d_, this_->text_graphics_);
+		}
+		if (this_->debug_target_ == &this_->debug_cam_) {
+			prevTargetCallback(must_be_this);
 		}
 	}
 	static void testSliderCallback(float new_val, void* must_be_nullptr) {
