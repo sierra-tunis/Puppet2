@@ -103,6 +103,8 @@ public:
 
 	void drawObj(const GameObject& obj, Cache cache) const override {
 		if (!obj.isHidden()) {
+			glUniformMatrix4fv(model_location_, 1, GL_FALSE, obj.getPosition().data());
+
 			glBindTexture(GL_TEXTURE_2D, getTexID(cache));
 			glBindVertexArray(getVAO(cache));
 
@@ -130,7 +132,6 @@ public:
 
 		glUniformMatrix4fv(perspective_location_, 1, GL_FALSE, camera_.getPerspective().data());
 		glUniformMatrix4fv(camera_location_, 1, GL_FALSE, camera_.getCameraMatrix().data());
-		glUniformMatrix4fv(model_location_, 1, GL_FALSE, Eigen::Matrix4f(Eigen::Matrix4f::Identity()).data());
 
 		//default3d specific code
 	}

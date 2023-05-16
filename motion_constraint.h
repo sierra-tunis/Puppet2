@@ -398,6 +398,11 @@ public:
 												  0., 0., 0., 1).finished()) {
 
 	}
+	OffsetConnector(Eigen::Vector3f offset_global, Eigen::Vector3f prev_offset_global):
+		OffsetConnector(offset_global(0)-prev_offset_global(0),
+						offset_global(1) - prev_offset_global(1),
+						offset_global(2) - prev_offset_global(2)){
+	}
 };
 
 class BallJoint : public ConnectorConstraint<3> {

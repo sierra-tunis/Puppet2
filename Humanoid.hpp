@@ -46,24 +46,72 @@ class Humanoid : public GameObject {
 	OffsetConnector ankle_offset_R_;
 	BallJoint ankle_R_;
 
+	OffsetConnector neck_offset_;
+	BallJoint neck_;
+	OffsetConnector head_offset_;
+	RotationJoint head_tilt_;
+
+	ConnectorChain<OffsetConnector, BallJoint, OffsetConnector, RotationJoint> head_chain_;
+
 	LimbConnector arm_L_;
 	LimbConnector arm_R_;
 	LimbConnector leg_L_;
 	LimbConnector leg_R_;
 
-	int n_dofs;
+	static constexpr int n_dofs = 2*RotationJoint::getDoF() + 2*BallJoint::getDoF() + 4 * LimbConnector::getDoF();
+	std::array<Slider*,n_dofs> debug_sliders_;
 
 	DynamicModel* dyn_model_;
 
 	std::vector<int> debug_UI_ids;
-	static void setLeftKneeState(float angle, void* must_be_this) {
+
+	template<int index>
+	static void setDoFState(float angle, void* must_be_this) {
 		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
-		this_->knee_L_.setState(angle);
-		this_->leg_L_.setState(this_->leg_L_.getState());
+		Eigen::Vector<float, n_dofs> state = this_->getState();
+		state(index) = angle;
+		this_->setState(state);
 	}
 
 	void onStep() {
 		dyn_model_->updateData();
+	}
+
+	void setState(Eigen::Vector<float, n_dofs> new_state) {
+		//this can all be automatically generated via templates
+		waist_rotation_.setState(new_state(seq(0, 0)));
+		chest_rotation_.setState(new_state(seq(1, 3)));
+		arm_L_.setState(new_state(seq(4, 4 + LimbConnector::getDoF())));
+		arm_R_.setState(new_state(seq(11, 11 + LimbConnector::getDoF())));
+		leg_L_.setState(new_state(seq(18, 18 + LimbConnector::getDoF())));
+		leg_R_.setState(new_state(seq(25, 25 + LimbConnector::getDoF())));
+		head_chain_.setState(new_state(seq(32, 35)));
+	}
+
+	Eigen::Vector<float,n_dofs> getState() const {
+		Eigen::Vector<float, n_dofs> ret;
+		ret(seq(0,0)) = waist_rotation_.getState();
+		ret(seq(1, 3)) = chest_rotation_.getState();
+		ret(seq(4, 11)) = arm_L_.getState();
+		ret(seq(11, 17)) = arm_R_.getState();
+		ret(seq(18, 24)) = leg_L_.getState();
+		ret(seq(25, 31)) = leg_R_.getState();
+		ret(seq(32, 35)) = head_chain_.getState();
+		return ret;
+	}
+
+	void refresh() {
+		setState(getState());
+	}
+
+	template<int index=n_dofs-1>
+	void setSliderCallbacks() {
+		if (debug_sliders_[index] != nullptr) {
+			debug_sliders_[index]->setSliderChangeCallback(&setDoFState<index>, this);
+		}
+		if constexpr(index > 0) {
+			setSliderCallbacks<index - 1>();
+		}
 	}
 
 public:
@@ -73,48 +121,51 @@ public:
 		origin_(0, .15, 0),
 		chest_rotation_(BallJoint::YXY),
 		waist_rotation_(Eigen::Vector3f(0, 1, 0)),
-		shoulder_offset_L_(.1607, .5952, 0),
+		shoulder_offset_L_(Eigen::Vector3f(- .1607, .5952, 0), Eigen::Vector3f(0, .15, 0)),
 		shoulder_L_(BallJoint::XYX),
-		elbow_offset_L_(.48123, .5879, 0),
+		elbow_offset_L_(Eigen::Vector3f(- .48123, .5879, 0), Eigen::Vector3f(-.1607, .5952, 0)),
 		elbow_L_(Eigen::Vector3f(0, 1, 0)),
-		wrist_offset_L_(.77558, .60311, 0),
+		wrist_offset_L_(Eigen::Vector3f( - .77558, .60311, 0), Eigen::Vector3f(-.48123, .5879, 0)),
 		wrist_L_(BallJoint::ZYX),
-		shoulder_offset_R_(-.1607, .5952, 0),
+		shoulder_offset_R_(Eigen::Vector3f(.1607, .5952, 0), Eigen::Vector3f(0, .15, 0)),
 		shoulder_R_(BallJoint::XYX),
-		elbow_offset_R_(-.48123, .5879, 0),
+		elbow_offset_R_(Eigen::Vector3f(.48123, .5879, 0), Eigen::Vector3f(.1607, .5952, 0)),
 		elbow_R_(Eigen::Vector3f(0, 1, 0)),
-		wrist_offset_R_(-.77558, .60311, 0),
+		wrist_offset_R_(Eigen::Vector3f(.77558, .60311, 0), Eigen::Vector3f(.48123, .5879, 0)),
 		wrist_R_(BallJoint::ZYX),
-		hip_offset_L_(.0904, .1037, 0),
+		hip_offset_L_(Eigen::Vector3f(- .0904, .1037, 0), Eigen::Vector3f(0, .15, 0)),
 		hip_L_(BallJoint::YXY),
-		knee_offset_L_(.0862, -.4319, 0),
+		knee_offset_L_(Eigen::Vector3f(-.0862, -.4319, 0), Eigen::Vector3f(-.0904, .1037, 0)),
 		knee_L_(Eigen::Vector3f(1, 0, 0)),
-		ankle_offset_L_(.0596, -.9047, 0),
+		ankle_offset_L_(Eigen::Vector3f(-.0596, -.9047, 0), Eigen::Vector3f(-.0862, -.4319, 0)),
 		ankle_L_(BallJoint::ZXY),
-		hip_offset_R_(-.0904, .1037, 0),
+		hip_offset_R_(Eigen::Vector3f(.0904, .1037, 0), Eigen::Vector3f(0, .15, 0)),
 		hip_R_(BallJoint::YXY),
-		knee_offset_R_(-.0862, -.4319, 0),
+		knee_offset_R_(Eigen::Vector3f(.0862, -.4319, 0), Eigen::Vector3f(.0904, .1037, 0)),
 		knee_R_(Eigen::Vector3f(1, 0, 0)),
-		ankle_offset_R_(-.0596, -.9047, 0),
+		ankle_offset_R_(Eigen::Vector3f(.0596, -.9047, 0), Eigen::Vector3f(.0862, -.4319, 0)),
 		ankle_R_(BallJoint::ZXY),
+		neck_offset_(Vector3f(0,.6866,0), Eigen::Vector3f(0, .15, 0)),
+		neck_(BallJoint::YXY),
+		head_offset_(Vector3f(0, .8766, 0),Vector3f(0, .6866, 0)),
+		head_tilt_(Eigen::Vector3f(1.,0,0)),
 
 		arm_L_(shoulder_offset_L_, shoulder_L_, elbow_offset_L_, elbow_L_, wrist_offset_L_, wrist_L_),
 		arm_R_(shoulder_offset_R_, shoulder_R_, elbow_offset_R_, elbow_R_, wrist_offset_R_, wrist_R_),
 		leg_L_(hip_offset_L_, hip_L_, knee_offset_L_, knee_L_, ankle_offset_L_, ankle_L_),
 		leg_R_(hip_offset_R_, hip_R_, knee_offset_R_, knee_R_, ankle_offset_R_, ankle_R_),
-		n_dofs(RotationJoint::getDoF() + BallJoint::getDoF() + 4 * LimbConnector::getDoF()) {
+		head_chain_(neck_offset_,neck_,head_offset_,head_tilt_){
 
 		arm_L_.setRootTransform(&chest_rotation_.getEndTransform());
 		arm_R_.setRootTransform(&chest_rotation_.getEndTransform());
 		leg_L_.setRootTransform(&waist_rotation_.getEndTransform());
-		arm_L_.setRootTransform(&waist_rotation_.getEndTransform());
-		chest_rotation_.setRootTransform(&getPosition());
-		waist_rotation_.setRootTransform(&getPosition());
+		leg_R_.setRootTransform(&waist_rotation_.getEndTransform());
+		head_chain_.setRootTransform(&chest_rotation_.getEndTransform());
+		chest_rotation_.setRootTransform(&origin_.getEndTransform());
+		waist_rotation_.setRootTransform(&origin_.getEndTransform());
+		origin_.setRootTransform(&getPosition());
 
-		arm_L_.refresh();
-		arm_R_.refresh();
-		leg_L_.refresh();
-		leg_R_.refresh();
+		refresh();
 
 		DynamicModel* model = new DynamicModel("human.obj", "human.txt");
 		std::vector<const Eigen::Matrix4f*> vert_tforms;
@@ -127,7 +178,6 @@ public:
 		vert_tforms[model->getInd("palm_L")] = &wrist_L_.getEndTransform();
 		vert_tforms[model->getInd("forearm_L")] = &elbow_L_.getEndTransform();
 		vert_tforms[model->getInd("humerus_L")] = &shoulder_L_.getEndTransform();
-		//offset tform not working?
 		vert_tforms[model->getInd("shoulder_L")] = &shoulder_offset_L_.getEndTransform();
 
 		vert_tforms[model->getInd("fingers_R")] = &wrist_R_.getEndTransform();
@@ -150,8 +200,8 @@ public:
 		vert_tforms[model->getInd("calf_R")] = &knee_R_.getEndTransform();
 		vert_tforms[model->getInd("foot_R")] = &ankle_R_.getEndTransform();
 
-		vert_tforms[model->getInd("neck")] = &getPosition();
-		vert_tforms[model->getInd("head")] = &getPosition();
+		vert_tforms[model->getInd("neck")] = &neck_.getEndTransform();
+		vert_tforms[model->getInd("head")] = &head_tilt_.getEndTransform();
 
 		model->setVertTforms(vert_tforms);
 		model->offsetVerts();
@@ -240,10 +290,15 @@ public:
 	}*/
 
 	void openDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) override {
-		Slider* s1 = new Slider(.1, .5, -M_PI, M_PI);
-		addDependent(s1);
-		s1->load(window, graphics_2d, text_graphics);
-		s1->setSliderChangeCallback(&setLeftKneeState, this);
+		float slider_height = .7 / n_dofs;
+		for (int i = 0; i < n_dofs; i++) {
+			debug_sliders_[i] = new Slider(slider_height, .5, -M_PI, M_PI);
+			debug_sliders_[i]->moveTo(-.5, -static_cast<float>(i)/n_dofs, 0);
+			addDependent(debug_sliders_[i]);
+			debug_sliders_[i]->load(window, graphics_2d, text_graphics);
+			debug_sliders_[i]->setParent(UI_container);
+		}
+		setSliderCallbacks();
 	}
 	void closeDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) override {
 		

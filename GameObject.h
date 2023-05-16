@@ -2,7 +2,7 @@
 
 #ifndef PUPPET_GAMEOBJECT
 #define PUPPET_GAMEOBJECT
-/*  :)  */
+
 #include <Eigen/Dense>
 #include <chrono>
 #include <vector>
@@ -37,6 +37,8 @@ private:
 	//because it has a texture member
 	Model* model_; //model is all the model data in one place and can be subclassed for other shader types
 	Texture* texture_; //texture has all the texture packed into it like color, normal etc, and can just be subclassed to add more
+
+	//inherited from parent (might want to make seperate "visibility_parent_")
 	bool hidden_;
 
 	Eigen::Matrix4f position_;
@@ -65,7 +67,6 @@ private:
 
 protected:
 	
-	//virtual G makeGrobj(G shared_grobj) {}
 	void setModel(Model* model) {
 		model_ = model;
 	}
@@ -73,6 +74,7 @@ protected:
 	void setTexture(Texture* tex) {
 		texture_ = tex;
 	}
+
 
 	virtual Eigen::Vector3f onInvalidTranslation(Eigen::Vector3f translation, BoundaryConstraint* broken_constraint) {
 		//motion constraint::bestTranslate/limitTranslate will NEVER return an invalid translation, however if the
@@ -206,6 +208,9 @@ public:
 
 	const GameObject* getParent() const {
 		return parent_;
+	}
+	void setParent(const GameObject* parent) {
+		parent_ = parent;
 	}
 
 	const Matrix4f& getPosition() const {

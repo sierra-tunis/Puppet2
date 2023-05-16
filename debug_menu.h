@@ -62,13 +62,13 @@ public:
 
 	static void nextLevelCallback(void* must_be_this) {
 		DebugMenu* this_ = static_cast<DebugMenu*>(must_be_this);
-		Level::nextLevel();
+		Level::incrementLevel();
 		//this_->setDebugTarget(Level::getCurrentLevel()->getContents()[0]);
 		this_->setDebugTarget(nullptr);
 	}
 	static void prevLevelCallback(void* must_be_this) {
 		DebugMenu* this_ = static_cast<DebugMenu*>(must_be_this);
-		Level::prevLevel();
+		Level::decrementLevel();
 		//this_->setDebugTarget(Level::getCurrentLevel()->getContents()[0]);
 		this_->setDebugTarget(nullptr);
 	}
@@ -167,10 +167,10 @@ public:
 		target_dbg_info_.left = -1.;
 		text_graphics.add(target_dbg_info_);
 
-		prev_target_.moveTo(-1, -.4, 0);
+		prev_target_.moveTo(-1, .5, 0);
 		prev_target_.activateMouseInput(window);
 		graphics.add(prev_target_);
-		next_target_.moveTo(-.2, -.4, 0);
+		next_target_.moveTo(-.2, .5, 0);
 		next_target_.activateMouseInput(window);
 		graphics.add(next_target_);
 		addButton(&next_target_);
@@ -182,13 +182,13 @@ public:
 		target_name_.box_height = .2;
 		target_name_.font_size = 1;
 		target_name_.left = -.8;
-		target_name_.top = -.4;
+		target_name_.top = .5;
 
 
-		prev_level_.moveTo(-1, 0., 0);
+		prev_level_.moveTo(-1, .9, 0);
 		prev_level_.activateMouseInput(window);
 		graphics.add(prev_level_);
-		next_level_.moveTo(-.2, 0., 0);
+		next_level_.moveTo(-.2, .9, 0);
 		next_level_.activateMouseInput(window);
 		graphics.add(next_level_);
 		addButton(&next_level_);
@@ -200,7 +200,7 @@ public:
 		level_display_.box_width = .6;
 		level_display_.box_height = .2;
 		level_display_.left = -.8;
-		level_display_.top = 0;
+		level_display_.top = .9;
 
 	}
 

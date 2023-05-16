@@ -45,13 +45,13 @@ private:
 	}
 
 	void onMouseDown(int key, float x, float y) override {
-		if (abs(x) <= 1 && abs(y) <= 1) {
+		/*if (abs(x) <= 1 && abs(y) <= 1) {
 			glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 			//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 			if (glfwRawMouseMotionSupported()) {
 				glfwSetInputMode(window_, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 			}
-		}
+		}*/
 	}
 
 	void onKeyPress(int key) {
@@ -81,7 +81,7 @@ public:
 	PlayerCamera(float near_clip, float far_clip, float fov,float equilibrium_length,GLFWwindow* window, std::string name) :
 		Camera(near_clip,far_clip,fov,"PlayerCamera"),
 		equilibrium_length_(equilibrium_length),
-		anchor_(OffsetConnector((Eigen::Matrix4f()<<1.,0.,0.,0.,  0.,1.,0.,.6,  0.,0.,1.,0.,  0., 0., 0., 1.).finished())),
+		anchor_(OffsetConnector((Eigen::Matrix4f()<<1.,0.,0.,0.,  0.,1.,0.,.4,  0.,0.,1.,0.,  0., 0., 0., 1.).finished())),
 		pan_(RotationJoint(Eigen::Vector3f(0, 1, 0))),
 		tilt_(RotationJoint(Eigen::Vector3f(1, 0, 0))),
 		dist_(PrismaticJoint(Eigen::Vector3f(0, 1.5, 3))),

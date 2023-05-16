@@ -18,7 +18,6 @@ using Eigen::seq;
 
 class DebugCamera : public InterfaceObject<GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, GLFW_KEY_D, GLFW_KEY_SPACE, GLFW_KEY_LEFT_SHIFT> {
 
-	//const Level* level_;
 	const Level* current_level_;
 	bool freefall;
 	MeshSurface hitbox_;
@@ -27,14 +26,10 @@ class DebugCamera : public InterfaceObject<GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, G
 	constexpr static float max_step = .5f;
 
 	Eigen::Matrix4f test_tform_;
-	DynamicModel kin_model_;
-	//BoundaryConstraint level_bounds_;
-
 
 	void onKeyDown(int key) override {
 		switch (key) {
 		case GLFW_KEY_W:
-			//boundedTranslate(this->getPosition()(seq(0, 2), 2) * -.01,current_level_->getZmap(), .5);
 			translate(this->getPosition()(seq(0, 2), 2) * -.05);
 			break;
 		case GLFW_KEY_S:
@@ -65,7 +60,7 @@ class DebugCamera : public InterfaceObject<GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, G
 	}
 protected:
 	
-	Eigen::Vector3f onInvalidTranslation(Eigen::Vector3f translation, BoundaryConstraint* broken_constraint) {
+	Eigen::Vector3f onInvalidTranslation(Eigen::Vector3f translation, BoundaryConstraint* broken_constraint) override {
 		Eigen::Vector3f step(0, .33, 0);
 		//should rewrite this using bestTranslate since its in the engine part of the code
 		Eigen::Vector3f best_translate = GameObject::onInvalidTranslation(translation, broken_constraint);
@@ -82,20 +77,19 @@ public:
 	DebugCamera( std::string name):
 	InterfaceObject(name),
 	current_level_(nullptr),
-	hitbox_("human_skeleton.obj"),
+	hitbox_("small_cube.obj"),
 	level_bounds_(new NoCollideConstraint<Surface<3>, MeshSurface>(nullptr, nullptr,&hitbox_)),
 	collision_info(hitbox_.getEdges().size()),
-	test_tform_(Eigen::Matrix4f::Identity()),
-	kin_model_("human.obj","human.txt")
+	test_tform_(Eigen::Matrix4f::Identity())
 	//level_bounds_(&current_level_->getZmap())
 	{
-		std::vector<const Eigen::Matrix4f*> vert_tforms;
+		/*std::vector<const Eigen::Matrix4f*> vert_tforms;
 		for (int i = 0; i < kin_model_.glen(); i++) {
 			vert_tforms.push_back(i % 2 == 0 ? &getPosition() : &test_tform_);
 		}
 		kin_model_.setVertTforms(vert_tforms);
-		kin_model_.offsetVerts();
-		setModel(&kin_model_);
+		kin_model_.offsetVerts();*/
+		setModel(new Model("small_cube.obj"));
 		//setModel(new Model("human.obj"));
 
 		setTexture(new Texture("obamna.jpg"));
@@ -104,61 +98,28 @@ public:
 
 	void onRoomActivation() override {
 		current_level_ = Level::getCurrentLevel();
-		level_bounds_->setBoundary(current_level_->getCollisionSurface());
-		level_bounds_->setBoundaryPosition(&current_level_->getPosition());
-		//*level_bounds_ = NoCollideConstraint<Surface<3>, MeshSurface>(current_level_->getCollisionSurface(), &current_level_->getPosition(), &hitbox_);
-		//Level::getCurrentLevel()->add(*this);
+		NoCollideConstraint<Surface<3>, MeshSurface> new_bounds(current_level_->getCollisionSurface(), &current_level_->getPosition(), &hitbox_);
+		if (new_bounds.breaksConstraint(getPosition(), getPosition())) {
+			Level::goToPrevLevel();
+			return;
+		}
+		//level_bounds_->setBoundary(current_level_->getCollisionSurface());
+		//level_bounds_->setBoundaryPosition(&current_level_->getPosition());
+		*level_bounds_ = new_bounds;
 	}
 	void onRoomDeactivation() override {
 		//Level::getCurrentLevel()->remove(*this);
 	}
 
-	//void update(GLFWwindow* window) override {
 	void onStep() override {
 		SurfaceNodeCollision(current_level_->getCollisionSurface(), &hitbox_, getPosition()-current_level_->getPosition(), &collision_info);
-		//InterfaceObject::update(window);
 		if (fullyOutsideLevel()) {
 			int neig_ind = current_level_->neighborAt(getPosition()(seq(0, 2), 3));
 			if (neig_ind != -1) {
-				// && !checkCollision<Surface<3>, MeshSurface>(current_level_->getNeighbors()[neig_ind]->getCollisionSurface(),&getHitbox(), current_level_->getNeighbors()[neig_ind]->getPosition(),getPosition())
 				Level::getCurrentLevel()->goToNeighbor(neig_ind);
-				//current_level_ = current_level_->getNeighbors()[neig_ind];
-				//*level_bounds_ = NoCollideConstraint<Surface<3>, MeshSurface>(current_level_->getCollisionSurface(), &current_level_->getPosition(), &hitbox_);
-				
 			}
 		}
-		kin_model_.updateData();
-		/*
-		int current_room = current_level_->getZmap().getZdata(, 0.).first.room_id;
-		//std::cout << "current room# " << current_room << "\n";
-		if (current_room != 1) {
-			if (current_room == zdata::BaseRoom) {
-				//std::cerr << "fatal out of bounds error!";
-				//std::cout << "fatal out of bounds error!";
-			} else {
-				current_level_->activateNeighbor(current_room - 2);
-				current_level_ = current_level_->getNeighbors()[current_room - 2];
-			}
-		}*/
-
-		/*if (isInFreefall()) {
-			getVelocity() += getAcceleration() * getdt();
-			boundedTranslate(getVelocity() * getdt(),*floor_,.1);
-		}
-		else {
-			//not efficient
-			setVelocity(Eigen::Vector3f(0,0,0));
-		}*/
-		/*
-		std::pair<zdata, zdata> tmp = floor_->getZdata(getLocalPosition()(seq(0, 2), 3), .5);
-		zdata floor = tmp.first;
-		zdata ceiling = tmp.second;
-		if (floor.room_id != 0) {
-			Eigen::Vector3f floor_pos;
-			floor_pos << getLocalPosition()(0, 3), floor.z, getLocalPosition()(2, 3);
-			//floor_pos(1) = floor_->getZdata(floor_pos).z + .1;
-			moveTo(floor_pos);
-		}*/
+		//kin_model_.updateData();
 	}
 
 	const Level* getLevel() const {
@@ -186,16 +147,9 @@ public:
 			ret_str += "within neighbor " + std::to_string(i) + "?:" + (neig->withinLevel(getPosition()(seq(0, 2), 3)) ? " Yes\n" : " No\n");
 			i++;
 		}
-		//ret_str += "\n\nFPS: " + std::to_string(1. / getdt());
 		return ret_str;
 	}
 
 };
 
-//const Model DebugCamera::model_ = Model("cube.obj");
-//const Texture DebugCamera::texture_ = Texture("obamna.jpg");
-//const Hitbox DebugCamera::hbox_ = Hitbox({ 1.,2.,3. });
-//Grobj_blinPhong DebugCamera::shared_grobj_ = Grobj_blinPhong(Eigen::Matrix4f::Identity());
-
-
-#endif // !
+#endif

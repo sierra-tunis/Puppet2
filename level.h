@@ -35,6 +35,7 @@ private:
 	const int level_number_;
 
 	static Level* current_level_;
+	static Level* prev_level_;
 	static std::vector<Level*> all_levels_;
 
 	Sound theme_;
@@ -112,14 +113,14 @@ public:
 	}
 
 	static void goToLevel(Level* new_level) {
-		Level* prev_level = current_level_;
+		prev_level_ = current_level_;
 		current_level_ = new_level;
 		new_level->activate();
 		for (auto& neig : new_level->neighbors_) {
 			neig->enterStandby();
 		}
-		if (prev_level != nullptr) {
-			const std::vector<Level*>& neighbors = prev_level->neighbors_;
+		if (prev_level_ != nullptr) {
+			const std::vector<Level*>& neighbors = prev_level_->neighbors_;
 			for (auto& neig : neighbors) {
 				if (std::find(neighbors.begin(), neighbors.end(), neig) == neighbors.end()) {
 					neig->freeze();
@@ -132,7 +133,7 @@ public:
 		goToLevel(all_levels_[level_num]);
 	}
 
-	static void nextLevel() {
+	static void incrementLevel() {
 		if (Level::getCurrentLevel() == nullptr) {
 			Level::goToLevel(0);
 		} else {
@@ -145,7 +146,7 @@ public:
 		}
 	}
 
-	static void prevLevel() {
+	static void decrementLevel() {
 		if (Level::getCurrentLevel() == nullptr) {
 			Level::goToLevel(0);
 		}
@@ -158,6 +159,10 @@ public:
 				Level::goToLevel(all_levels_.size()-1);
 			}
 		}
+	}
+
+	static void goToPrevLevel() {
+		Level::goToLevel(prev_level_);
 	}
 
 	void onStep() override {
