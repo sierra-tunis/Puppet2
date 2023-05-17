@@ -49,6 +49,7 @@ private:
 		std::unordered_set<InternalObject*> controller_callback_members_;
 
 		float mouse_xpos_last_, mouse_ypos_last_;
+		//float mouse_xscroll_last, mouse_yscroll_last_;
 
 	};
 	static callbackInput input_members_;
@@ -85,6 +86,20 @@ private:
 		input_members->mouse_xpos_last_ = xpos;
 		input_members->mouse_ypos_last_ = ypos;
 	}
+
+	static void mouseScrollCallback(GLFWwindow* window, double dx, double dy) {
+		callbackInput* input_members = static_cast<callbackInput*>(glfwGetWindowUserPointer(window));
+		//xscroll = static_cast<float>(xscroll);
+		//yscroll = static_cast<float>(yscroll);
+		//float dx = xscroll - input_members->mouse_xscroll_last_;
+		//float dy = yscroll - input_members->mouse_yscroll_last_;
+		dx = static_cast<float>(dx);
+		dy = static_cast<float>(dy);
+		for (InternalObject* obj : input_members->mouse_) {
+			obj->onMouseScroll(dx, dy);
+		}
+	}
+
 	static void mousebuttonCallback(GLFWwindow* window, int button, int action, int mod) {
 		//InternalObject* input_callback_ = static_cast<InternalObject*>(glfwGetWindowUserPointer(window));
 		callbackInput* input_members = static_cast<callbackInput*>(glfwGetWindowUserPointer(window));
@@ -131,6 +146,10 @@ protected:
 	inline virtual void onMouseDown(int key, float x, float y) {};
 	
 	inline virtual void onMouseUp(int key, float x, float y) {};
+
+	inline virtual void onMouseScroll(float dx, float dy) {
+
+	};
 
 	inline virtual void onCreation() {};
 
@@ -210,6 +229,7 @@ public:
 		input_members_.mouse_ypos_last_ = y;
 
 		glfwSetMouseButtonCallback(window, InternalObject::mousebuttonCallback);
+		glfwSetScrollCallback(window, InternalObject::mouseScrollCallback);
 	}
 	void deactivateMouseInput(GLFWwindow* window) {
 		input_members_.mouse_.erase(this);

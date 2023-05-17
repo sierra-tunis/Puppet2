@@ -7,6 +7,8 @@
 #include "GameObject.h"
 #include "Default2d.hpp"
 
+Texture rect_tex("puppet_button.jpg");
+
 class Rect2d : public Model {
 private:
 
@@ -74,7 +76,7 @@ public:
 		button_model_(height_, width_) {
 
 		setModel(&button_model_);
-		setTexture(new Texture("rocky.jpg"));
+		setTexture(&rect_tex);
 	}
 
 	Button(float height, float width, std::string name) : 
@@ -84,7 +86,7 @@ public:
 		button_model_(height_,width_){
 
 		setModel(&button_model_);
-		setTexture(new Texture("rocky.jpg"));
+		setTexture(&rect_tex);
 	}
 
 	void setCallback(void (*callback_func)(void*), void* callback_input) {
@@ -107,10 +109,11 @@ private:
 protected:
 
 	void onStep() override {
-		float new_left = GameObject::getPosition()(0, 3) - box_width / 2;
-		float new_top = GameObject::getPosition()(1, 3) - box_height / 2;
+		//float new_left = GameObject::getPosition()(0, 3) - box_width / 2;
+		//float new_top = GameObject::getPosition()(1, 3) - box_height / 2;
 		left = GameObject::getPosition()(0, 3) - box_width / 2;
 		top = GameObject::getPosition()(1, 3) - box_height / 2;
+		Textbox::hidden_ = GameObject::isHidden();
 	}
 };
 
@@ -182,7 +185,7 @@ public:
 		upper_lim_offset_(0, 2*height_, 0),
 		slider_connector_(Eigen::Vector3f(1.,0.,0.)){
 		
-		setTexture(new Texture("rocky.jpg"));
+		setTexture(&rect_tex);
 		setModel(&slider_model_);
 
 		increment_.connectTo(this, &increment_offset_);
@@ -230,8 +233,6 @@ public:
 		text_graphics.add(current_value_);//for some reason removing this and beginning with the menu hidden causes an error
 		text_graphics.add(lower_limit_value_);
 		text_graphics.add(upper_limit_value_);
-
-
 	}
 
 	void unload(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {

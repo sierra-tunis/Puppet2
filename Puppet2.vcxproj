@@ -163,7 +163,9 @@
     <ClInclude Include="Default2d.hpp" />
     <ClInclude Include="Dynamic3d.hpp" />
     <ClInclude Include="dynamic_model.hpp" />
+    <ClInclude Include="game_main.hpp" />
     <ClInclude Include="graph.h" />
+    <ClInclude Include="graphics_base.hpp" />
     <ClInclude Include="Humanoid.hpp" />
     <ClInclude Include="interface.hpp" />
     <ClInclude Include="motion_constraint.h" />

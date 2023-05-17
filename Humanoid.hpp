@@ -178,14 +178,14 @@ public:
 		vert_tforms[model->getInd("palm_L")] = &wrist_L_.getEndTransform();
 		vert_tforms[model->getInd("forearm_L")] = &elbow_L_.getEndTransform();
 		vert_tforms[model->getInd("humerus_L")] = &shoulder_L_.getEndTransform();
-		vert_tforms[model->getInd("shoulder_L")] = &shoulder_offset_L_.getEndTransform();
+		vert_tforms[model->getInd("shoulder_L")] = &shoulder_L_.getEndTransform();
 
 		vert_tforms[model->getInd("fingers_R")] = &wrist_R_.getEndTransform();
 		vert_tforms[model->getInd("thumb_R")] = &wrist_R_.getEndTransform();
 		vert_tforms[model->getInd("palm_R")] = &wrist_R_.getEndTransform();
 		vert_tforms[model->getInd("forearm_R")] = &elbow_R_.getEndTransform();
 		vert_tforms[model->getInd("humerus_R")] = &shoulder_R_.getEndTransform();
-		vert_tforms[model->getInd("shoulder_R")] = &shoulder_offset_R_.getEndTransform();
+		vert_tforms[model->getInd("shoulder_R")] = &shoulder_R_.getEndTransform();
 
 		vert_tforms[model->getInd("ribcage")] = &chest_rotation_.getEndTransform();
 		vert_tforms[model->getInd("waist")] = &waist_rotation_.getEndTransform();

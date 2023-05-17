@@ -180,7 +180,7 @@ public:
 		level_number_(all_levels_.size())
 		//for now this uses current window size as resolution since thats what ZMapper will output as
 	{
-		all_levels_.push_back(this);
+		all_levels_.push_back(this); //need to add remove call for destruction
 		setModel(model);
 		setTexture(texture);
 		for (auto& obj : layout) {

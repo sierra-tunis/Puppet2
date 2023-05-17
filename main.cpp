@@ -143,6 +143,7 @@ int main(void)
     default3d.add(cult_impluvium);
     default3d.add(cult_ritual);
     default3d.add(path_to_town);
+
     dynamic3d.add(dbg_player);
 
     //Button test_button(.5, .5, "test_button");

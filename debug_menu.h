@@ -14,7 +14,7 @@ class DebugMenu : public GameObject {
 	Button test_button_;
 	Button next_target_;
 	Button prev_target_;
-	Textbox fps_tbox_;
+	TextboxObject fps_tbox_;
 	TextGraphics& text_graphics_;
 	Slider test_slider_;
 
@@ -22,12 +22,12 @@ class DebugMenu : public GameObject {
 	OffsetConnector cam_clamp_;
 
 	GameObject* debug_target_;
-	Textbox target_name_;
-	Textbox target_dbg_info_;
+	TextboxObject target_name_;
+	TextboxObject target_dbg_info_;
 
 	Button next_level_;
 	Button prev_level_;
-	Textbox level_display_;
+	TextboxObject level_display_;
 	
 	float avg_fps_;
 	float time_since_last_fps_avg_;
@@ -41,7 +41,7 @@ class DebugMenu : public GameObject {
 	void onKeyPress(int key) override {
 		if (key == GLFW_KEY_F3) {
 			toggleHidden();
-			for (auto& b : buttons_) {
+			/*for (auto& b : buttons_) {
 				b->setHideState(isHidden());
 			}
 			if (!isHidden()) {
@@ -54,7 +54,7 @@ class DebugMenu : public GameObject {
 				text_graphics_.remove(target_dbg_info_);
 				text_graphics_.remove(target_name_);
 				text_graphics_.remove(level_display_);
-			}
+			}*/
 		}
 	}
 
@@ -148,59 +148,66 @@ public:
 
 		test_button_.activateMouseInput(window);
 		test_button_.moveTo(.6, .9, 0);
-		addButton(&test_button_);
 		graphics.add(test_button_);
+		test_button_.clampTo(this);
 
 		fps_tbox_.text = "0";
 		fps_tbox_.box_height = .5;
 		fps_tbox_.box_width = .5;
-		fps_tbox_.left = .5;
-		fps_tbox_.top = .6;
+		fps_tbox_.moveTo(.75, .85, 0);
 		text_graphics.add(fps_tbox_);//for some reason removing this and beginning with the menu hidden causes an error
+		fps_tbox_.clampTo(this);
 
 		test_slider_.load(window, graphics, text_graphics);
 		test_slider_.moveTo(.5, -.5, 0);
 		test_slider_.setSliderChangeCallback(&testSliderCallback,nullptr);
+		test_slider_.clampTo(this);
 
 		target_dbg_info_.box_width = 2;
 		target_dbg_info_.top = .95;
 		target_dbg_info_.left = -1.;
 		text_graphics.add(target_dbg_info_);
+		target_dbg_info_.clampTo(this);
 
-		prev_target_.moveTo(-1, .5, 0);
+		prev_target_.moveTo(-.4, -.1, 0);
 		prev_target_.activateMouseInput(window);
 		graphics.add(prev_target_);
-		next_target_.moveTo(-.2, .5, 0);
+		next_target_.moveTo(.4, -.1, 0);
 		next_target_.activateMouseInput(window);
 		graphics.add(next_target_);
 		addButton(&next_target_);
 		addButton(&prev_target_);
 		prev_target_.setCallback(prevTargetCallback,this);
 		next_target_.setCallback(nextTargetCallback,this);
+		prev_target_.clampTo(&target_name_);
+		next_target_.clampTo(&target_name_);
 
 		target_name_.box_width = .6;
 		target_name_.box_height = .2;
 		target_name_.font_size = 1;
-		target_name_.left = -.8;
-		target_name_.top = .5;
+		target_name_.moveTo(-.4, .6, 0);
+		target_name_.clampTo(this);
 
 
-		prev_level_.moveTo(-1, .9, 0);
+		prev_level_.moveTo(-.4, -.1, 0); //this should be (-.4,0,0) but for some reason its not centering on level_display_
 		prev_level_.activateMouseInput(window);
 		graphics.add(prev_level_);
-		next_level_.moveTo(-.2, .9, 0);
+		next_level_.moveTo(.4, -.1, 0);
 		next_level_.activateMouseInput(window);
 		graphics.add(next_level_);
 		addButton(&next_level_);
 		addButton(&prev_level_);
 		prev_level_.setCallback(prevLevelCallback, this);
 		next_level_.setCallback(nextLevelCallback, this);
-
+		prev_level_.clampTo(&level_display_);
+		next_level_.clampTo(&level_display_);
 
 		level_display_.box_width = .6;
 		level_display_.box_height = .2;
-		level_display_.left = -.8;
-		level_display_.top = .9;
+		level_display_.font_size = 1.;
+		level_display_.moveTo(-.4, .9, 0);
+		level_display_.clampTo(this);
+
 
 	}
 
@@ -224,6 +231,13 @@ public:
 		} else {
 			debug_cam_.disconnect();
 		}
+		target_name_.update(window);
+		level_display_.update(window);
+		fps_tbox_.update(window);
+		next_level_.update(window);
+		prev_level_.update(window);
+		next_target_.update(window);
+		prev_target_.update(window);
 
 		if (!isHidden()) {
 			std::string dbg_info;

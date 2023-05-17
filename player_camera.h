@@ -19,7 +19,7 @@ using Eigen::Vector3f;
 template<std::derived_from<GameObject> PlayerType>
 class PlayerCamera : public Camera {
 private:
-	const float equilibrium_length_;
+	float equilibrium_length_;
 	OffsetConnector anchor_;
 	RotationJoint pan_;
 	RotationJoint tilt_;
@@ -29,22 +29,29 @@ private:
 	BoundaryConstraint level_bounds_;
 	MeshSurface cam_box_;
 
+	bool look_mode_;
+
 	GLFWwindow* window_;
 
 	void onMouseMove(float x, float y, float dx, float dy) override {
-		if (dx != 0) {
-			pan_.setState(Eigen::Vector<float,1>(pan_.getState()(0) - dx * .01));
-		}
-		if (dy != 0) {
-			float new_state = tilt_.getState()(0) - dy * .01;
-			if (new_state <= M_PI*1.1 / 2. && new_state >= -M_PI*.667/2.) {
-				tilt_.setState(Eigen::Vector<float, 1>(new_state));
+		if (look_mode_) {
+			if (dx != 0) {
+				pan_.setState(Eigen::Vector<float, 1>(pan_.getState()(0) - dx * .01));
+			}
+			if (dy != 0) {
+				float new_state = tilt_.getState()(0) - dy * .01;
+				if (new_state <= M_PI * 1.1 / 2. && new_state >= -M_PI * .667 / 2.) {
+					tilt_.setState(Eigen::Vector<float, 1>(new_state));
+				}
 			}
 		}
 		//std::cout << "(" << dx << ", " << dy << ")\n";
 	}
 
 	void onMouseDown(int key, float x, float y) override {
+		if (key == GLFW_MOUSE_BUTTON_MIDDLE) {
+			look_mode_ = true;
+		}
 		/*if (abs(x) <= 1 && abs(y) <= 1) {
 			glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 			//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
@@ -52,6 +59,21 @@ private:
 				glfwSetInputMode(window_, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 			}
 		}*/
+	}
+	void onMouseUp(int key, float x, float y) override {
+		if (key == GLFW_MOUSE_BUTTON_MIDDLE) {
+			look_mode_ = false;
+		}
+	}
+
+	void onMouseScroll(float dx, float dy) override {
+		equilibrium_length_ -= dy * .025;
+		if (equilibrium_length_ < .1) {
+			equilibrium_length_ = .1;
+		}
+		else if (equilibrium_length_ > 20.) {
+			equilibrium_length_ = 20.;
+		}
 	}
 
 	void onKeyPress(int key) {
@@ -81,10 +103,10 @@ public:
 	PlayerCamera(float near_clip, float far_clip, float fov,float equilibrium_length,GLFWwindow* window, std::string name) :
 		Camera(near_clip,far_clip,fov,"PlayerCamera"),
 		equilibrium_length_(equilibrium_length),
-		anchor_(OffsetConnector((Eigen::Matrix4f()<<1.,0.,0.,0.,  0.,1.,0.,.4,  0.,0.,1.,0.,  0., 0., 0., 1.).finished())),
+		anchor_(OffsetConnector((Eigen::Matrix4f()<<1.,0.,0.,0.,  0.,1.,0.,.5,  0.,0.,1.,0.,  0., 0., 0., 1.).finished())),
 		pan_(RotationJoint(Eigen::Vector3f(0, 1, 0))),
 		tilt_(RotationJoint(Eigen::Vector3f(1, 0, 0))),
-		dist_(PrismaticJoint(Eigen::Vector3f(0, 1.5, 3))),
+		dist_(PrismaticJoint(Eigen::Vector3f(0, 1., 3))),
 		tether_(ConnectorChain<OffsetConnector, RotationJoint, RotationJoint, PrismaticJoint>(anchor_,pan_,tilt_,dist_)),
 		cam_box_("cam_box.obj") {
 
