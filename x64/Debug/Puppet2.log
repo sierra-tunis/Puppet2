@@ -65,16 +65,23 @@ C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_camera.h(42,1): warning C4305
 C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_camera.h(64,1): warning C4305: 'argument': truncation from 'double' to 'const float'
 C:\Users\Justin\source\repos\Puppet2\Puppet2\UI.h(85,28): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\UI.h(99,28): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Justin\source\repos\Puppet2\Puppet2\UI.h(202,18): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\Justin\source\repos\Puppet2\Puppet2\UI.h(208,31): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\Justin\source\repos\Puppet2\Puppet2\UI.h(209,31): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\Justin\source\repos\Puppet2\Puppet2\UI.h(258,36): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Justin\source\repos\Puppet2\Puppet2\UI.h(259,41): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
-C:\Users\Justin\source\repos\Puppet2\Puppet2\UI.h(260,41): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\UI.h(221,18): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\UI.h(227,31): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\UI.h(228,31): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\UI.h(279,36): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\UI.h(280,41): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
+C:\Users\Justin\source\repos\Puppet2\Puppet2\UI.h(281,41): warning C4244: '=': conversion from 'double' to 'float', possible loss of data
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Humanoid.hpp(157,1): warning C4305: 'argument': truncation from 'double' to 'float'
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Humanoid.hpp(157,1): warning C4305: 'argument': truncation from 'double' to 'const float'
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Humanoid.hpp(293,1): warning C4305: 'initializing': truncation from 'double' to 'float'
 C:\Users\Justin\source\repos\Puppet2\Puppet2\Humanoid.hpp(295,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Humanoid.hpp(303,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Humanoid.hpp(304,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Humanoid.hpp(305,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Humanoid.hpp(306,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Humanoid.hpp(313,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Humanoid.hpp(314,1): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\Justin\source\repos\Puppet2\Puppet2\Humanoid.hpp(315,1): warning C4305: 'argument': truncation from 'double' to 'float'
 C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_player.hpp(22,1): warning C4305: 'argument': truncation from 'double' to 'float'
 C:\Users\Justin\source\repos\Puppet2\Puppet2\debug_player.hpp(25,1): warning C4305: 'argument': truncation from 'double' to 'float'
 C:\Users\Justin\source\repos\Puppet2\Puppet2\DebugGraphics.h(52,1): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data

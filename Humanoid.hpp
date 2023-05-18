@@ -299,6 +299,30 @@ public:
 			debug_sliders_[i]->setParent(UI_container);
 		}
 		setSliderCallbacks();
+
+		Button* prev_frame = new Button(.1,.35);
+		Button* next_frame = new Button(.1,.35);
+		Button* save_frame = new Button(.1,.8);
+		Button* insert_new_frame = new Button(.1,.8);
+
+		prev_frame->setLabel("prev frame");
+		next_frame->setLabel("next frame");
+		save_frame->setLabel("  save frame  ");
+		insert_new_frame->setLabel("  new frame  ");
+
+		prev_frame->moveTo(.275, -.1, 0);
+		next_frame->moveTo(.725, -.1, 0);
+		save_frame->moveTo(.5, -.3, 0);
+		insert_new_frame->moveTo(.5, -.5, 0);
+
+		std::vector<Button*> anim_buttons{ prev_frame,next_frame,save_frame,insert_new_frame };
+		for (Button* button : anim_buttons) {
+			addDependent(button);
+			button->setParent(UI_container);
+			button->load(window, graphics_2d, text_graphics);
+		}
+
+
 	}
 	void closeDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) override {
 		for (int i = 0; i < n_dofs; i++) {

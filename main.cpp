@@ -80,7 +80,7 @@ int main(void)
 
     layout.push_back(&center);
     layout.push_back(&dbg_player);
-    //layout.push_back(&camera);
+    //layout.push_back(&camera); causes parent child chains
     //layout.push_back(&debugMenu);
 
     /*int n_debuggers = 10;

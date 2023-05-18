@@ -147,15 +147,15 @@ public:
 		window_(window){
 
 		test_button_.activateMouseInput(window);
-		test_button_.moveTo(.6, .9, 0);
+		test_button_.moveTo(.6, .6, 0);
 		test_button_.clampTo(this);
 		test_button_.setLabel("tester");
 		test_button_.load(window, graphics_2d_, text_graphics_);
 
 		fps_tbox_.text = "0";
-		fps_tbox_.box_height = .5;
+		fps_tbox_.box_height = char_info(' ').unscaled_height;
 		fps_tbox_.box_width = .5;
-		fps_tbox_.moveTo(.75, .85, 0);
+		fps_tbox_.moveTo(.75, .94, 0);
 		text_graphics.add(fps_tbox_);//for some reason removing this and beginning with the menu hidden causes an error
 		fps_tbox_.clampTo(this);
 

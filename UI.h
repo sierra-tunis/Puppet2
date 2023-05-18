@@ -158,6 +158,7 @@ class Slider : public GameObject {
 	Button increment_;
 	Button decrement_;
 	Button slider_;
+	bool mouse_drag_mode_;
 
 	TextboxObject current_value_;
 	TextboxObject lower_limit_value_;
@@ -189,7 +190,25 @@ class Slider : public GameObject {
 		}
 		this_->setCurrentValue(new_val);
 	}
+	static void beginMouseDrag(void* must_be_this) {
+		Slider* this_ = static_cast<Slider*>(must_be_this);
+		this_->mouse_drag_mode_ = true;
+	}
 	
+	void onMouseUp(int key, float x, float y) override {
+		mouse_drag_mode_ = false;
+	}
+
+	void onMouseMove(float x, float y, float dx, float dy) {
+		if (mouse_drag_mode_) {
+			float magic_scale_factor = 900.;//probably needs to be window resolution
+			float new_val = current_position_ + dx/width_/magic_scale_factor * (upper_limit_ - lower_limit_);
+			if (new_val < lower_limit_) {
+				new_val = lower_limit_;
+			}
+			setCurrentValue(new_val);
+		}
+	}
 
 public:
 	Slider(float height, float width, float lower_limit, float upper_limit):
@@ -224,6 +243,7 @@ public:
 
 		increment_.setCallback(incrementCallback, this);
 		decrement_.setCallback(decrementCallback, this);
+		slider_.setCallback(beginMouseDrag, this);
 
 	}
 
@@ -233,6 +253,7 @@ public:
 
 		graphics_2d.add(*this);
 
+		activateMouseInput(window);
 		increment_.activateMouseInput(window);
 		decrement_.activateMouseInput(window);
 		slider_.activateMouseInput(window);
