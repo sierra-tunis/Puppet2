@@ -63,7 +63,7 @@ class Humanoid : public GameObject {
 
 	DynamicModel* dyn_model_;
 
-	std::vector<int> debug_UI_ids;
+	std::vector<Button*> anim_buttons_;
 
 	template<int index>
 	static void setDoFState(float angle, void* must_be_this) {
@@ -316,7 +316,8 @@ public:
 		insert_new_frame->moveTo(.5, -.5, 0);
 
 		std::vector<Button*> anim_buttons{ prev_frame,next_frame,save_frame,insert_new_frame };
-		for (Button* button : anim_buttons) {
+		anim_buttons_ = anim_buttons;
+		for (Button* button : anim_buttons_) {
 			addDependent(button);
 			button->setParent(UI_container);
 			button->load(window, graphics_2d, text_graphics);
@@ -330,6 +331,11 @@ public:
 			debug_sliders_[i]->unload(window, graphics_2d, text_graphics);
 			delete debug_sliders_[i];
 			debug_sliders_[i] = nullptr;
+		}
+		for (Button* button : anim_buttons_) {
+			removeDependent(button);
+			button->setParent(nullptr);
+			button->unload(window, graphics_2d, text_graphics);
 		}
 	}
 

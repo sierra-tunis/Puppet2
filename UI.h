@@ -295,6 +295,7 @@ public:
 
 	void unload(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {
 		graphics_2d.unload(*this);
+		deactivateMouseInput(window);
 		increment_.deactivateMouseInput(window);
 		decrement_.deactivateMouseInput(window);
 		slider_.deactivateMouseInput(window);
