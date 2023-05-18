@@ -148,8 +148,9 @@ public:
 
 		test_button_.activateMouseInput(window);
 		test_button_.moveTo(.6, .9, 0);
-		graphics.add(test_button_);
 		test_button_.clampTo(this);
+		test_button_.setLabel("tester");
+		test_button_.load(window, graphics_2d_, text_graphics_);
 
 		fps_tbox_.text = "0";
 		fps_tbox_.box_height = .5;
@@ -169,18 +170,20 @@ public:
 		text_graphics.add(target_dbg_info_);
 		target_dbg_info_.clampTo(this);
 
-		prev_target_.moveTo(-.4, -.1, 0);
+		prev_target_.moveTo(-.4, 0, 0);
 		prev_target_.activateMouseInput(window);
-		graphics.add(prev_target_);
-		next_target_.moveTo(.4, -.1, 0);
+		next_target_.moveTo(.4, 0, 0);
 		next_target_.activateMouseInput(window);
-		graphics.add(next_target_);
 		addButton(&next_target_);
 		addButton(&prev_target_);
 		prev_target_.setCallback(prevTargetCallback,this);
 		next_target_.setCallback(nextTargetCallback,this);
 		prev_target_.clampTo(&target_name_);
 		next_target_.clampTo(&target_name_);
+		prev_target_.setLabel("prev");
+		next_target_.setLabel("next");
+		prev_target_.load(window, graphics_2d_,text_graphics_);
+		next_target_.load(window, graphics_2d_, text_graphics_);
 
 		target_name_.box_width = .6;
 		target_name_.box_height = .2;
@@ -189,18 +192,20 @@ public:
 		target_name_.clampTo(this);
 
 
-		prev_level_.moveTo(-.4, -.1, 0); //this should be (-.4,0,0) but for some reason its not centering on level_display_
+		prev_level_.moveTo(-.4, 0, 0); //this should be (-.4,0,0) but for some reason its not centering on level_display_
 		prev_level_.activateMouseInput(window);
-		graphics.add(prev_level_);
-		next_level_.moveTo(.4, -.1, 0);
+		next_level_.moveTo(.4, 0, 0);
 		next_level_.activateMouseInput(window);
-		graphics.add(next_level_);
 		addButton(&next_level_);
 		addButton(&prev_level_);
 		prev_level_.setCallback(prevLevelCallback, this);
 		next_level_.setCallback(nextLevelCallback, this);
 		prev_level_.clampTo(&level_display_);
 		next_level_.clampTo(&level_display_);
+		prev_level_.setLabel("prev");
+		next_level_.setLabel("next");
+		prev_level_.load(window, graphics_2d_, text_graphics_);
+		next_level_.load(window, graphics_2d_, text_graphics_);
 
 		level_display_.box_width = .6;
 		level_display_.box_height = .2;
@@ -238,6 +243,7 @@ public:
 		prev_level_.update(window);
 		next_target_.update(window);
 		prev_target_.update(window);
+		test_button_.update(window);
 
 		if (!isHidden()) {
 			std::string dbg_info;

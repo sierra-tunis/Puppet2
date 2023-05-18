@@ -16,14 +16,14 @@ struct Textbox {
 	enum class allignment {};
 	float line_space;
 	bool hidden_;
-	bool isHidden() const {
+	virtual bool isHidden() const {
 		return hidden_;
 	}
 	/*...*/
 
 	Textbox() :text(""), font(""), top(0), left(0), box_width(1), box_height(1), font_size(1) {}
 
-	Eigen::Matrix4f getPosition() const {
+	virtual Eigen::Matrix4f getPosition() const {
 		Eigen::Matrix4f ret;
 		ret << 1, 0, 0, left,
 			0, 1, 0, top,
@@ -32,7 +32,7 @@ struct Textbox {
 		return ret;
 	}
 
-	size_t getID() const {
+	virtual size_t getID() const {
 		return std::hash<std::string>()(text);
 	}
 

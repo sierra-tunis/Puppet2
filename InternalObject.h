@@ -155,6 +155,20 @@ protected:
 
 	inline virtual void onStep() {};
 
+	virtual bool readFromFiles(std::string directory) {
+		if (name_ == InternalObject::no_name) {
+			std::cerr << "must be called on a named object!";
+			return false;
+		}
+		return true;
+	};
+	virtual bool writeToFiles(std::string directory, bool no_overwrite) const {
+		if (name_ == InternalObject::no_name) {
+			std::cerr << "must be called on a named object!";
+			return false;
+		}
+		return true;
+	};
 
 public:
 

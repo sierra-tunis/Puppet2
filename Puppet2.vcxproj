@@ -153,6 +153,7 @@
     <ClCompile Include="ZMapper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="animation_menu.hpp" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="collision.hpp" />
     <ClInclude Include="debug_camera.h" />
@@ -166,6 +167,7 @@
     <ClInclude Include="game_main.hpp" />
     <ClInclude Include="graph.h" />
     <ClInclude Include="graphics_base.hpp" />
+    <ClInclude Include="graphics_raw.hpp" />
     <ClInclude Include="Humanoid.hpp" />
     <ClInclude Include="interface.hpp" />
     <ClInclude Include="motion_constraint.h" />
@@ -178,6 +180,8 @@
     <ClInclude Include="stb_image_write.h" />
     <ClInclude Include="sub_ui.hpp" />
     <ClInclude Include="surface.hpp" />
+    <ClInclude Include="text.hpp" />
+    <ClInclude Include="textbox_object.hpp" />
     <ClInclude Include="text_graphics.hpp" />
     <ClInclude Include="UI.h" />
     <ClInclude Include="zdata.hpp" />

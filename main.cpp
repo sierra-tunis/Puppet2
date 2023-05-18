@@ -62,12 +62,26 @@ int main(void)
 
     //HboxGraphics hboxGraphics;
 
+
     std::vector<InternalObject> bases;
     std::vector<GameObject*> layout;//this being a vector which rearranges is horrible lol
     DebugCamera center("debug_cam");
     DebugPlayer dbg_player;
+    PlayerCamera<DebugCamera> camera(.1, 5000, 90, 1.0, window, "player1cam");
+
+    camera.activateKeyInput(window);
+    Default3d default3d(camera);
+    Dynamic3d dynamic3d(camera);
+    Default2d default2d;
+    HboxGraphics hbox_graphics(camera, .1, 100, 90);
+    Font test_glyph("test_glyph.png");
+    TextGraphics text_graphics(test_glyph);
+    DebugMenu debugMenu(window, default2d, text_graphics, center);
+
     layout.push_back(&center);
     layout.push_back(&dbg_player);
+    //layout.push_back(&camera);
+    //layout.push_back(&debugMenu);
 
     /*int n_debuggers = 10;
     for (int i = 0; i < n_debuggers; i++) {
@@ -97,6 +111,7 @@ int main(void)
 
     cult_spiral_stairs.addNeighbor(&cult_landing);
     cult_spiral_stairs.addNeighbor(&cult_hallway1);
+    cult_spiral_stairs.addNeighbor(&cult_impluvium);
     cult_landing.addNeighbor(&path_to_town);
     cult_landing.addNeighbor(&cult_spiral_stairs);
     cult_hallway1.addNeighbor(&cult_spiral_stairs);
@@ -105,6 +120,7 @@ int main(void)
     cult_stairs1.addNeighbor(&cult_hallway1);
     cult_impluvium.addNeighbor(&cult_stairs1);
     cult_impluvium.addNeighbor(&cult_ritual);
+    cult_impluvium.addNeighbor(&cult_spiral_stairs);
     cult_ritual.addNeighbor(&cult_impluvium);
     path_to_town.addNeighbor(&cult_landing);
     
@@ -123,15 +139,8 @@ int main(void)
     //cult_impluvium.setTheme(bkg_music);
     Level::goToLevel(&cult_impluvium);
 
-    PlayerCamera<DebugCamera> camera(.1, 5000, 90, 1.0,window,"player1cam");
     //Camera camera((Eigen::Matrix4f() << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1).finished(), -1);
-    camera.activateKeyInput(window);
-    Default3d default3d(camera);
-    Dynamic3d dynamic3d(camera);
-    Default2d default2d;
-    HboxGraphics hbox_graphics(camera, .1, 100, 90);
-    Font test_glyph("test_glyph.png");
-    TextGraphics text_graphics(test_glyph);
+   
    
 
 
@@ -147,7 +156,7 @@ int main(void)
     dynamic3d.add(dbg_player);
 
     //Button test_button(.5, .5, "test_button");
-    DebugMenu debugMenu(window,default2d,text_graphics,center);
+   
     debugMenu.activateKeyInput(window);
     //debugMenu.setDebugTarget(&center);
 
@@ -173,17 +182,50 @@ int main(void)
     glfwGetWindowSize(window, &screenshot_width, &screenshot_height);
 
 
-    // Loop until the user closes the window
+    //menu with iterator through "games"
+    //there are three buttons, start game (debug disabled) , start game (debug enabled) and animation studio
+
+    //serves as an example of a non-polymorphic level/menu
+    /*
+    std::vector<GameObject*> start_menu_layout;
+
+    Button start_game(.2, .5);
+    Button start_game_debug(.2, .5);
+    Button start_animation_studio(.2, .5);
+    start_menu_layout.push_back(&start_game);
+    start_menu_layout.push_back(&start_game_debug);
+    start_menu_layout.push_back(&start_animation_studio);
+    default2d.add(start_game);
+    default2d.add(start_game_debug);
+    default2d.add(start_animation_studio);
+    start_game.moveTo(-.5, 0, 0);
+    start_game_debug.moveTo(-.5, -.3, 0);
+    start_animation_studio.moveTo(-.5, -.6, 0);
+
+    Level start_menu(start_menu_layout, window, new Model("start_menu.obj"), new Texture("start_menu_texture.obj"), "Start Menu");
+ 
+    Level::goToLevel(&start_menu);
+    Level::goToLevel(&cult_impluvium);
+
+    //Level animation_studio(GameObject::named_internal_objects_, window, "animation_studio.obj", "grid.jpg","Animation Studio");
+    I think its too confusing to do these as rooms instead of just engine level entities
+    */
+
+    /*Since this is right before main, at this point you should be done making 
+    named_internal_objects_and levels. thus at this point every named object
+    can read from/write ascociated files*/
+
     while (!glfwWindowShouldClose(window))
     {
+        //poll inputs
         glfwPollEvents();
 
+        //update game objects
         Level::UpdateCurrentLevel(window);
         camera.update(window);
         debugMenu.update(window);
-
-        // Render here
         
+        //draw everything
         if (camera.getScreenshotFlag()) {
             default3d.startScreenshot(screenshot_width, screenshot_height);
         }
@@ -202,12 +244,8 @@ int main(void)
             camera.clearScreenshotFlag();
             //stbi_write_png("screenshot.png", screenshot_width, screenshot_height, screenshot_buffers, screenshot_buffer.data(), screenshot_width * screenshot_buffers);
         } 
-
-        //hboxGraphics.drawAll();
-
         glfwSwapBuffers(window);
 
-        // Poll for and process events
     }
 
     glfwTerminate();

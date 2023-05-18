@@ -6,6 +6,7 @@
 #include "Model.h"
 #include "GameObject.h"
 #include "Default2d.hpp"
+#include "textbox_object.hpp"
 
 Texture rect_tex("puppet_button.jpg");
 
@@ -45,6 +46,9 @@ class Button : public GameObject{
 	const float height_, width_;
 //	float x_, y_; //center coord
 	Rect2d button_model_;
+	GraphicsRaw<Textbox>* text_graphics_;
+
+	TextboxObject label_;
 
 	void* callback_input_;
 	void (*callback_func_)(void*);
@@ -73,20 +77,28 @@ public:
 	Button(float height, float width) :
 		height_(height),
 		width_(width),
-		button_model_(height_, width_) {
+		button_model_(height_, width_),
+		text_graphics_(nullptr){
 
 		setModel(&button_model_);
 		setTexture(&rect_tex);
+		label_.box_width = width_*.9;
+		label_.connectTo(this, new OffsetConnector(0, 0, 0));
+		addDependent(&label_);
 	}
 
 	Button(float height, float width, std::string name) : 
 		GameObject(name),
 		height_(height),
 		width_(width),
-		button_model_(height_,width_){
+		button_model_(height_,width_),
+		text_graphics_(nullptr){
 
 		setModel(&button_model_);
 		setTexture(&rect_tex);
+		label_.box_width = width_*.9;
+		label_.connectTo(this, new OffsetConnector(0, 0, 0));//idk why this needs to be height/2 instead of 0
+		addDependent(&label_);
 	}
 
 	void setCallback(void (*callback_func)(void*), void* callback_input) {
@@ -100,21 +112,36 @@ public:
 	float getWidth() const {
 		return width_;
 	}
-};
 
-class TextboxObject : public GameObject, public Textbox {
-private:
-	std::string last_text_;
-	TextGraphics* text_graphics_;
-protected:
-
-	void onStep() override {
-		//float new_left = GameObject::getPosition()(0, 3) - box_width / 2;
-		//float new_top = GameObject::getPosition()(1, 3) - box_height / 2;
-		left = GameObject::getPosition()(0, 3) - box_width / 2;
-		top = GameObject::getPosition()(1, 3) - box_height / 2;
-		Textbox::hidden_ = GameObject::isHidden();
+	void setLabel(std::string label) {
+		if (text_graphics_ == nullptr) {
+			label_.text = label;
+		}
+		else {
+			text_graphics_->unload(label_);
+			label_.text = label;
+			text_graphics_->add(label_);
+		}
+		label_.font_size = label_.box_width / ((label_.text.size()+1) * char_info('A').unscaled_width);
+		label_.box_height = char_info('A').unscaled_height * label_.font_size;
 	}
+
+	void load(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {
+		graphics_2d.add(*this);
+		text_graphics.add(this->label_);
+		activateMouseInput(window);
+		const TextboxObject& tmp = label_;
+		text_graphics_ = &text_graphics;
+		
+	}
+
+	void unload(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {
+		graphics_2d.unload(*this);
+		text_graphics.unload(this->label_);
+		deactivateMouseInput(window);
+		text_graphics_ = nullptr;
+	}
+
 };
 
 class Slider : public GameObject {
@@ -210,9 +237,16 @@ public:
 		decrement_.activateMouseInput(window);
 		slider_.activateMouseInput(window);
 
-		graphics_2d.add(increment_);
-		graphics_2d.add(decrement_);
-		graphics_2d.add(slider_);
+		increment_.setLabel("+");
+		decrement_.setLabel("-");
+
+		increment_.load(window, graphics_2d, text_graphics);
+		decrement_.load(window, graphics_2d, text_graphics);
+		slider_.load(window, graphics_2d, text_graphics);
+
+		//graphics_2d.add(increment_);
+		//graphics_2d.add(decrement_);
+		//graphics_2d.add(slider_);
 		
 		current_value_.text = std::to_string(current_position_);
 		lower_limit_value_.text = std::to_string(lower_limit_);
@@ -229,6 +263,9 @@ public:
 		lower_limit_value_.font_size = .5;// lower_limit_value_.box_width / 5;
 		upper_limit_value_.font_size = .5;// upper_limit_value_.box_width / 5;
 		
+		current_value_.hide();
+		lower_limit_value_.hide();
+		upper_limit_value_.hide();
 
 		text_graphics.add(current_value_);//for some reason removing this and beginning with the menu hidden causes an error
 		text_graphics.add(lower_limit_value_);
@@ -240,9 +277,10 @@ public:
 		increment_.deactivateMouseInput(window);
 		decrement_.deactivateMouseInput(window);
 		slider_.deactivateMouseInput(window);
-		graphics_2d.unload(increment_);
-		graphics_2d.unload(decrement_);
-		graphics_2d.unload(slider_);
+		increment_.unload(window, graphics_2d, text_graphics);
+		decrement_.unload(window, graphics_2d, text_graphics);
+		slider_.unload(window, graphics_2d, text_graphics);
+
 		text_graphics.unload(current_value_);
 		text_graphics.unload(lower_limit_value_);
 		text_graphics.unload(upper_limit_value_);

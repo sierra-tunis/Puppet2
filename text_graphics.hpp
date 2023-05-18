@@ -154,7 +154,10 @@ class TextGraphics : public Graphics<Textbox, unsigned int, unsigned int, size_t
 		glBindTexture(GL_TEXTURE_2D, getTexID(cache));
 		glBindVertexArray(getVAO(cache));
 
-		glUniformMatrix4fv(position_location_, 1, GL_FALSE, obj.getPosition().data());
+		Eigen::Matrix4f position_centered = obj.getPosition();
+		position_centered(0, 3) -= obj.box_width / 2;
+		position_centered(1, 3) += obj.box_height / 2;
+		glUniformMatrix4fv(position_location_, 1, GL_FALSE, position_centered.data());
 
 		glDrawElements(GL_TRIANGLES, 3 * getNElems(cache), GL_UNSIGNED_INT, 0);
 	}
