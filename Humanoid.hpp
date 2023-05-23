@@ -6,6 +6,7 @@
 #include "GameObject.h"
 #include "dynamic_model.hpp"
 #include "UI.h"
+#include "sequence.h"
 
 using LimbConnector = ConnectorChain<OffsetConnector, BallJoint, OffsetConnector, RotationJoint, OffsetConnector, BallJoint>;
 
@@ -63,18 +64,37 @@ class Humanoid : public GameObject {
 
 	DynamicModel* dyn_model_;
 
+	StateSequence<n_dofs> the_griddy_;
 	std::vector<Button*> anim_buttons_;
+	StateSequence<n_dofs>* current_animation_;
+	float animation_elapsed_; //should probably be chrono::timepoint or smth
+	int current_frame_;
+	bool edit_animation_mode_;
 
 	template<int index>
 	static void setDoFState(float angle, void* must_be_this) {
 		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
 		Eigen::Vector<float, n_dofs> state = this_->getState();
 		state(index) = angle;
-		this_->setState(state);
+		if (this_->edit_animation_mode_) {
+			this_->current_animation_->setCol(this_->current_frame_, this_->current_animation_->getColTime(this_->current_frame_),state);
+		} else {
+			this_->setState(state);
+		}
 	}
 
 	void onStep() {
 		dyn_model_->updateData();
+		if (current_animation_ != nullptr) {
+			Eigen::Vector<float, n_dofs> new_state;
+			if (edit_animation_mode_) {
+				new_state = current_animation_->getData(current_frame_)(seq(1,n_dofs));
+			} else {
+				animation_elapsed_ += getdt();
+				new_state = current_animation_->getState(animation_elapsed_);
+			}
+			setState(new_state);
+		}
 	}
 
 	void setState(Eigen::Vector<float, n_dofs> new_state) {
@@ -112,6 +132,39 @@ class Humanoid : public GameObject {
 		if constexpr(index > 0) {
 			setSliderCallbacks<index - 1>();
 		}
+	}
+
+	static void saveAnimation(void* must_be_this) {
+		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
+		this_->current_animation_->saveToFile("the_griddy.csv");
+
+	}
+
+	static void newFrame(void* must_be_this) {
+		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
+		this_->current_animation_->addCol(this_->current_animation_->getLastTime()+1.,
+											Eigen::Vector<float, n_dofs>::Constant(0));
+	}
+
+	static void nextFrame(void* must_be_this) {
+		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
+		this_->current_frame_++;
+		if (this_->current_frame_ >= this_->current_animation_->size()) {
+			this_->current_frame_ = this_->current_animation_->size()-1;
+		}
+	}
+
+	static void prevFrame(void* must_be_this) {
+		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
+		this_->current_frame_--;
+		if (this_->current_frame_ < 0) {
+			this_->current_frame_ = 0;
+		}
+	}
+
+	static void playAnimation(void* must_be_this) {
+		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
+
 	}
 
 public:
@@ -208,6 +261,11 @@ public:
 		dyn_model_ = model;
 		setModel(model);
 		setTexture(new Texture("rocky.jpg"));
+
+		current_animation_ = &the_griddy_;
+		the_griddy_.addCol(0, Eigen::Vector<float, n_dofs>::Constant(0));
+		edit_animation_mode_ = true;
+		current_frame_ = 0;
 	}
 	/*
 	Humanoid() :
@@ -302,25 +360,36 @@ public:
 
 		Button* prev_frame = new Button(.1,.35);
 		Button* next_frame = new Button(.1,.35);
-		Button* save_frame = new Button(.1,.8);
+		Button* save_animation = new Button(.1,.8);
 		Button* insert_new_frame = new Button(.1,.8);
+		Button* play_animation = new Button(.1, .8);
+
 
 		prev_frame->setLabel("prev frame");
 		next_frame->setLabel("next frame");
-		save_frame->setLabel("  save frame  ");
+		save_animation->setLabel("save animation");
 		insert_new_frame->setLabel("  new frame  ");
+		play_animation->setLabel("play animation");
 
 		prev_frame->moveTo(.275, -.1, 0);
 		next_frame->moveTo(.725, -.1, 0);
-		save_frame->moveTo(.5, -.3, 0);
-		insert_new_frame->moveTo(.5, -.5, 0);
+		save_animation->moveTo(.5, -.5, 0);
+		insert_new_frame->moveTo(.5, -.3, 0);
+		play_animation->moveTo(.5, -.7, 0);
 
-		std::vector<Button*> anim_buttons{ prev_frame,next_frame,save_frame,insert_new_frame };
+		prev_frame->setCallback(&prevFrame, this);
+		next_frame->setCallback(&nextFrame, this);
+		save_animation->setCallback(&saveAnimation, this);
+		insert_new_frame->setCallback(&newFrame, this);
+		play_animation->setCallback(&playAnimation, this);
+
+		std::vector<Button*> anim_buttons{ prev_frame,next_frame,save_animation,insert_new_frame,play_animation };
 		anim_buttons_ = anim_buttons;
 		for (Button* button : anim_buttons_) {
 			addDependent(button);
 			button->setParent(UI_container);
 			button->load(window, graphics_2d, text_graphics);
+			button->activateMouseInput(window);
 		}
 
 

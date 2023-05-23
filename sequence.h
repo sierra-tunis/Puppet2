@@ -1,6 +1,11 @@
 #pragma once
 
+#ifndef PUPPET_SEQUENCE
+#define PUPPET_SEQUENCE
+
 #include<Eigen/Dense>
+
+#define ANIMATION_PATH "assets\\animations\\"
 
 using Eigen::seq;
 
@@ -18,70 +23,113 @@ struct StateSequence {//building block upon which animations will be based
 
 public:
 
-	StateSequence<n_dofs+1> addColumn(std::string col_name, Eigen::Vector<float, -1> data) {
+	StateSequence<n_dofs+1> addRow(std::string row_name, Eigen::Vector<float, -1> data) {
 		if (data.size() != sequence_.size()/(n_dofs+1)) {
-			std::cerr << "new column size doesnt match current data"
+			std::cerr << "new row size doesnt match current data";
 		}
 		//...
 	}
 
-	void addRow(float time, Eigen::Vector<float, n_dofs> state) {
-
+	void addCol(float time, Eigen::Vector<float, n_dofs> state) {
+		sequence_.conservativeResize(sequence_.rows(), sequence_.cols() + 1);
+		sequence_(seq(1, n_dofs), sequence_.cols() - 1) = state;
+		sequence_(0, sequence_.cols() - 1) = time;
 	}
 
-	void addRow(Eigen::Vector<float, n_dofs + 1> data) {
-
+	void addCol(Eigen::Vector<float, n_dofs + 1> data) {
+		sequence_.conservativeResize(sequence_.rows(), sequence_.columns() + 1);
+		sequence_(seq(0, n_dofs), sequence_.cols() - 1) = data;
 	}
 
-	void setRow(int time_step, float time, Eigen::Vector<float, n_dofs> state) {
-
+	void setCol(int col, float time, Eigen::Vector<float, n_dofs> state) {
+		sequence_(seq(1, n_dofs), col) = state;
+		sequence_(0, col) = time;
 	}
 
-	void setRow(int time_step,Eigen::Vector<float, n_dofs+1> data) {
-
+	void setCol(int col, Eigen::Vector<float, n_dofs+1> data) {
+		sequence_(seq(0, n_dofs), col) = data;
 	}
+
 	Eigen::Vector<float, n_dofs> getState(float time) const {
 		if (interp_method_ == nearest) {
 			int step = static_cast<int>(time + .5);
-			if (step < sequence_.rows()) {
+			if (step < sequence_.cols()) {
 				if (looping_) {
-					step %= sequence_.rows();
+					step %= sequence_.cols();
 				} else {
-					step = sequence_.rows() - 1;
+					step = sequence_.cols() - 1;
 				}
 			} else if(step < 0){
 				step = 0;
 			}
-			return sequence_.row(step)(seq(1,n_dofs));
+			return sequence_.col(step)(seq(1,n_dofs));
 		} else if (interp_method_ == linear){
 			int step_below = static_cast<int>(time);
 			int step_above = step_below + 1;
 			float r, time_rounded;
-			float r = std::modf(time, &time_rounded);
-			if (step_below < sequence_.rows()) {
+			r = std::modf(time, &time_rounded);
+			if (step_below < sequence_.cols()) {
 				if (looping_) {
-					step_below %= sequence_.rows();
-					step_above %= sequence_.rows();
+					step_below %= sequence_.cols();
+					step_above %= sequence_.cols();
 				}
 				else {
 					//last row
-					return sequence_.row(sequence_.rows()-1)(seq(1, n_dofs));
+					return sequence_.col(sequence_.cols()-1)(seq(1, n_dofs));
 				}
 			}
-			else if (step < 0) {
-				return sequence_.row(0)(seq(1, n_dofs));
+			else if (step_below < 0) {
+				return sequence_.col(0)(seq(1, n_dofs));
 
 			}
-			return (sequence_.row(step_below) - sequence_.row(step_above)) * r + sequence_.row(step_below);
+			return ((sequence_.col(step_below) - sequence_.col(step_above)) * r + sequence_.col(step_below))(seq(1,n_dofs));
 		}
+	}
+
+	Eigen::Vector<float, n_dofs+1> getData(int col) const {
+		return sequence_(seq(0, n_dofs), col);
 	}
 
 	bool saveToFile(std::string fname) const {
 		//...
+		return false;
 	}
 
 	bool readFromFile(std::string fname) const {
-
+		std::string line;
+		std::string headers;
+		std::string index_time;
+		std::string dof_state;
+		std::ifstream animFile(ANIMATION_PATH + fname);
+		std::getline(animFile, headers);
+		sequence_.resize(n_dofs+1,0);
+		while (std::getline(animFile, line)) {
+			Eigen::Vector<float, n_dofs> new_col;
+			std::stringstream ss(line);
+			std::getline(ss, index_time, ' ');
+			float t = std::stof(index_time);
+			for(int i = 0; i< n_dofs;i++){
+				std::getline(ss, dof_state, ' ');
+				new_col(i) = std::stof(dof_state);
+			}
+			addCol(t, new_col);
+		}
+		animFile.close();
 	}
 
+	int size() const {
+		return sequence_.cols();
+	}
+	float getColTime(int col) {
+		return sequence_(0, col);
+	}
+
+	float getLastTime() {
+		return sequence_(0, sequence_.cols() - 1);
+	}
+
+
 };
+
+#undef ANIMATION_PATH
+#endif
