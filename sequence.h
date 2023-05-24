@@ -91,8 +91,14 @@ public:
 	}
 
 	bool saveToFile(std::string fname) const {
-		//...
-		return false;
+		std::ofstream file(ANIMATION_PATH + fname);
+		if(file.is_open()){
+			file << sequence_.transpose();
+			file.close();
+			return true;
+		}else {
+			return false;
+		}
 	}
 
 	bool readFromFile(std::string fname) const {
