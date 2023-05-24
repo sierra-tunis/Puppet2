@@ -263,8 +263,10 @@ public:
 		setTexture(new Texture("rocky.jpg"));
 
 		current_animation_ = &the_griddy_;
-		the_griddy_.addCol(0, Eigen::Vector<float, n_dofs>::Constant(0));
-		edit_animation_mode_ = true;
+		if (!the_griddy_.readFromFile("the_griddy.csv")) {
+			the_griddy_.addCol(0, Eigen::Vector<float, n_dofs>::Constant(0));
+		}
+		edit_animation_mode_ = false;
 		current_frame_ = 0;
 	}
 	/*
@@ -392,6 +394,7 @@ public:
 			button->activateMouseInput(window);
 		}
 
+		edit_animation_mode_ = true;
 
 	}
 	void closeDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) override {
@@ -406,6 +409,8 @@ public:
 			button->setParent(nullptr);
 			button->unload(window, graphics_2d, text_graphics);
 		}
+
+		edit_animation_mode_ = false;
 	}
 
 

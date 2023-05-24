@@ -251,9 +251,11 @@ public:
 			if (debug_target_ == nullptr) {
 				dbg_info = "";
 				name_text = "no Target";
+				debug_cam_.show();
 			}else {
 				dbg_info = debug_target_->getDebugInfo();
 				name_text = debug_target_->getName();
+				debug_cam_.hide();
 			}
 			if (dbg_info != target_dbg_info_.text) {
 				text_graphics_.unload(target_dbg_info_);

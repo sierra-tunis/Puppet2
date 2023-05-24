@@ -22,6 +22,9 @@ struct StateSequence {//building block upon which animations will be based
 	interpolation_method interp_method_;
 
 public:
+	StateSequence():interp_method_(linear),looping_(true) {
+
+	}
 
 	StateSequence<n_dofs+1> addRow(std::string row_name, Eigen::Vector<float, -1> data) {
 		if (data.size() != sequence_.size()/(n_dofs+1)) {
@@ -68,7 +71,7 @@ public:
 			int step_above = step_below + 1;
 			float r, time_rounded;
 			r = std::modf(time, &time_rounded);
-			if (step_below < sequence_.cols()) {
+			if (step_above >= sequence_.cols()) {
 				if (looping_) {
 					step_below %= sequence_.cols();
 					step_above %= sequence_.cols();
@@ -82,7 +85,7 @@ public:
 				return sequence_.col(0)(seq(1, n_dofs));
 
 			}
-			return ((sequence_.col(step_below) - sequence_.col(step_above)) * r + sequence_.col(step_below))(seq(1,n_dofs));
+			return ((sequence_.col(step_above) - sequence_.col(step_below)) * r + sequence_.col(step_below))(seq(1,n_dofs));
 		}
 	}
 
@@ -93,7 +96,12 @@ public:
 	bool saveToFile(std::string fname) const {
 		std::ofstream file(ANIMATION_PATH + fname);
 		if(file.is_open()){
-			file << sequence_.transpose();
+			for (int i = 0; i < size(); i++) {
+				for (int j = 0; j < n_dofs+1; j++) {
+					file << sequence_(j, i) << " ";
+				}
+				file << "\n";
+			}
 			file.close();
 			return true;
 		}else {
@@ -101,26 +109,31 @@ public:
 		}
 	}
 
-	bool readFromFile(std::string fname) const {
+	bool readFromFile(std::string fname) {
 		std::string line;
 		std::string headers;
 		std::string index_time;
 		std::string dof_state;
 		std::ifstream animFile(ANIMATION_PATH + fname);
-		std::getline(animFile, headers);
-		sequence_.resize(n_dofs+1,0);
-		while (std::getline(animFile, line)) {
-			Eigen::Vector<float, n_dofs> new_col;
-			std::stringstream ss(line);
-			std::getline(ss, index_time, ' ');
-			float t = std::stof(index_time);
-			for(int i = 0; i< n_dofs;i++){
-				std::getline(ss, dof_state, ' ');
-				new_col(i) = std::stof(dof_state);
+		if (animFile.is_open()) {
+			//std::getline(animFile, headers);
+			sequence_.resize(n_dofs+1,0);
+			while (std::getline(animFile, line)) {
+				Eigen::Vector<float, n_dofs> new_col;
+				std::stringstream ss(line);
+				std::getline(ss, index_time, ' ');
+				float t = std::stof(index_time);
+				for (int i = 0; i < n_dofs; i++) {
+					std::getline(ss, dof_state, ' ');
+					new_col(i) = std::stof(dof_state);
+				}
+				addCol(t, new_col);
 			}
-			addCol(t, new_col);
+			animFile.close();
+			return true;
+		} else {
+			return false;
 		}
-		animFile.close();
 	}
 
 	int size() const {

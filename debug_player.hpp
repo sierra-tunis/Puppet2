@@ -25,10 +25,10 @@ class DebugPlayer : public Humanoid {
 			rotateY(-.01);
 			break;
 		case GLFW_KEY_SPACE:
-			translate(this->getPosition()(seq(0, 2), 1) * .05);
+			//translate(this->getPosition()(seq(0, 2), 1) * .05);
 			break;
 		case GLFW_KEY_LEFT_SHIFT:
-			translate(this->getPosition()(seq(0, 2), 1) * -.05);
+			//translate(this->getPosition()(seq(0, 2), 1) * -.05);
 			break;
 		}
 	}
