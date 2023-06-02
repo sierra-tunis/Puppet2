@@ -40,7 +40,7 @@ public:
 	}
 
 	void addCol(Eigen::Vector<float, n_dofs + 1> data) {
-		sequence_.conservativeResize(sequence_.rows(), sequence_.columns() + 1);
+		sequence_.conservativeResize(sequence_.rows(), sequence_.cols() + 1);
 		sequence_(seq(0, n_dofs), sequence_.cols() - 1) = data;
 	}
 

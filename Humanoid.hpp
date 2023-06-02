@@ -13,6 +13,8 @@ using LimbConnector = ConnectorChain<OffsetConnector, BallJoint, OffsetConnector
 //template <class T>
 //using LRpair = std::pair<T, T>;
 
+//need another ui iterator. is now the time to implement that?
+
 class Humanoid : public GameObject {
 	//origin is at navel
 	OffsetConnector origin_;
@@ -58,20 +60,17 @@ class Humanoid : public GameObject {
 	LimbConnector arm_R_;
 	LimbConnector leg_L_;
 	LimbConnector leg_R_;
-
+public:
 	static constexpr int n_dofs = 2*RotationJoint::getDoF() + 2*BallJoint::getDoF() + 4 * LimbConnector::getDoF();
+private:
 	std::array<Slider*,n_dofs> debug_sliders_;
 
 	DynamicModel* dyn_model_;
 
-	Animation<n_dofs> the_griddy_;
 	Animation<n_dofs>* current_animation_;
 	std::vector<Button*> anim_buttons_;
 	//StateSequence<n_dofs>* current_animation_;
-	float animation_elapsed_; //should probably be chrono::timepoint or smth
-	int current_frame_;
 	bool edit_animation_mode_;
-	std::string animation_fname_;
 
 	void refreshDebugSliders() {
 		if (debug_sliders_.size() != 0) {
@@ -99,11 +98,9 @@ class Humanoid : public GameObject {
 		dyn_model_->updateData();
 		if (current_animation_ != nullptr) {
 			Eigen::Vector<float, n_dofs> new_state;
-			if (edit_animation_mode_) {
+			if (edit_animation_mode_) { //set state using edit_frame cursor
 				new_state = current_animation_->getFrame()(seq(1, n_dofs));
-			} else {
-				//animation_elapsed_ += getdt();
-				//new_state = current_animation_->getState(animation_elapsed_);
+			} else {//set state using elapsed time
 				new_state = current_animation_->getState();
 			}
 			setState(new_state);
@@ -194,8 +191,7 @@ public:
 		arm_R_(shoulder_offset_R_, shoulder_R_, elbow_offset_R_, elbow_R_, wrist_offset_R_, wrist_R_),
 		leg_L_(hip_offset_L_, hip_L_, knee_offset_L_, knee_L_, ankle_offset_L_, ankle_L_),
 		leg_R_(hip_offset_R_, hip_R_, knee_offset_R_, knee_R_, ankle_offset_R_, ankle_R_),
-		head_chain_(neck_offset_,neck_,head_offset_,head_tilt_),
-		the_griddy_("the_griddy.csv"){
+		head_chain_(neck_offset_,neck_,head_offset_,head_tilt_){
 
 		arm_L_.setRootTransform(&chest_rotation_.getEndTransform());
 		arm_R_.setRootTransform(&chest_rotation_.getEndTransform());
@@ -250,12 +246,7 @@ public:
 		setModel(model);
 		setTexture(new Texture("rocky.jpg"));
 
-		the_griddy_.load();
-		addAnimation(&the_griddy_);
-		current_animation_ = &the_griddy_;
-
 		edit_animation_mode_ = false;
-		current_frame_ = 0;
 	}
 	/*
 	Humanoid() :
@@ -353,6 +344,7 @@ public:
 		Button* save_animation = new Button(.1,.8);
 		Button* insert_new_frame = new Button(.1,.8);
 		Button* play_animation = new Button(.1, .8);
+		Button* set_animation_start = new Button(.1, .8);
 
 
 		prev_frame->setLabel("prev frame");
@@ -360,20 +352,23 @@ public:
 		save_animation->setLabel("save animation");
 		insert_new_frame->setLabel("  new frame  ");
 		play_animation->setLabel("play animation");
+		set_animation_start->setLabel("set start frame");
 
 		prev_frame->moveTo(.275, -.1, 0);
 		next_frame->moveTo(.725, -.1, 0);
-		save_animation->moveTo(.5, -.5, 0);
 		insert_new_frame->moveTo(.5, -.3, 0);
+		save_animation->moveTo(.5, -.5, 0);
 		play_animation->moveTo(.5, -.7, 0);
+		set_animation_start->moveTo(.5, -.9, 0);
 
 		prev_frame->setCallback(&Animation<n_dofs>::prevFrame, current_animation_);
 		next_frame->setCallback(&Animation<n_dofs>::nextFrame, current_animation_);
 		save_animation->setCallback(&Animation<n_dofs>::saveAnimation, current_animation_);
 		insert_new_frame->setCallback(&Animation<n_dofs>::newFrame, current_animation_);
+		set_animation_start->setCallback(&Animation<n_dofs>::setAnimationStart, current_animation_);
 		play_animation->setCallback(&playAnimation, this);
 
-		std::vector<Button*> anim_buttons{ prev_frame,next_frame,save_animation,insert_new_frame,play_animation };
+		std::vector<Button*> anim_buttons{ prev_frame,next_frame,save_animation,insert_new_frame,play_animation,set_animation_start };
 		anim_buttons_ = anim_buttons;
 		for (Button* button : anim_buttons_) {
 			addDependent(button);
@@ -401,7 +396,9 @@ public:
 		edit_animation_mode_ = false;
 	}
 
-
+	void setSkeletonAnimation(Animation<n_dofs>* animation) {
+		current_animation_ = animation;
+	}
 
 
 };

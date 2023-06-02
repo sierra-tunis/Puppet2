@@ -25,14 +25,14 @@ protected:
 
 public:
 
-	float setPlaybackSpeed(float playback_speed) {
+	void  setPlaybackSpeed(float playback_speed) {
 		playback_speed_ = playback_speed;
 	}
 
 
 	virtual void advance(float dt) {
 		if (!paused_) {
-			elapsed_time_ += dt;
+			elapsed_time_ += playback_speed_*dt;
 		}
 	}
 
@@ -49,6 +49,7 @@ public:
 	}
 	void stop() {
 		elapsed_time_ = 0;
+		advance(0);
 		paused_ = true;
 	}
 
@@ -155,6 +156,16 @@ public:
 		if (this_->edit_frame_ < 0) {
 			this_->edit_frame_ = 0;
 		}
+	}
+
+	static void setAnimationStart(void* animation) {
+		Animation<n_dofs>* this_ = static_cast<Animation<n_dofs>*>(animation);
+		StateSequence<n_dofs> new_animation_data;
+		for (int i = 0; i < this_->size(); i++) {
+			int old_idx = (i + this_->edit_frame_) % this_->size();
+			new_animation_data.addCol(this_->animation_data_->getData(old_idx));
+		}
+		*(this_->animation_data_) = new_animation_data;
 	}
 
 };

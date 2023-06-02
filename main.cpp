@@ -67,6 +67,7 @@ int main(void)
     std::vector<GameObject*> layout;//this being a vector which rearranges is horrible lol
     DebugCamera center("debug_cam");
     DebugPlayer dbg_player;
+    dbg_player.activateKeyInput(window);
     PlayerCamera<DebugCamera> camera(.1, 5000, 90, 1.0, window, "player1cam");
 
     camera.activateKeyInput(window);
