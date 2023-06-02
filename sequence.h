@@ -66,7 +66,7 @@ public:
 				step = 0;
 			}
 			return sequence_.col(step)(seq(1,n_dofs));
-		} else if (interp_method_ == linear){
+		} else if (interp_method_ == linear){//this assumes 1 frame is 1 second
 			int step_below = static_cast<int>(time);
 			int step_above = step_below + 1;
 			float r, time_rounded;

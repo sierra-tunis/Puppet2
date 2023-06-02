@@ -121,10 +121,10 @@ class TextGraphics : public Graphics<Textbox, unsigned int, unsigned int, size_t
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 
-		GLenum error = glGetError();
+		/*GLenum error = glGetError();
 		if (error != GL_NO_ERROR) {
 			printf("Error during VAO creation: 0x%x\n", error);
-		}
+		}*/
 
 		//texture code:
 		unsigned int glyph_tex_id = font->getTexID();

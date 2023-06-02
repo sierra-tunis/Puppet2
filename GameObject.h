@@ -18,6 +18,7 @@
 #include "graphics_raw.hpp"
 #include "text.hpp"
 #include "interface.hpp"
+#include "animation.hpp"
 
 
 using Eigen::Matrix4f;
@@ -37,7 +38,7 @@ private:
 	//because it has a texture member
 	Model* model_; //model is all the model data in one place and can be subclassed for other shader types
 	Texture* texture_; //texture has all the texture packed into it like color, normal etc, and can just be subclassed to add more
-
+	std::unordered_set<AnimationBase*> animations_;
 	//inherited from parent (might want to make seperate "visibility_parent_")
 	bool hidden_;
 
@@ -75,6 +76,9 @@ protected:
 		texture_ = tex;
 	}
 
+	void addAnimation(AnimationBase* animation) {
+		animations_.insert(animation);
+	}
 
 	virtual Eigen::Vector3f onInvalidTranslation(Eigen::Vector3f translation, BoundaryConstraint* broken_constraint) {
 		//motion constraint::bestTranslate/limitTranslate will NEVER return an invalid translation, however if the
@@ -102,6 +106,8 @@ protected:
 	inline virtual void onCollision(const GameObject& other) {};
 
 	inline virtual void onDecollision(const GameObject& other) {};
+
+	//inline virtual void onAnimationEnd(const AnimationBase* animation) {}
 
 public:
 
@@ -161,6 +167,13 @@ public:
 			collidor_it++;
 			flag_it++;
 		}
+		//update animations
+		for (AnimationBase* animation : animations_) {
+			if (animation != nullptr) {
+				animation->advance(getdt());
+			}
+		}
+		//perform user code
 		onStep();
 		for (auto& child : dependents_) {
 			child->update(window);
@@ -212,6 +225,11 @@ public:
 	void setParent(const GameObject* parent) {
 		parent_ = parent;
 	}
+
+	/*
+	const AnimationBase* getAnimation() const {
+		return current_animation_;
+	}*/
 
 	const Matrix4f& getPosition() const {
 		return this->position_;

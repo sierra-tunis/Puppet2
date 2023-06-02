@@ -6,7 +6,7 @@
 #include "GameObject.h"
 #include "dynamic_model.hpp"
 #include "UI.h"
-#include "sequence.h"
+#include "animation.hpp"
 
 using LimbConnector = ConnectorChain<OffsetConnector, BallJoint, OffsetConnector, RotationJoint, OffsetConnector, BallJoint>;
 
@@ -64,12 +64,24 @@ class Humanoid : public GameObject {
 
 	DynamicModel* dyn_model_;
 
-	StateSequence<n_dofs> the_griddy_;
+	Animation<n_dofs> the_griddy_;
+	Animation<n_dofs>* current_animation_;
 	std::vector<Button*> anim_buttons_;
-	StateSequence<n_dofs>* current_animation_;
+	//StateSequence<n_dofs>* current_animation_;
 	float animation_elapsed_; //should probably be chrono::timepoint or smth
 	int current_frame_;
 	bool edit_animation_mode_;
+	std::string animation_fname_;
+
+	void refreshDebugSliders() {
+		if (debug_sliders_.size() != 0) {
+			for (int i = 0; i < n_dofs; i++) {
+				if (debug_sliders_[i] != nullptr) {
+					debug_sliders_[i]->setCurrentValue(getState()(i));
+				}
+			}
+		}
+	}
 
 	template<int index>
 	static void setDoFState(float angle, void* must_be_this) {
@@ -77,7 +89,7 @@ class Humanoid : public GameObject {
 		Eigen::Vector<float, n_dofs> state = this_->getState();
 		state(index) = angle;
 		if (this_->edit_animation_mode_) {
-			this_->current_animation_->setCol(this_->current_frame_, this_->current_animation_->getColTime(this_->current_frame_),state);
+			this_->current_animation_->setFrame(state);
 		} else {
 			this_->setState(state);
 		}
@@ -88,13 +100,15 @@ class Humanoid : public GameObject {
 		if (current_animation_ != nullptr) {
 			Eigen::Vector<float, n_dofs> new_state;
 			if (edit_animation_mode_) {
-				new_state = current_animation_->getData(current_frame_)(seq(1,n_dofs));
+				new_state = current_animation_->getFrame()(seq(1, n_dofs));
 			} else {
-				animation_elapsed_ += getdt();
-				new_state = current_animation_->getState(animation_elapsed_);
+				//animation_elapsed_ += getdt();
+				//new_state = current_animation_->getState(animation_elapsed_);
+				new_state = current_animation_->getState();
 			}
 			setState(new_state);
 		}
+		refreshDebugSliders();
 	}
 
 	void setState(Eigen::Vector<float, n_dofs> new_state) {
@@ -134,33 +148,6 @@ class Humanoid : public GameObject {
 		}
 	}
 
-	static void saveAnimation(void* must_be_this) {
-		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
-		this_->current_animation_->saveToFile("the_griddy.csv");
-
-	}
-
-	static void newFrame(void* must_be_this) {
-		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
-		this_->current_animation_->addCol(this_->current_animation_->getLastTime()+1.,
-											Eigen::Vector<float, n_dofs>::Constant(0));
-	}
-
-	static void nextFrame(void* must_be_this) {
-		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
-		this_->current_frame_++;
-		if (this_->current_frame_ >= this_->current_animation_->size()) {
-			this_->current_frame_ = this_->current_animation_->size()-1;
-		}
-	}
-
-	static void prevFrame(void* must_be_this) {
-		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
-		this_->current_frame_--;
-		if (this_->current_frame_ < 0) {
-			this_->current_frame_ = 0;
-		}
-	}
 
 	static void playAnimation(void* must_be_this) {
 		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
@@ -207,7 +194,8 @@ public:
 		arm_R_(shoulder_offset_R_, shoulder_R_, elbow_offset_R_, elbow_R_, wrist_offset_R_, wrist_R_),
 		leg_L_(hip_offset_L_, hip_L_, knee_offset_L_, knee_L_, ankle_offset_L_, ankle_L_),
 		leg_R_(hip_offset_R_, hip_R_, knee_offset_R_, knee_R_, ankle_offset_R_, ankle_R_),
-		head_chain_(neck_offset_,neck_,head_offset_,head_tilt_){
+		head_chain_(neck_offset_,neck_,head_offset_,head_tilt_),
+		the_griddy_("the_griddy.csv"){
 
 		arm_L_.setRootTransform(&chest_rotation_.getEndTransform());
 		arm_R_.setRootTransform(&chest_rotation_.getEndTransform());
@@ -262,10 +250,10 @@ public:
 		setModel(model);
 		setTexture(new Texture("rocky.jpg"));
 
+		the_griddy_.load();
+		addAnimation(&the_griddy_);
 		current_animation_ = &the_griddy_;
-		if (!the_griddy_.readFromFile("the_griddy.csv")) {
-			the_griddy_.addCol(0, Eigen::Vector<float, n_dofs>::Constant(0));
-		}
+
 		edit_animation_mode_ = false;
 		current_frame_ = 0;
 	}
@@ -379,10 +367,10 @@ public:
 		insert_new_frame->moveTo(.5, -.3, 0);
 		play_animation->moveTo(.5, -.7, 0);
 
-		prev_frame->setCallback(&prevFrame, this);
-		next_frame->setCallback(&nextFrame, this);
-		save_animation->setCallback(&saveAnimation, this);
-		insert_new_frame->setCallback(&newFrame, this);
+		prev_frame->setCallback(&Animation<n_dofs>::prevFrame, current_animation_);
+		next_frame->setCallback(&Animation<n_dofs>::nextFrame, current_animation_);
+		save_animation->setCallback(&Animation<n_dofs>::saveAnimation, current_animation_);
+		insert_new_frame->setCallback(&Animation<n_dofs>::newFrame, current_animation_);
 		play_animation->setCallback(&playAnimation, this);
 
 		std::vector<Button*> anim_buttons{ prev_frame,next_frame,save_animation,insert_new_frame,play_animation };
