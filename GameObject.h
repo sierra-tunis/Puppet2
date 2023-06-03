@@ -226,10 +226,10 @@ public:
 		parent_ = parent;
 	}
 
-	/*
-	const AnimationBase* getAnimation() const {
-		return current_animation_;
-	}*/
+	
+	const std::unordered_set<AnimationBase*>& getAnimations() const {
+		return animations_;
+	}
 
 	const Matrix4f& getPosition() const {
 		return this->position_;

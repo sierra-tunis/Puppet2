@@ -9,6 +9,7 @@
 #include "textbox_object.hpp"
 
 Texture rect_tex("puppet_button.jpg");
+Texture border_rect_tex("puppet_border.jpg");
 
 class Rect2d : public Model {
 private:
@@ -343,6 +344,11 @@ std::vector<GameObject*> closeDebugUI(T obj, const GameObject* UI_container, Def
 //virtual void openDebugUI(const GameObject* UI_container, Default2d& graphics_2d, TextGraphics& text_graphics) {};
 //virtual void closeDebugUI(const GameObject* UI_container, Default2d& graphics_2d, TextGraphics& text_graphics) {};
 
+template<class T, class Obj_T>
+concept UI_Iterable = requires(T iter, Obj_T* obj) {
+	{(*(iter.begin()))}->std::convertible_to<Obj_T*>;
+	{obj->getName()}->std::convertible_to<std::string>;
+};
 
 /*
 template<class T>
@@ -351,81 +357,155 @@ concept GameObjectIterator = requires(const T & iterator, unsigned int i) {
 	{iterator.size()} -> std::convertible_to<size_t>;
 	{iterator.begin()} -> std::convertible_to<std::iterator< std::bidirectional_iterator_tag, GameObject*>>;
 };
+*/
 
-template<GameObjectIterator iterator_T>
+template<class obj_T>
 class UIIterator : public GameObject{
 	Button next_target_;
 	Button prev_target_;
 
-	const iterator_T* iterable_;
-	std::iterator< std::bidirectional_iterator_tag, GameObject*> target_iterator_;
-	Textbox target_name_;
+	const std::unordered_set<obj_T*>* iterable_;
+	std::unordered_set<obj_T*>::const_iterator target_iterator_;
+	TextboxObject target_name_;
 
-	void (*callback_on_increment_)(GameObject*, GameObject*);
-	void (*callback_on_decrement_)(GameObject*, GameObject*);
+	void (*callback_on_change_)(obj_T*, obj_T*, void*);//prev, next
+	void* callback_input_;
 
+	Rect2d iterator_model_;
+
+	OffsetConnector prev_offset_;
+	OffsetConnector next_offset_;
+	OffsetConnector name_offset_;
+
+	GraphicsRaw<GameObject>* graphics_2d_;
+	GraphicsRaw<Textbox>* text_graphics_;
+
+	float width_;
+	float height_;
 
 	static void nextTargetCallback(void* must_be_this) {
-		UIIterator* this_ = static_cast<DebugMenu*>(must_be_this);
-		if (this_->iterable == nullptr) { return; };
-		if (this_->target_iterator_ == iterable_.end()) {
-			target_iterator_ = iterable_.begin();
-			callback_on_increment_(nullptr, *target_iterator_);
-			return;
+		UIIterator* this_ = static_cast<UIIterator*>(must_be_this);
+		if (this_->iterable_ == nullptr) { return; };
+		obj_T* prev_target = this_->getTarget();
+		if (this_->target_iterator_ == this_->iterable_->end()) {
+			this_->target_iterator_ = this_->iterable_->begin();
+		} else {
+			this_->target_iterator_++;
 		}
-		GameObject* prev_target = *target_iterator;
-		target_iterator_++;
-		callback_on_increment_(prev_target, *target_iterator_);
+		this_->callback_on_change_(prev_target, this_->getTarget(), this_->callback_input_);
+		if (this_->getTarget() == nullptr) {
+			this_->target_name_.text = "None";
+		}
+		else {
+			this_->target_name_.text = this_->getTarget()->getName();
+		}
+		this_->text_graphics_->refresh(this_->target_name_);
+
 	}
 
 	static void prevTargetCallback(void* must_be_this) {
-		UIIterator* this_ = static_cast<DebugMenu*>(must_be_this);
-		if (this_->iterable == nullptr) { return; };
-		if (this_->target_iterator_ == iterable_.begin()) {
-			target_iterator_ = iterable_.end();
-			callback_on_increment_(*iterator_.begin(),nullptr);
-			return;
+		UIIterator* this_ = static_cast<UIIterator*>(must_be_this);
+		if (this_->iterable_ == nullptr) { return; };
+		obj_T* prev_target = this_->getTarget();
+		if (this_->target_iterator_ == this_->iterable_->begin()) {
+			this_->target_iterator_ = this_->iterable_->end();
+		} else {
+			this_->target_iterator_--;
 		}
-		GameObject* prev_target = *target_iterator;
-		target_iterator_--;
-		callback_on_increment_(prev_target, *target_iterator_);
+		this_->callback_on_change_(prev_target, this_->getTarget(), this_->callback_input_);
+		if (this_->getTarget() == nullptr) {
+			this_->target_name_.text = "None";
+		} else {
+			this_->target_name_.text = this_->getTarget()->getName();
+		}
+		this_->text_graphics_->refresh(this_->target_name_);
+
 	}
 
 
 public:
-	float button_size;
-	float text_width;
-	float text_height;
-	float top;
-	float left;
+	
+	class UIIterator(float height, float width) :
+		iterator_model_(height,width),
+		height_(height),
+		width_(width),
+		next_target_(height,width/4),
+		prev_target_(height,width/4),
+		next_offset_(width/2+width/8,0,0),
+		prev_offset_(-width/2-width/8,0,0),
+		name_offset_(0,-height/2,0){
 
-	class UIIterator(std::string name, Default2d graphics) :
-		GameObject(name),
-		next_target_(.2, .2, name + "_next_target"),
-		prev_target_(.2, .2, name + "_prev_target") {
+		setTexture(&border_rect_tex);
+		setModel(&iterator_model_);
 
-
-		prev_target_.moveTo(-1, -.4, 0);
-		prev_target_.activateMouseInput(window);
-		graphics.add(prev_target_);
-		next_target_.moveTo(-.2, -.4, 0);
-		next_target_.activateMouseInput(window);
-		graphics.add(next_target_);
 		prev_target_.setCallback(prevTargetCallback,this);
 		next_target_.setCallback(nextTargetCallback,this);
 
-		target_name_.box_width = .6;
-		target_name_.box_height = .2;
+		target_name_.box_width = width;
+		target_name_.box_height = height;
 		target_name_.font_size = 1;
-		target_name_.left = -.8;
-		target_name_.top = -.4;
+		
+		prev_target_.connectTo(this, &prev_offset_);
+		next_target_.connectTo(this, &next_offset_);
+		target_name_.connectTo(this, &name_offset_);
+
+		prev_target_.setLabel("Prev");
+		next_target_.setLabel("Next");
+
+		addDependent(&prev_target_);
+		addDependent(&next_target_);
+		addDependent(&target_name_);
+	}
+
+	void load(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {
+		graphics_2d_ = &graphics_2d;
+		text_graphics_ = &text_graphics;
+
+		graphics_2d.add(*this);
+		graphics_2d.add(prev_target_);
+		graphics_2d.add(next_target_);
+		text_graphics.add(target_name_);
+
+		prev_target_.activateMouseInput(window);
+		next_target_.activateMouseInput(window);
+
+		next_target_.load(window, graphics_2d, text_graphics);
+		prev_target_.load(window, graphics_2d, text_graphics);
 
 	}
 
-	GameObject* getTarget() {
-		return *target_iterator_;
+	void unload(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {
+		graphics_2d.unload(*this);
+		graphics_2d.unload(prev_target_);
+		graphics_2d.unload(next_target_);
+		text_graphics.unload(target_name_);
+
+		prev_target_.deactivateMouseInput(window);
+		next_target_.deactivateMouseInput(window);
+
+		next_target_.unload(window, graphics_2d, text_graphics);
+		prev_target_.unload(window, graphics_2d, text_graphics);
 	}
+
+	obj_T* getTarget() {
+		if (target_iterator_ == iterable_->end()) {
+			return nullptr;
+		} else {
+			return *target_iterator_;
+		}
+	}
+
+	void setChangeCallback(void (*callback_on_change)(obj_T*, obj_T*, void*), void* callback_input) {
+		callback_on_change_ = callback_on_change;
+		callback_input_ = callback_input;
+	}
+
+	void setIterable(const std::unordered_set<obj_T*>* iterable) {
+		iterable_ = iterable;
+		target_iterator_ = iterable_->begin();
+	}
+
 
 };
-*/
+
 #endif

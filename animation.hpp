@@ -57,6 +57,10 @@ public:
 		return elapsed_time_;
 	}
 
+	std::string getName() const {
+		return fname_;
+	}
+
 	/*
 	template <int n_dofs>
 	const Eigen::Vector<float, n_dofs>& getState() {
@@ -66,6 +70,7 @@ public:
 	AnimationBase(std::string fname) :fname_(fname),elapsed_time_(0), playback_speed_(1),edit_frame_(0) {
 
 	}
+
 
 };
 
@@ -129,43 +134,39 @@ public:
 
 	}
 
-	static void saveAnimation(void* animation) {
-		Animation<n_dofs>* this_ = static_cast<Animation<n_dofs>*>(animation);
-		this_->animation_data_->saveToFile(this_->fname_);
+	bool saveAnimation() const {
+		return animation_data_->saveToFile(fname_);
 	}
 
 
-	static void newFrame(void* animation) {
-		Animation<n_dofs>* this_ = static_cast<Animation<n_dofs>*>(animation);
-		this_->animation_data_->addCol(this_->animation_data_->getLastTime() + 1.,
+	void newFrame() {
+		animation_data_->addCol(animation_data_->getLastTime() + 1.,
 			Eigen::Vector<float, n_dofs>::Constant(0));
-		this_->edit_frame_ = this_->animation_data_->size() - 1;
+		edit_frame_ = animation_data_->size() - 1;
 	}
-
-	static void nextFrame(void* animation) {
-		Animation<n_dofs>* this_ = static_cast<Animation<n_dofs>*>(animation);
-		this_->edit_frame_++;
-		if (this_->edit_frame_ >= this_->size()) {
-			this_->edit_frame_ = this_->size() - 1;
+	void nextFrame() {
+		edit_frame_++;
+		if (edit_frame_ >= size()) {
+			edit_frame_ = size() - 1;
 		}
 	}
 
-	static void prevFrame(void* animation) {
-		Animation<n_dofs>* this_ = static_cast<Animation<n_dofs>*>(animation);
-		this_->edit_frame_--;
-		if (this_->edit_frame_ < 0) {
-			this_->edit_frame_ = 0;
+	void prevFrame() {
+		edit_frame_--;
+		if (edit_frame_ < 0) {
+			edit_frame_ = 0;
 		}
 	}
 
-	static void setAnimationStart(void* animation) {
-		Animation<n_dofs>* this_ = static_cast<Animation<n_dofs>*>(animation);
+
+	void setAnimationStart() {
 		StateSequence<n_dofs> new_animation_data;
-		for (int i = 0; i < this_->size(); i++) {
-			int old_idx = (i + this_->edit_frame_) % this_->size();
-			new_animation_data.addCol(this_->animation_data_->getData(old_idx));
+		for (int i = 0; i < size(); i++) {
+			int old_idx = (i + edit_frame_) % size();
+			new_animation_data.addCol(animation_data_->getData(old_idx));
 		}
-		*(this_->animation_data_) = new_animation_data;
+		*(animation_data_) = new_animation_data;
+
 	}
 
 };

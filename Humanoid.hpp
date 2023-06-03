@@ -69,6 +69,7 @@ private:
 
 	Animation<n_dofs>* current_animation_;
 	std::vector<Button*> anim_buttons_;
+	UIIterator<AnimationBase> animation_iterator_;
 	//StateSequence<n_dofs>* current_animation_;
 	bool edit_animation_mode_;
 
@@ -87,7 +88,7 @@ private:
 		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
 		Eigen::Vector<float, n_dofs> state = this_->getState();
 		state(index) = angle;
-		if (this_->edit_animation_mode_) {
+		if (this_->edit_animation_mode_ && this_->current_animation_ != nullptr) {
 			this_->current_animation_->setFrame(state);
 		} else {
 			this_->setState(state);
@@ -99,7 +100,11 @@ private:
 		if (current_animation_ != nullptr) {
 			Eigen::Vector<float, n_dofs> new_state;
 			if (edit_animation_mode_) { //set state using edit_frame cursor
-				new_state = current_animation_->getFrame()(seq(1, n_dofs));
+				if (current_animation_ == nullptr) {
+					new_state = Eigen::Vector<float, n_dofs>::Constant(0);
+				} else {
+					new_state = current_animation_->getFrame()(seq(1, n_dofs));
+				}
 			} else {//set state using elapsed time
 				new_state = current_animation_->getState();
 			}
@@ -146,9 +151,36 @@ private:
 	}
 
 
-	static void playAnimation(void* must_be_this) {
+	static void toggleEditMode(void* must_be_this) {
 		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
+		this_->edit_animation_mode_ = !this_->edit_animation_mode_;
+	}
 
+	static void setAnimation_static(AnimationBase* unused, AnimationBase* new_animation, void* must_be_this) {
+		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
+		//if debug menu is open
+		this_->current_animation_ = static_cast<Animation<n_dofs>*>(new_animation);
+	}
+
+	static void saveAnimation(void* must_be_this) {
+		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
+		this_->current_animation_->saveAnimation();
+	}
+	static void newFrame(void* must_be_this) {
+		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
+		this_->current_animation_->newFrame();
+	}
+	static void nextFrame(void* must_be_this) {
+		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
+		this_->current_animation_->nextFrame();
+	}
+	static void prevFrame(void* must_be_this) {
+		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
+		this_->current_animation_->prevFrame();
+	}
+	static void setAnimationStart(void* must_be_this) {
+		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
+		this_->current_animation_->setAnimationStart();
 	}
 
 public:
@@ -191,7 +223,8 @@ public:
 		arm_R_(shoulder_offset_R_, shoulder_R_, elbow_offset_R_, elbow_R_, wrist_offset_R_, wrist_R_),
 		leg_L_(hip_offset_L_, hip_L_, knee_offset_L_, knee_L_, ankle_offset_L_, ankle_L_),
 		leg_R_(hip_offset_R_, hip_R_, knee_offset_R_, knee_R_, ankle_offset_R_, ankle_R_),
-		head_chain_(neck_offset_,neck_,head_offset_,head_tilt_){
+		head_chain_(neck_offset_,neck_,head_offset_,head_tilt_),
+		animation_iterator_(.3,.6){
 
 		arm_L_.setRootTransform(&chest_rotation_.getEndTransform());
 		arm_R_.setRootTransform(&chest_rotation_.getEndTransform());
@@ -343,7 +376,7 @@ public:
 		Button* next_frame = new Button(.1,.35);
 		Button* save_animation = new Button(.1,.8);
 		Button* insert_new_frame = new Button(.1,.8);
-		Button* play_animation = new Button(.1, .8);
+		Button* toggle_edit_mode = new Button(.1, .8);
 		Button* set_animation_start = new Button(.1, .8);
 
 
@@ -351,33 +384,39 @@ public:
 		next_frame->setLabel("next frame");
 		save_animation->setLabel("save animation");
 		insert_new_frame->setLabel("  new frame  ");
-		play_animation->setLabel("play animation");
+		toggle_edit_mode->setLabel("toggle edit mode");
 		set_animation_start->setLabel("set start frame");
 
+		animation_iterator_.moveTo(.5, .9, 0);
 		prev_frame->moveTo(.275, -.1, 0);
 		next_frame->moveTo(.725, -.1, 0);
 		insert_new_frame->moveTo(.5, -.3, 0);
 		save_animation->moveTo(.5, -.5, 0);
-		play_animation->moveTo(.5, -.7, 0);
+		toggle_edit_mode->moveTo(.5, -.7, 0);
 		set_animation_start->moveTo(.5, -.9, 0);
 
-		prev_frame->setCallback(&Animation<n_dofs>::prevFrame, current_animation_);
-		next_frame->setCallback(&Animation<n_dofs>::nextFrame, current_animation_);
-		save_animation->setCallback(&Animation<n_dofs>::saveAnimation, current_animation_);
-		insert_new_frame->setCallback(&Animation<n_dofs>::newFrame, current_animation_);
-		set_animation_start->setCallback(&Animation<n_dofs>::setAnimationStart, current_animation_);
-		play_animation->setCallback(&playAnimation, this);
+		//issue here: if animation iterator changes current_animation without reloading debug menu it doesnt update current_animation_
+		//should move static callbacks back into humanoid, but leave non-static helpers in animation
+		prev_frame->setCallback(&prevFrame, this);
+		next_frame->setCallback(&nextFrame, this);
+		save_animation->setCallback(&saveAnimation, this);
+		insert_new_frame->setCallback(&newFrame, this);
+		set_animation_start->setCallback(&setAnimationStart, this);
+		toggle_edit_mode->setCallback(&toggleEditMode, this);
 
-		std::vector<Button*> anim_buttons{ prev_frame,next_frame,save_animation,insert_new_frame,play_animation,set_animation_start };
+		std::vector<Button*> anim_buttons{ prev_frame,next_frame,save_animation,insert_new_frame,toggle_edit_mode,set_animation_start };
 		anim_buttons_ = anim_buttons;
 		for (Button* button : anim_buttons_) {
 			addDependent(button);
 			button->setParent(UI_container);
 			button->load(window, graphics_2d, text_graphics);
-			button->activateMouseInput(window);
+			button->activateMouseInput(window);//should be in button->load() call
 		}
-
-		edit_animation_mode_ = true;
+		addDependent(&animation_iterator_);
+		animation_iterator_.setParent(UI_container);
+		animation_iterator_.load(window, graphics_2d, text_graphics);
+		animation_iterator_.setChangeCallback(setAnimation_static, this);
+		animation_iterator_.setIterable(&getAnimations());
 
 	}
 	void closeDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) override {
@@ -392,6 +431,7 @@ public:
 			button->setParent(nullptr);
 			button->unload(window, graphics_2d, text_graphics);
 		}
+		animation_iterator_.unload(window, graphics_2d, text_graphics);
 
 		edit_animation_mode_ = false;
 	}

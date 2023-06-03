@@ -14,6 +14,12 @@ concept Identifiable = requires(const T & t) {
 template <class Object>
 class GraphicsRaw {
 public:
+
+	void refresh(const Object& obj) {
+		unload(obj);
+		add(obj);
+	}
+
 	virtual void add(const Object& obj) = 0;
 
 	virtual void remove(const Object& obj) = 0;

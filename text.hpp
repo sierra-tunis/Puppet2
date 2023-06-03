@@ -16,6 +16,8 @@ struct Textbox {
 	enum class allignment {};
 	float line_space;
 	bool hidden_;
+	bool stale;
+
 	virtual bool isHidden() const {
 		return hidden_;
 	}
