@@ -66,12 +66,13 @@ private:
 	std::array<Slider*,n_dofs> debug_sliders_;
 
 	DynamicModel* dyn_model_;
-
 	Animation<n_dofs>* current_animation_;
+
 	std::vector<Button*> anim_buttons_;
 	UIIterator<AnimationBase> animation_iterator_;
-	//StateSequence<n_dofs>* current_animation_;
 	bool edit_animation_mode_;
+	Animation<n_dofs>* edit_animation_;
+
 
 	void refreshDebugSliders() {
 		if (debug_sliders_.size() != 0) {
@@ -84,12 +85,12 @@ private:
 	}
 
 	template<int index>
-	static void setDoFState(float angle, void* must_be_this) {
+	static void setDoFState(float angle, void* must_be_this) {//this could be streamlined (setState is called for each dof)
 		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
 		Eigen::Vector<float, n_dofs> state = this_->getState();
 		state(index) = angle;
-		if (this_->edit_animation_mode_ && this_->current_animation_ != nullptr) {
-			this_->current_animation_->setFrame(state);
+		if (this_->edit_animation_mode_ && this_->edit_animation_ != nullptr) {
+			this_->edit_animation_->setFrame(state);
 		} else {
 			this_->setState(state);
 		}
@@ -97,19 +98,16 @@ private:
 
 	void onStep() {
 		dyn_model_->updateData();
-		if (current_animation_ != nullptr) {
-			Eigen::Vector<float, n_dofs> new_state;
-			if (edit_animation_mode_) { //set state using edit_frame cursor
-				if (current_animation_ == nullptr) {
-					new_state = Eigen::Vector<float, n_dofs>::Constant(0);
-				} else {
-					new_state = current_animation_->getFrame()(seq(1, n_dofs));
-				}
-			} else {//set state using elapsed time
-				new_state = current_animation_->getState();
-			}
-			setState(new_state);
+		Eigen::Vector<float, n_dofs> new_state;
+		if (edit_animation_mode_ && edit_animation_ != nullptr) { //set state using edit_frame cursor
+			new_state = edit_animation_->getFrame()(seq(1, n_dofs));
+		} else if (!edit_animation_mode_ && current_animation_ != nullptr){//set state using elapsed time
+			new_state = current_animation_->getState();
+		} else {
+			new_state = Eigen::Vector<float, n_dofs>::Constant(0);
 		}
+		setState(new_state);
+
 		refreshDebugSliders();
 	}
 
@@ -159,28 +157,28 @@ private:
 	static void setAnimation_static(AnimationBase* unused, AnimationBase* new_animation, void* must_be_this) {
 		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
 		//if debug menu is open
-		this_->current_animation_ = static_cast<Animation<n_dofs>*>(new_animation);
+		this_->edit_animation_ = static_cast<Animation<n_dofs>*>(new_animation);
 	}
 
 	static void saveAnimation(void* must_be_this) {
 		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
-		this_->current_animation_->saveAnimation();
+		this_->edit_animation_->saveAnimation();
 	}
 	static void newFrame(void* must_be_this) {
 		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
-		this_->current_animation_->newFrame();
+		this_->edit_animation_->newFrame();
 	}
 	static void nextFrame(void* must_be_this) {
 		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
-		this_->current_animation_->nextFrame();
+		this_->edit_animation_->nextFrame();
 	}
 	static void prevFrame(void* must_be_this) {
 		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
-		this_->current_animation_->prevFrame();
+		this_->edit_animation_->prevFrame();
 	}
 	static void setAnimationStart(void* must_be_this) {
 		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
-		this_->current_animation_->setAnimationStart();
+		this_->edit_animation_->setAnimationStart();
 	}
 
 public:
@@ -418,6 +416,7 @@ public:
 		animation_iterator_.setChangeCallback(setAnimation_static, this);
 		animation_iterator_.setIterable(&getAnimations());
 
+		edit_animation_mode_ = true;
 	}
 	void closeDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) override {
 		for (int i = 0; i < n_dofs; i++) {
