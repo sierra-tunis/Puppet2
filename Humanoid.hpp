@@ -10,11 +10,6 @@
 
 using LimbConnector = ConnectorChain<OffsetConnector, BallJoint, OffsetConnector, RotationJoint, OffsetConnector, BallJoint>;
 
-//template <class T>
-//using LRpair = std::pair<T, T>;
-
-//need another ui iterator. is now the time to implement that?
-
 class Humanoid : public GameObject {
 	//origin is at navel
 	OffsetConnector origin_;
@@ -73,6 +68,7 @@ private:
 	bool edit_animation_mode_;
 	Animation<n_dofs>* edit_animation_;
 
+	MeshSurface hitbox_;
 
 	void refreshDebugSliders() {
 		if (debug_sliders_.size() != 0) {
@@ -222,7 +218,8 @@ public:
 		leg_L_(hip_offset_L_, hip_L_, knee_offset_L_, knee_L_, ankle_offset_L_, ankle_L_),
 		leg_R_(hip_offset_R_, hip_R_, knee_offset_R_, knee_R_, ankle_offset_R_, ankle_R_),
 		head_chain_(neck_offset_,neck_,head_offset_,head_tilt_),
-		animation_iterator_(.3,.6){
+		animation_iterator_(.3,.6),
+		hitbox_("human.obj"){
 
 		arm_L_.setRootTransform(&chest_rotation_.getEndTransform());
 		arm_R_.setRootTransform(&chest_rotation_.getEndTransform());
@@ -437,6 +434,10 @@ public:
 
 	void setSkeletonAnimation(Animation<n_dofs>* animation) {
 		current_animation_ = animation;
+	}
+
+	const MeshSurface& getHitbox() const {
+		return hitbox_;
 	}
 
 

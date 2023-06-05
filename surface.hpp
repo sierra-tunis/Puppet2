@@ -4,6 +4,7 @@
 
 #include <Eigen/dense>
 #include <iostream>
+#include <tuple>
 
 using Eigen::seq;
 //boundaryConstraint -> cant cross specified boundary, motion is adjusted to stay within bounds
@@ -32,11 +33,7 @@ class MeshSurface : public Surface<3> {
 	std::vector<Eigen::Vector3f> verts_;
 	std::vector<std::pair<int, int>> edges_;
 	std::vector<std::tuple<int, int, int>> faces_;
-
-	virtual bool crossesSurface(Eigen::Vector<float, 3> first_state, Eigen::Vector<float, 3> second_state) const override {
-		std::cout << "not implemented to function as primary surface";
-		return true;
-	}
+	std::vector<Eigen::Vector3f> face_norms_;
 
 	struct edgeHasher {
 		size_t operator()(const std::pair<int, int>& p) const {
@@ -52,7 +49,68 @@ class MeshSurface : public Surface<3> {
 		}
 	};
 
+	//returns true if the line segment e12 intersects the triangle t123
+	static bool crossesTriangle(Eigen::Vector3f e1, Eigen::Vector3f e2, Eigen::Vector3f t1, Eigen::Vector3f t2, Eigen::Vector3f t3) {
+
+		// v(k) = k*(e2-e1) + e1
+		// (v(K)-t1).n = 0
+		// (K*(e2-e1)+e1-t1).n = 0
+		// (K*(e2-e1).n + e1.n - t1.n) = 0
+		// K = (t1-e1).n/(e2-e1).n
+		// if (K > 1 or K < 0) no collision
+		// v(K) = ...
+		//                                              _______
+		//(eq.1) a*(t2-t1) + b*(t3-t1) = v(K)-t1        \*****/\    .  = v(K)
+		//if(a+b > 1 or a<0 or b<0)						 \***/. \   \_ = a*(t2-t1) + b*(t3-t1)
+		//												  \*/__\_\  *  = no collision
+		
+		//since eq.1 must have a solution, [a|b] = [t21(1:2),t31(1:2)].inv()*(v(K)-t1)
+		
+		//R = [(t2-t1)/||t2-t1||, ((t2-t1)/||t2-t1||)xn, n]
+
+		Eigen::Vector3f n = (t2 - t1).cross(t3 - t1);
+		Eigen::Vector3f e21 = e2 - e1;
+		Eigen::Vector3f t21 = t2 - t1;
+		Eigen::Vector3f t31 = t3 - t1;
+		/*
+		float K = ((t1 - e1).transpose()*n)(0) / (e21.transpose()*n)(0);
+		if (K > 1. || K < 0.) { 
+			return false; 
+		}
+		Eigen::Vector3f v = e21 * K + e1;
+		*/
+		Eigen::Matrix3f tmp;
+		tmp(seq(0, 2), 0) = t21;
+		tmp(seq(0, 2), 1) = t31;
+		tmp(seq(0, 2), 2) = (e2-e1);
+		//a*(t21)+t1 + b*t31 + t1 = k*(e2-e1)+e1
+		//[t21 | t31 | (e2-e1)]*[a;b;k;] = e1-2*t1
+		if (tmp.determinant() == 0) {
+			return false; 
+		}
+		Eigen::Vector3f abk = tmp.inverse() * (e1-2*t1);
+		if (abk(2) > 1. || abk(2) < 0 || abk(0) < 0 || abk(1) < 0 || abk(0) + abk(1) > 1.) {
+			return false;
+		} else {
+			return true;
+		}
+
+	}
+
 public:
+
+	//this (primary surface) is the "shield" and other(secondary surface) is the "sword"
+	//i.e. if secondary is a single edge then it will work but not vice versa
+	virtual bool crossesSurface(Eigen::Vector<float, 3> first_state, Eigen::Vector<float, 3> second_state) const override {
+		for (const std::tuple<int, int, int>& f : faces_) {
+			if (crossesTriangle(first_state, second_state, verts_[std::get<0>(f)], verts_[std::get<1>(f)], verts_[std::get<2>(f)])) {
+				return true;
+			}
+		} 
+		return false;
+	}
+
+
 	const std::vector<Eigen::Vector3f>& getVerts() const {
 		return verts_;
 	}

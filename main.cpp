@@ -67,6 +67,8 @@ int main(void)
     DebugPlayer dbg_player;
     dbg_player.activateKeyInput(window);
     PlayerCamera<DebugCamera> camera(.1, 5000, 90, 1.0, window, "player1cam");
+    CollisionPair<Surface<3>, MeshSurface> tester(center.getHitbox(), dbg_player.getHitbox());
+    center.addCollisionPair(&dbg_player,&tester);
 
     camera.activateKeyInput(window);
     Default3d default3d(camera);

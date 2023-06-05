@@ -74,6 +74,7 @@ public:
 		setSkeletonAnimation(&standing_);
 	}
 
+
 	/*
 	void openDebugUI(GameObject* UI_container, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) override {
 

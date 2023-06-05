@@ -14,6 +14,7 @@
 #include "Model.h"
 #include "Texture.h"
 #include "InternalObject.h"
+#include "collision.hpp"
 #include "motion_constraint.h"
 #include "graphics_raw.hpp"
 #include "text.hpp"
@@ -52,7 +53,7 @@ private:
 	Eigen::Matrix4f last_position_;
 
 	Surface<3>* hitbox;
-	std::vector<const GameObject*> collidors; //should be a safe pointer
+	std::unordered_map<GameObject*,CollisionPairBase*> collidors_; //should be a safe pointer
 	std::vector<bool> collision_flags_;
 
 	const GameObject* parent_;
@@ -103,7 +104,7 @@ protected:
 	}
 
 
-	inline virtual void onCollision(const GameObject& other) {};
+	inline virtual void onCollision(const GameObject* other) {};
 
 	inline virtual void onDecollision(const GameObject& other) {};
 
@@ -150,23 +151,12 @@ public:
 		t_ref_ = t;
 		
 		//check collisions
-		auto collidor_it = collidors.begin();
-		auto flag_it = collision_flags_.begin();
-		for (int i = 0; i < collidors.size(); i++) {
-			const GameObject* c = *collidor_it;
-			/*if (this->getHbox().checkCollision(c->getHbox(), getPosition(), c->getPosition())) [[unlikely]] {
-				*flag_it = true;
-				onCollision(*c);
+		for (auto& collidor : collidors_) {
+			if (collidor.second->isCollision(getPosition(),collidor.first->getPosition())) {
+				onCollision(collidor.first);
 			}
-			else if (*flag_it) [[unlikely]] {//C++20
-				*flag_it = false;
-				onDecollision(*c);
-			}
-			else [[likely]] {}
-			*/
-			collidor_it++;
-			flag_it++;
 		}
+
 		//update animations
 		for (AnimationBase* animation : animations_) {
 			if (animation != nullptr) {
@@ -195,9 +185,14 @@ public:
 	}
 
 
-	void addCollidor(const GameObject& other) {
-		this->collidors.emplace_back(&other);
-		this->collision_flags_.emplace_back(false);
+	void addCollisionPair(GameObject* other, CollisionPairBase* collision_pair) {
+		this->collidors_.insert({ other,collision_pair });
+		//this->collision_flags_.emplace_back(false);
+	}
+
+	template<PrimaryHitbox PrimaryHitbox_T, SecondaryHitbox<PrimaryHitbox_T> SecondaryHitbox_T>
+	void addCollidor(const PrimaryHitbox_T& primary_hbox, const SecondaryHitbox_T& secondary_hbox, GameObject* other) {
+		addCollisionPair(new CollisionPair<PrimaryHitbox_T, SecondaryHitbox_T>(primary_hbox, secondary_hbox, this, other));
 	}
 
 	float getdt() const {

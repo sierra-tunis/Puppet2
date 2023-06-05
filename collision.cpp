@@ -13,7 +13,7 @@ bool SurfaceNodeCollision(const Surface<3>* PrimarySurf, const MeshSurface* Seco
 	for (auto& e : SecondarySurf->getEdges()) {
 		//if (PrimarySurf->crossesSurface(R*SecondarySurf->getVerts()[e.first]+p, R*SecondarySurf->getVerts()[e.second]+p)) {
 		//should at least let the user choose is the mesh is irrotational?
-		if (PrimarySurf->crossesSurface(SecondarySurf->getVerts()[e.first] + p, SecondarySurf->getVerts()[e.second] + p)) {
+		if (PrimarySurf->crossesSurface(R*SecondarySurf->getVerts()[e.first] + p, R*SecondarySurf->getVerts()[e.second] + p)) {
 			return true;
 		}
 	}
@@ -46,7 +46,7 @@ bool checkCollision<Ellipse, Ellipse>(const Ellipse* PrimarySurf, const Ellipse*
 	return true;
 }
 
-bool triIntersection(Eigen::Vector3f l1, Eigen::Vector3f l2, Eigen::Vector3f t1, Eigen::Vector3f t2, Eigen::Vector3f t3) {
+/*bool triIntersection(Eigen::Vector3f l1, Eigen::Vector3f l2, Eigen::Vector3f t1, Eigen::Vector3f t2, Eigen::Vector3f t3) {
 	Eigen::Vector3f tri_norm = (t1-t2).cross(t3 - t1).normalized();
 	//(k(l2-l1)+l1)*tri_norm = 0
 	float k = l1.dot(tri_norm) / (l2 - l1).dot(tri_norm);
@@ -58,10 +58,22 @@ bool triIntersection(Eigen::Vector3f l1, Eigen::Vector3f l2, Eigen::Vector3f t1,
 	}
 	return true;
 
-}
+}*/
 
+//deterministic method
+/*not necessary sinve crossesSurface is implemented as a virtual function in meshbox
 template<>
 bool checkCollision<MeshSurface, MeshSurface>(const MeshSurface* PrimarySurf, const MeshSurface* SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition) {
-
-	return true;
+	Eigen::Matrix4f relative_position = PrimaryPosition.inverse() * SecondaryPosition;
+	Eigen::Matrix3f R = relative_position(seq(0, 2), seq(0, 2));
+	Eigen::Vector3f p = relative_position(seq(0, 2), 3);
+	for (auto& e : SecondarySurf->getEdges()) {
+		//if (PrimarySurf->crossesSurface(R*SecondarySurf->getVerts()[e.first]+p, R*SecondarySurf->getVerts()[e.second]+p)) {
+		//should at least let the user choose is the mesh is irrotational?
+		if (PrimarySurf->crossesSurface(SecondarySurf->getVerts()[e.first] + p, SecondarySurf->getVerts()[e.second] + p)) {
+			return true;
+		}
+	}
+	return false;
 }
+*/

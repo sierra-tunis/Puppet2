@@ -58,6 +58,11 @@ class DebugCamera : public InterfaceObject<GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, G
 		}
 		return true;
 	}
+
+	void onCollision(const GameObject* other) override {
+		std::cout << "colliding with: " << other->getName() <<"\n";
+	}
+
 protected:
 	
 	Eigen::Vector3f onInvalidTranslation(Eigen::Vector3f translation, BoundaryConstraint* broken_constraint) override {
