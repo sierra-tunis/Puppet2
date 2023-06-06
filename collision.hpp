@@ -49,6 +49,8 @@ public:
 		return checkCollision<PrimaryHitbox_T, SecondaryHitbox_T>(&first, &second, primary_position,secondary_position);
 	}
 
+	//void GetCollisionData(Eigen::Matrix4f primary_position, Eigen::Matrix4f secondary_position)
+
 	CollisionPair(const PrimaryHitbox_T& primary_hitbox, const SecondaryHitbox_T& secondary_hitbox) :
 		first(primary_hitbox),
 		second(secondary_hitbox) {}	//std::pair<PrimaryHitbox_T, SecondaryHitbox_T> hitboxes;

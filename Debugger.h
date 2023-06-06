@@ -78,7 +78,7 @@ private:
 		}
 	}
 
-	void onCollision(const GameObject* other) override {
+	void onCollision(const GameObject* other, const CollisionPairBase* collision) override {
 		this->collision_flag_= true;//grobj is copied into graphics, not passed by reference so this doesnt work
 	}
 

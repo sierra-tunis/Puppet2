@@ -94,9 +94,6 @@ public:
 
 	void drawObj(const DebugCamera& obj, Cache cache) const override {
 		glBindVertexArray(getVAO(cache));
-		//should remove inverse here
-
-
 
 		glUniformMatrix4fv(model_location_, 1, GL_FALSE, obj.getPosition().data());
 

@@ -104,9 +104,9 @@ protected:
 	}
 
 
-	inline virtual void onCollision(const GameObject* other) {};
+	inline virtual void onCollision(const GameObject* other, const CollisionPairBase* collision) {};
 
-	inline virtual void onDecollision(const GameObject& other) {};
+	inline virtual void onDecollision(const GameObject& other, const CollisionPairBase* collision) {};
 
 	//inline virtual void onAnimationEnd(const AnimationBase* animation) {}
 
@@ -153,7 +153,7 @@ public:
 		//check collisions
 		for (auto& collidor : collidors_) {
 			if (collidor.second->isCollision(getPosition(),collidor.first->getPosition())) {
-				onCollision(collidor.first);
+				onCollision(collidor.first,collidor.second);
 			}
 		}
 

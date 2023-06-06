@@ -59,7 +59,7 @@ class DebugCamera : public InterfaceObject<GLFW_KEY_W, GLFW_KEY_A, GLFW_KEY_S, G
 		return true;
 	}
 
-	void onCollision(const GameObject* other) override {
+	void onCollision(const GameObject* other, const CollisionPairBase* collision) override {
 		std::cout << "colliding with: " << other->getName() <<"\n";
 	}
 
