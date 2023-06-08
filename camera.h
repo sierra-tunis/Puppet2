@@ -23,6 +23,7 @@ private:
 
 public:
 
+	Camera() : Camera(InternalObject::no_name) {}
 	Camera(std::string name) :
 		GameObject(name), screenshot_flag_(false),
 		near_clip_(0),
@@ -31,7 +32,7 @@ public:
 		perspective_(Eigen::Matrix4f::Identity()){
 	}
 
-	Camera(float near_clip, float far_clip, float fov,std::string name) : 
+	Camera(float near_clip, float far_clip, float fov,std::string name= InternalObject::no_name) : 
 		GameObject(name),screenshot_flag_(false),
 		near_clip_(near_clip),
 		far_clip_(far_clip),

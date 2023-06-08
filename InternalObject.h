@@ -22,7 +22,7 @@ extern class InternalObject;
 
 class KeyStateCallback_base {	
 public:
-	inline virtual void pollInputs(GLFWwindow* window,InternalObject& this_){}
+	inline virtual void pollInputs(GLFWwindow* window,InternalObject& this_) const {}
 };
 
 
@@ -40,8 +40,7 @@ private:
 
 	//std::vector<InternalObject*> children_; //children should be created and managed by parent. in this way each game object is a sub world object
 	//this might be a terrible idea:
-	KeyStateCallback_base& key_state_callback_;
-	static KeyStateCallback_base no_key_state_callback_;
+	const KeyStateCallback_base& key_state_callback_;
 
 	struct callbackInput {
 		std::unordered_set<InternalObject*> key_;
@@ -182,32 +181,18 @@ public:
 	inline virtual void onKeyUp(int key) {}; //triggers repeatedly, probably not useful
 
 
-	const static std::string no_name;
+	constexpr static std::string no_name = "";
+	const static KeyStateCallback_base no_key_state_callback;
 
-	InternalObject(std::string name) :
+	InternalObject(std::string name=no_name, const KeyStateCallback_base& key_state_callback_ = no_key_state_callback) :
 		id_(last_id_++),//this is only to avoid not wanting to generate random strings
 		name_(name),
-		key_state_callback_(no_key_state_callback_){
+		key_state_callback_(key_state_callback_){
 
 		this->onCreation();//i dont think this works since you cant use virtual functions in a constructor
-		InternalObject::named_internal_objects_[name] = this;
-
-	}
-	InternalObject() :
-		name_(InternalObject::no_name),
-		id_(last_id_++),
-		key_state_callback_(no_key_state_callback_){
-
-		this->onCreation();
-
-	}
-	InternalObject(std::string name, KeyStateCallback_base& key_state_callback) :
-		id_(last_id_++),//this is only to avoid not wanting to generate random strings
-		name_(name),
-		key_state_callback_(key_state_callback) {
-
-		this->onCreation();//i dont think this works since you cant use virtual functions in a constructor
-		InternalObject::named_internal_objects_[name] = this;
+		if (name != no_name) {
+			InternalObject::named_internal_objects_[name] = this;
+		}
 
 	}
 
@@ -271,7 +256,7 @@ class KeyStateCallback : public KeyStateCallback_base{
 private:
 	static constexpr std::array<int, sizeof...(Keys)> keys{ { Keys... } };
 public:
-	inline void pollInputs(GLFWwindow* window, InternalObject& this_) override {
+	inline void pollInputs(GLFWwindow* window, InternalObject& this_) const override {
 		for (int k : keys) {
 			if (glfwGetKey(window, k) == GLFW_PRESS) {
 				this_.onKeyDown(k);

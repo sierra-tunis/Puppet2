@@ -117,15 +117,7 @@ public:
 			this->position_ = parent_->getPosition() * (parent_connector_->getConstraintTransform());
 		}
 	}
-
-	GameObject():
-		position_(Eigen::Matrix4f::Identity()),
-		t_ref_(system_clock::now()),
-
-		parent_(nullptr),
-		parent_connector_(nullptr) {}
-
-	GameObject(std::string name, KeyStateCallback_base& key_state_callback_caller) :
+	GameObject(std::string name=InternalObject::no_name, const KeyStateCallback_base& key_state_callback_caller=InternalObject::no_key_state_callback) :
 		position_(Eigen::Matrix4f::Identity()),
 		InternalObject(name, key_state_callback_caller),
 		t_ref_(system_clock::now()),
@@ -133,13 +125,13 @@ public:
 		parent_connector_(nullptr) {
 
 	}
-	GameObject(std::string name) :
+	/*GameObject(std::string name) :
 		position_(Eigen::Matrix4f::Identity()),
 		InternalObject(name),
 		t_ref_(system_clock::now()),
 		parent_(nullptr),
 		parent_connector_(nullptr) {
-	}
+	}*/
 
 
 	void update(GLFWwindow* window) override{

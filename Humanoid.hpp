@@ -11,6 +11,7 @@
 using LimbConnector = ConnectorChain<OffsetConnector, BallJoint, OffsetConnector, RotationJoint, OffsetConnector, BallJoint>;
 
 class Humanoid : public GameObject {
+protected:
 	//origin is at navel
 	OffsetConnector origin_;
 	RotationJoint waist_rotation_;
@@ -57,6 +58,9 @@ class Humanoid : public GameObject {
 	LimbConnector leg_R_;
 public:
 	static constexpr int n_dofs = 2*RotationJoint::getDoF() + 2*BallJoint::getDoF() + 4 * LimbConnector::getDoF();
+	static constexpr int upper_dofs_ = 2 * LimbConnector::getDoF() + 2 * BallJoint::getDoF() + RotationJoint::getDoF();
+	static constexpr int lower_dofs_ = 2 * LimbConnector::getDoF() + RotationJoint::getDoF();
+
 private:
 	std::array<Slider*,n_dofs> debug_sliders_;
 
