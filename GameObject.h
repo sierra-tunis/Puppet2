@@ -57,7 +57,7 @@ private:
 	std::vector<bool> collision_flags_;
 
 	const GameObject* parent_;
-	PositionConstraint* parent_connector_;
+	PositionConstraint* connector_;
 
 	std::unordered_set<GameObject*> dependents_; //dependents get updated and modified by this object
 
@@ -113,8 +113,9 @@ protected:
 public:
 
 	void updatePosition() {
-		if (parent_ != nullptr && parent_connector_ != nullptr) {
-			this->position_ = parent_->getPosition() * (parent_connector_->getConstraintTransform());
+		if (connector_ != nullptr) {
+			connector_->refresh();
+			this->position_ = connector_->getEndTransform();
 		}
 	}
 	GameObject(std::string name=InternalObject::no_name, const KeyStateCallback_base& key_state_callback_caller=InternalObject::no_key_state_callback) :
@@ -122,7 +123,7 @@ public:
 		InternalObject(name, key_state_callback_caller),
 		t_ref_(system_clock::now()),
 		parent_(nullptr),
-		parent_connector_(nullptr) {
+		connector_(nullptr) {
 
 	}
 	/*GameObject(std::string name) :
@@ -287,40 +288,36 @@ public:
 
 	virtual void clampTo(const GameObject* parent) {// this has unintuitive behavior
 		this->parent_ = parent;
-		parent_connector_ = new OffsetConnector(parent_->getPosition(), position_);
+		connector_ = new OffsetConnector(parent_->getPosition(), position_);
 		if (parent != nullptr) {
-			parent_connector_->setRootTransform(&parent->getPosition());
+			connector_->setRootTransform(&parent->getPosition());
 		}
 	}
 
 	void connectTo(const GameObject* parent, PositionConstraint* connector) {
 		this->parent_ = parent;
-		parent_connector_ = connector;
+		connector_ = connector;
 		if (parent != nullptr) {
 			connector->setRootTransform(&parent_->getPosition());
 		}
 	}
 	void connectTo(const GameObject* parent) {
 		this->parent_ = parent;
-		if (parent_connector_ != nullptr) {
-			parent_connector_->setRootTransform(&parent_->getPosition());
+		if (connector_ != nullptr) {
+			connector_->setRootTransform(&parent_->getPosition());
 		}
 	}
 	void setConnector(PositionConstraint* connector) {
-		this->parent_connector_ = connector;
-		if (parent_ != nullptr) {
-			connector->setRootTransform(&parent_->getPosition());
-		}
-
+		this->connector_ = connector;
 	}
 
 	void disconnect() {
 		this->parent_ = nullptr;
-		this->parent_connector_ = nullptr;
+		this->connector_ = nullptr;
 	}
 
 	const PositionConstraint* getConnector() const {
-		return parent_connector_;
+		return connector_;
 	}
 	bool isHidden() const {
 		return hidden_ || (getParent() != nullptr && getParent()->isHidden());

@@ -17,6 +17,8 @@ using Eigen::Matrix4f;
 using Eigen::Matrix3f;
 using Eigen::seq;
 
+const Eigen::Matrix4f __global_origin__ = Eigen::Matrix4f::Identity();
+
 //a good cutoff for what is an internal vs game object is an internal object cannot be added to a level
 extern class InternalObject;
 

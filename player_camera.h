@@ -143,7 +143,7 @@ public:
 	}
 
 	void setPlayer(PlayerType* player) {
-		connectTo(player);
+		connectTo(player, &tether_);
 		this->player_ = player;
 	}
 

@@ -117,6 +117,9 @@ public:
 		return root_transform_;
 	}
 	//PositionConstraint() :root_transform_(nullptr){}
+	virtual void refresh() {
+
+	}
 
 };
 
@@ -243,6 +246,10 @@ public:
 		}
 	}
 
+	void refresh() override {
+		setState(getState());
+	}
+
 
 };
 
@@ -291,6 +298,10 @@ public:
 		else {
 			end_transform_ = *root_transform_ * connector_transform_;
 		}
+	}
+
+	void refresh() override {
+		setState(getState());
 	}
 
 };
@@ -540,7 +551,7 @@ public:
 		not stale before using connector_transform_ to get connector tform*/
 		//connector_transform_ = computeConnectorTransform(new_state);
 	}
-	void setRootTransform(const Eigen::Matrix4f* root_transform) {
+	void setRootTransform(const Eigen::Matrix4f* root_transform) override {
 		ConnectorConstraint<ConnectorChain::getDoF()>::setRootTransform(root_transform);
 		std::get<0>(connectors_).setRootTransform(root_transform);
 	}
@@ -550,9 +561,6 @@ public:
 		writeSubstate<0,constraint, constraints...>(state);
 		//read from children using template magic
 		return state;
-	}
-	void refresh() {
-		setState(getState());
 	}
 
 };

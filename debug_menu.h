@@ -234,7 +234,8 @@ public:
 		if (debug_target_ != nullptr) {
 			debug_cam_.connectTo(debug_target_,&cam_clamp_);
 		} else {
-			debug_cam_.disconnect();
+			debug_cam_.setParent(nullptr);
+			debug_cam_.setConnector(nullptr);
 		}
 		target_name_.update(window);
 		level_display_.update(window);
