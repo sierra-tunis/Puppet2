@@ -264,6 +264,7 @@
     <ClCompile Include="InternalObject.cpp" />
     <ClCompile Include="level.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="sound.cpp" />
     <ClCompile Include="surface.cpp" />
     <ClCompile Include="Texture.cpp" />

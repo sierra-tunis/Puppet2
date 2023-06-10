@@ -79,6 +79,7 @@ protected:
 
 	void addAnimation(AnimationBase* animation) {
 		animations_.insert(animation);
+		animation->load();
 	}
 
 	virtual Eigen::Vector3f onInvalidTranslation(Eigen::Vector3f translation, BoundaryConstraint* broken_constraint) {

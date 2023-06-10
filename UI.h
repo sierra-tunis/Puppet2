@@ -8,8 +8,8 @@
 #include "Default2d.hpp"
 #include "textbox_object.hpp"
 
-Texture rect_tex("puppet_button.jpg");
-Texture border_rect_tex("puppet_border.jpg");
+Texture rect_tex("puppet_button.jpg", Texture::debug_path);
+Texture border_rect_tex("puppet_border.jpg", Texture::debug_path);
 
 class Rect2d : public Model {
 private:

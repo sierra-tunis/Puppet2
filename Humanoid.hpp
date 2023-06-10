@@ -156,6 +156,7 @@ private:
 
 	static void setAnimation_static(AnimationBase* unused, AnimationBase* new_animation, void* must_be_this) {
 		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
+
 		//if debug menu is open
 		this_->edit_animation_ = static_cast<Animation<n_dofs>*>(new_animation);
 	}
@@ -166,19 +167,27 @@ private:
 	}
 	static void newFrame(void* must_be_this) {
 		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
-		this_->edit_animation_->newFrame();
+		if (this_->edit_animation_ != nullptr) {
+			this_->edit_animation_->newFrame();
+		}
 	}
 	static void nextFrame(void* must_be_this) {
 		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
-		this_->edit_animation_->nextFrame();
+		if (this_->edit_animation_ != nullptr) {
+			this_->edit_animation_->nextFrame();
+		}
 	}
 	static void prevFrame(void* must_be_this) {
 		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
-		this_->edit_animation_->prevFrame();
+		if (this_->edit_animation_ != nullptr) {
+			this_->edit_animation_->prevFrame();
+		}
 	}
 	static void setAnimationStart(void* must_be_this) {
 		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
-		this_->edit_animation_->setAnimationStart();
+		if (this_->edit_animation_ != nullptr) {
+			this_->edit_animation_->setAnimationStart();
+		}
 	}
 
 public:
@@ -276,7 +285,7 @@ public:
 		model->offsetVerts();
 		dyn_model_ = model;
 		setModel(model);
-		setTexture(new Texture("rocky.jpg"));
+		setTexture(new Texture("rocky.jpg", Texture::debug_path));
 
 		edit_animation_mode_ = false;
 	}

@@ -50,7 +50,8 @@ public:
 		return unscaled_line_height_;
 	}
 
-	Font(std::string glyph_fname):glyph(glyph_fname),unscaled_line_height_(1.f/15.f) {
+
+	Font(std::string glyph_fname, std::string path):glyph(glyph_fname, path),unscaled_line_height_(1.f/15.f) {
 		for (int i = 0; i < 256; i++) {
 			char_info_bank[static_cast<char>(i)] = char_info(static_cast<char>(i));
 		}
@@ -72,6 +73,10 @@ public:
 		glGenerateMipmap(GL_TEXTURE_2D);
 
 	}
+	
+	Font(std::string glyph_fname) : Font(glyph_fname, Texture::default_path) {}
+
+
 };
 
 class TextGraphics : public Graphics<Textbox, unsigned int, unsigned int, size_t> {
@@ -214,10 +219,10 @@ public:
 			textbox_model->addVert(Eigen::Vector3f(char_end, line_top, 0));
 			textbox_model->addVert(Eigen::Vector3f(char_end, line_top - textbox.font_size * char_info_.unscaled_height, 0));//bottom right
 			//add tex coords to model
-			textbox_model->addTexCoord(char_info_.glyph_left, char_info_.glyph_top);
-			textbox_model->addTexCoord(char_info_.glyph_left, char_info_.glyph_top + char_info_.unscaled_height);
-			textbox_model->addTexCoord(char_info_.glyph_left + char_info_.unscaled_width, char_info_.glyph_top);
-			textbox_model->addTexCoord(char_info_.glyph_left + char_info_.unscaled_width, char_info_.glyph_top + char_info_.unscaled_height);
+			textbox_model->addTexCoord(char_info_.glyph_left, 1-(char_info_.glyph_top));
+			textbox_model->addTexCoord(char_info_.glyph_left, 1-(char_info_.glyph_top + char_info_.unscaled_height));
+			textbox_model->addTexCoord(char_info_.glyph_left + char_info_.unscaled_width, 1- char_info_.glyph_top);
+			textbox_model->addTexCoord(char_info_.glyph_left + char_info_.unscaled_width, 1-(char_info_.glyph_top + char_info_.unscaled_height));
 			//add face to model
 			textbox_model->addFace(vert_index_offset, vert_index_offset + 1, vert_index_offset + 2);
 			textbox_model->addFace(vert_index_offset + 1, vert_index_offset + 2, vert_index_offset + 3);

@@ -14,6 +14,8 @@
 //this is conceptually the same as "mesh" may want to rename since a model can also be nurbs, but a mesh is always a mesh
 class Model {
 protected:
+
+
 	//std::unordered_map<std::vector<float>,std::string> vertex_data;
 	std::vector<float> verts_;
 	std::vector<float> norms_;
@@ -31,6 +33,8 @@ protected:
 	const std::string fname_;
 
 	bool loaded;
+	bool shade_smooth_;
+
 private:
 	void reassign_vtx() {
 		std::vector<float> tex_temp(tex_coords_);
@@ -40,6 +44,32 @@ private:
 			//if crash here then the blender model is not in smooth vertex mode
 			tex_coords_[2*faces_[i]+1] = tex_temp[2 * face_norms_[i]+1];
 
+		}
+		return;
+	}
+
+	void reformatShadedHard() {
+		std::vector<float> verts_temp(verts_);
+		std::vector<float> norms_temp(norms_);
+		std::vector<float> vtx_temp(tex_coords_);
+		n_verts_ = n_faces_ * 3;
+		verts_ = std::vector<float>(n_verts_ * 3);
+		norms_ = std::vector<float>(n_verts_ * 3);
+		tex_coords_ = std::vector<float>(n_verts_ * 2);
+		for (size_t i = 0; i < 3 * n_faces_; i++) {
+			verts_[3 * i] = verts_temp[3 * faces_[i]];
+			verts_[3 * i + 1] = verts_temp[3 * faces_[i]+1];
+			verts_[3 * i + 2] = verts_temp[3 * faces_[i]+2];
+			faces_[i] = i;
+
+			norms_[3 * i] = norms_temp[3 * face_norms_[i]];
+			norms_[3 * i + 1] = norms_temp[3 * face_norms_[i] + 1];
+			norms_[3 * i + 2] = norms_temp[3 * face_norms_[i] + 2];
+			face_norms_[i] = i;
+
+			tex_coords_[2 * i] = vtx_temp[2 * face_tex_[i]];
+			tex_coords_[2 * i+1] = vtx_temp[2 * face_tex_[i] + 1];
+			face_tex_[i] = i;
 		}
 		return;
 	}
@@ -65,6 +95,9 @@ private:
 	}
 
 public:
+	static const std::string debug_models;
+	static std::string default_path;
+
 	Model(std::vector<float> verts, std::vector<float> norms, std::vector<float> tex_coords, std::vector<unsigned int> faces, std::vector<unsigned int> face_norms, std::vector<unsigned int> face_tex) :
 		verts_(verts),
 		norms_(norms),
@@ -77,13 +110,16 @@ public:
 		calculateBoundingBox();
 	}
 
-	Model(std::string fname) {
+	Model(std::string fname) : Model(fname, default_path) {
+	}
+
+	Model(std::string fname, std::string path) {
 		std::string line;
 		std::string type;
 		std::string value;
 		std::vector<float>* dest;
 		std::string entries;
-		std::ifstream objFile(MODEL_PATH + fname);
+		std::ifstream objFile(path + fname);
 		// Use a while loop together with the getline() function to read the file line by line
 		while (std::getline(objFile, line)) {
 			std::stringstream ss(line);
@@ -122,8 +158,15 @@ public:
 		n_verts_ = verts_.size()/3;
 		n_faces_ = faces_.size()/3;
 
-		reassign_vtx();
+		if (face_norms_[0] == face_norms_[1] && face_norms_[1]==face_norms_[2]) {
+			shade_smooth_ = false;
+			reformatShadedHard();
+		} else {
+			shade_smooth_ = true;
+			reassign_vtx();//this visually doesnt work if textures are broken into floating segments
+		}
 		calculateBoundingBox();
+
 	}
 
 
@@ -218,11 +261,14 @@ public:
 	}
 
 	virtual void updateData(){}
+
+	bool shadedSmooth() const {
+		return shadedSmooth();
+	}
 	/*
 	void rescale(float scale_factor) {
 		
 	}*/
 
 };
-
 #endif

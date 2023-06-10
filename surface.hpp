@@ -123,6 +123,7 @@ public:
 	}
 
 	explicit MeshSurface(std::string fname);
+	MeshSurface(std::string fname, std::string path);
 
 
 };

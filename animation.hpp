@@ -13,10 +13,6 @@ class AnimationBase {
 
 protected:
 
-	virtual bool load() = 0;
-
-	virtual bool unload() = 0;
-
 	std::string fname_;
 	bool loaded_;
 	bool paused_;
@@ -24,6 +20,10 @@ protected:
 
 
 public:
+
+	virtual bool load() = 0;
+
+	virtual bool unload() = 0;
 
 	void  setPlaybackSpeed(float playback_speed) {
 		playback_speed_ = playback_speed;
@@ -107,6 +107,9 @@ public:
 	}
 
 	void advance(float dt) final override {
+		if (animation_data_ == nullptr){
+			std::cerr << "animation not loaded!\n";
+		}
 		AnimationBase::advance(dt);
 		current_state_ = animation_data_->getState(getElapsed());
 	}
