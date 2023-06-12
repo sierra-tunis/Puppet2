@@ -432,13 +432,80 @@ public:
 		float s1 = sin(alpha);
 		float s2 = sin(beta);
 		float s3 = sin(gamma);
-
-		//if (angle_order_ == XZX) {
-			ret << c2, -c3 * s2, s2* s3, 0,
-				c1* s2, c1* c2* c3 - s1 * s3, -c3 * s1 - c1 * c2 * s3, 0,
-				s1* s2, c1* s3 + c2 * c3 * s1, c1* c3 - c2 * s1 * s3, 0,
-				0, 0, 0, 1;
-		//}
+		switch (angle_order_) {
+			case XZX:
+				ret << c2, -c3 * s2, s2* s3, 0,
+					c1* s2, c1* c2* c3 - s1 * s3, -c3 * s1 - c1 * c2 * s3, 0,
+					s1* s2, c1* s3 + c2 * c3 * s1, c1* c3 - c2 * s1 * s3, 0,
+					0, 0, 0, 1;
+				break;
+			case XYX:
+				ret << c2, s2* s3, c3* s2, 0,
+					s1* s2, c1* c3 - c2 * s1 * s3, -c1 * s3 - c2 * c3 * s1, 0,
+					-c1 * s2, c3* s1 + c1 * c2 * s3, c1* c2* c3 - s1 * s3, 0,
+					0, 0, 0, 1;
+				break;
+			case YXY:
+				ret << c1*c3 - c2*s1*s3, s1*s2, c1*s3 + c2*c3*s1, 0,
+					s2*s3, c2, -c3*s2, 0,
+					-c3*s1 - c1*c2*s3, c1*s2, c1*c2* c3 - s1*s3, 0,
+					0, 0, 0, 1;
+				break;
+			case YZY:
+				ret << c1 * c2 * c3 - s1 * s3, -c1 * s2, c3* s1 + c1 * c2 * c3, 0,
+					c3* s2, c2, s2* s3, 0,
+					-c1 * s3 - c2 * c3 * s1, s1* s2, c1* c3 - c2 * s1 * s3, 0,
+					0, 0, 0, 1;
+				break;
+			case ZYZ:
+				ret << c1 * c2 * c3 - s1 * s3, -c3 * s1 - c1 * c2 * s3, c1* s2, 0,
+					c1* s3 + c2 * c3 * s1, c1* c3 - c2 * s1 * s3, s1* s2, 0,
+					-c3 * s2, s2* s3, c2, 0,
+					0, 0, 0,1;
+				break;
+			case ZXZ:
+				ret << c1*c3 - c2*s1*s3, -c1*s3-c2*c3*s1, s1*s2, 0,
+						c3*s1 + c1*c2*s3, c1*c2*c3 - s1*s3, -c1*s2, 0,
+						s2*s3, c3*s2, c2, 0,
+						0,0,0,1;
+				break;
+			case XZY:
+				ret <<	c2*c3, -s2, c2*s3, 0,
+						s1*s3+c1*c3*s2, c1*c2, c1*s2*s3 - c3*s1, 0,
+						c3*s1*s2 - c1*s3, c2*s1, c1*c3+s1*s2*s3, 0,
+						0,0,0,1;
+				break;
+			case XYZ:
+				ret <<	c2*c3, -c2*s3, s2, 0,
+						c1*s3 + c3*s1*s2, c1*c3 - s1*s2*s3, -c2*s1, 0,
+						s1*s3 - c1*c3*s2, c3*s1 + c1*s2*s3, c1*c2, 0,
+						0,0,0,1;
+				break;
+			case YXZ:
+				ret << c1*c2 + s1*s2*s3, c3*s1*s2 - c1*s3, c2*s1, 0,
+						c2*s3, c2*c3, -s2, 0,
+						c1*s2*s3 - c3*s1, c1*c3*s2 + s1*s3, c1*c2, 0,
+						0,0,0,1;
+				break;
+			case YZX:
+				ret << c1*c2, s1*s3 - c1*c2*s2, c3*s1 + c1*s2*s3, 0,
+						s2, c2*c3, -c2*s3, 0,
+						-c2*s1, c1*s3 + c3*s1*s2, c1*c3 - s1*s2*s3, 0,
+						0,0,0,1;
+				break;
+			case ZYX:
+				ret << c1*c2, c1*s2*s2 - c3*s1, s1*s3 + c1*c3*s2, 0,
+						c2*s1, c1*c3 + s1*s2*s3, c3*s1*s2 - c1*s3, 0,
+						-s2, c2*s3, c2*c3, 0,
+						0,0,0,1;
+				break;
+			case ZXY:
+				ret << c1*c3 - s1*s2*s3, -c2*s1, c1*s3 + c3*s1*s2, 0,
+						c3*s1 + c1*s2*s3, c1*c2, s1*s3 - c1*c3*s2, 0,
+						-c2*s3, s2, c2*c3, 0,
+						0,0,0,1;
+				break;
+		}
 		return ret;
 	}
 
