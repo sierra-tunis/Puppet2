@@ -95,7 +95,7 @@ private:
 	}
 
 public:
-	static const std::string debug_models;
+	static constexpr char debug_path[] = "C:\\Users\\Justin\\source\\repos\\Puppet2\\Puppet2\\assets\\";
 	static std::string default_path;
 
 	Model(std::vector<float> verts, std::vector<float> norms, std::vector<float> tex_coords, std::vector<unsigned int> faces, std::vector<unsigned int> face_norms, std::vector<unsigned int> face_tex) :

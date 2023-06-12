@@ -20,7 +20,7 @@ private:
 	const unsigned int camera_location_;
 	const unsigned int model_location_;
 
-	const Camera& camera_;
+	const Camera* camera_;
 
 
 	constexpr int& getVAO(Cache cache) const {
@@ -130,8 +130,8 @@ public:
 		glEnable(GL_DEPTH_TEST);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-		glUniformMatrix4fv(perspective_location_, 1, GL_FALSE, camera_.getPerspective().data());
-		glUniformMatrix4fv(camera_location_, 1, GL_FALSE, camera_.getCameraMatrix().data());
+		glUniformMatrix4fv(perspective_location_, 1, GL_FALSE, camera_->getPerspective().data());
+		glUniformMatrix4fv(camera_location_, 1, GL_FALSE, camera_->getCameraMatrix().data());
 
 		//default3d specific code
 	}
@@ -140,11 +140,15 @@ public:
 		//default3d specific code
 	}
 
-	Dynamic3d(const Camera& camera) :
+	void setCamera(Camera* camera) {
+		camera_ = camera;
+	}
+
+	Dynamic3d() :
 		model_location_(glGetUniformLocation(gl_id, "model")),
 		camera_location_(glGetUniformLocation(gl_id, "camera")),
 		perspective_location_(glGetUniformLocation(gl_id, "perspective")),
-		camera_(camera) {
+		camera_(nullptr) {
 
 		//perspective_ << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1;
 	}

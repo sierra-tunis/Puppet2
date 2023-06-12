@@ -5,8 +5,6 @@
 
 #include<Eigen/Dense>
 
-#define ANIMATION_PATH "assets\\animations\\"
-
 using Eigen::seq;
 
 template<int n_dofs>
@@ -93,8 +91,8 @@ public:
 		return sequence_(seq(0, n_dofs), col);
 	}
 
-	bool saveToFile(std::string fname) const {
-		std::ofstream file(ANIMATION_PATH + fname);
+	bool saveToFile(std::string fname, std::string path) const {
+		std::ofstream file(path + fname);
 		if(file.is_open()){
 			for (int i = 0; i < size(); i++) {
 				for (int j = 0; j < n_dofs+1; j++) {
@@ -109,12 +107,12 @@ public:
 		}
 	}
 
-	bool readFromFile(std::string fname) {
+	bool readFromFile(std::string fname, std::string path) {
 		std::string line;
 		std::string headers;
 		std::string index_time;
 		std::string dof_state;
-		std::ifstream animFile(ANIMATION_PATH + fname);
+		std::ifstream animFile(path + fname);
 		if (animFile.is_open()) {
 			//std::getline(animFile, headers);
 			sequence_.resize(n_dofs+1,0);

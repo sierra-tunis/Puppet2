@@ -96,20 +96,7 @@ private:
 		}
 	}
 
-	void onStep() {
-		dyn_model_->updateData();
-		Eigen::Vector<float, n_dofs> new_state;
-		if (edit_animation_mode_ && edit_animation_ != nullptr) { //set state using edit_frame cursor
-			new_state = edit_animation_->getFrame()(seq(1, n_dofs));
-		} else if (!edit_animation_mode_ && current_animation_ != nullptr){//set state using elapsed time
-			new_state = current_animation_->getState();
-		} else {
-			new_state = Eigen::Vector<float, n_dofs>::Constant(0);
-		}
-		setState(new_state);
-
-		refreshDebugSliders();
-	}
+	
 
 	void setState(Eigen::Vector<float, n_dofs> new_state) {
 		//this can all be automatically generated via templates
@@ -189,7 +176,23 @@ private:
 			this_->edit_animation_->setAnimationStart();
 		}
 	}
+protected:
+	void onStep() {
+		dyn_model_->updateData();
+		Eigen::Vector<float, n_dofs> new_state;
+		if (edit_animation_mode_ && edit_animation_ != nullptr) { //set state using edit_frame cursor
+			new_state = edit_animation_->getFrame()(seq(1, n_dofs));
+		}
+		else if (!edit_animation_mode_ && current_animation_ != nullptr) {//set state using elapsed time
+			new_state = current_animation_->getState();
+		}
+		else {
+			new_state = Eigen::Vector<float, n_dofs>::Constant(0);
+		}
+		setState(new_state);
 
+		refreshDebugSliders();
+	}
 public:
 
 	Humanoid(std::string name, KeyStateCallback_base& key_state_callback_caller):
@@ -232,7 +235,7 @@ public:
 		leg_R_(hip_offset_R_, hip_R_, knee_offset_R_, knee_R_, ankle_offset_R_, ankle_R_),
 		head_chain_(neck_offset_,neck_,head_offset_,head_tilt_),
 		animation_iterator_(.3,.6),
-		hitbox_("human.obj"){
+		hitbox_("human_static_hitbox.obj", AnimationBase::debug_path) {
 
 		arm_L_.setRootTransform(&chest_rotation_.getEndTransform());
 		arm_R_.setRootTransform(&chest_rotation_.getEndTransform());

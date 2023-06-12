@@ -263,6 +263,10 @@ public:
 	void rotateY(float angle) { rotateAxisAngle(Eigen::Vector3f(0, 1, 0), angle); };
 	void rotateZ(float angle) { rotateAxisAngle(Eigen::Vector3f(0, 0, 1), angle); };
 
+	void setOrientation(Eigen::Matrix3f orientation) {
+		position_(seq(0, 2), seq(0, 2)) = orientation;
+	}
+
 	void setVelocity(Eigen::Vector3f velocity) {
 		velocity_ = velocity;
 	}
@@ -310,6 +314,9 @@ public:
 	}
 	void setConnector(PositionConstraint* connector) {
 		this->connector_ = connector;
+	}
+	void setConnectorBase(const Eigen::Matrix4f* base) {
+		connector_->setRootTransform(base);
 	}
 
 	void disconnect() {

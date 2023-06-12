@@ -113,6 +113,9 @@ public:
 	}
 
 	static void goToLevel(Level* new_level) {
+		if (new_level == current_level_) { 
+			return; 
+		}
 		prev_level_ = current_level_;
 		current_level_ = new_level;
 		new_level->activate();

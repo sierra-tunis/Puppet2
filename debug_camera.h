@@ -82,7 +82,7 @@ public:
 	DebugCamera( std::string name):
 	InterfaceObject(name),
 	current_level_(nullptr),
-	hitbox_("small_cube.obj", Model::debug_models),
+	hitbox_("small_cube.obj", Model::debug_path),
 	level_bounds_(new NoCollideConstraint<Surface<3>, MeshSurface>(nullptr, nullptr,&hitbox_)),
 	collision_info(hitbox_.getEdges().size()),
 	test_tform_(Eigen::Matrix4f::Identity())
@@ -94,7 +94,7 @@ public:
 		}
 		kin_model_.setVertTforms(vert_tforms);
 		kin_model_.offsetVerts();*/
-		setModel(new Model("small_cube.obj", Model::debug_models));
+		setModel(new Model("small_cube.obj", Model::debug_path));
 		//setModel(new Model("human.obj"));
 
 		setTexture(new Texture("puppet_button.jpg", Texture::debug_path));

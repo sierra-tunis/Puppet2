@@ -183,7 +183,7 @@ public:
 	inline virtual void onKeyUp(int key) {}; //triggers repeatedly, probably not useful
 
 
-	constexpr static std::string no_name = "";
+	constexpr static char no_name[] = "";
 	const static KeyStateCallback_base no_key_state_callback;
 
 	InternalObject(std::string name=no_name, const KeyStateCallback_base& key_state_callback_ = no_key_state_callback) :

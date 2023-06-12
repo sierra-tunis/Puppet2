@@ -66,13 +66,15 @@ int main(void)
     DebugCamera center("debug_cam");
     DebugPlayer dbg_player;
     dbg_player.activateKeyInput(window);
-    PlayerCamera<DebugCamera> camera(.1, 5000, 90, 1.0, window, "player1cam");
+    PlayerCamera camera(.1, 5000, 90, 1.0, "player1cam");
     CollisionPair<Surface<3>, MeshSurface> tester(center.getHitbox(), dbg_player.getHitbox());
     center.addCollisionPair(&dbg_player,&tester);
 
     camera.activateKeyInput(window);
-    Default3d default3d(camera);
-    Dynamic3d dynamic3d(camera);
+    Default3d default3d;
+    default3d.setCamera(&camera);
+    Dynamic3d dynamic3d;
+    dynamic3d.setCamera(&camera);
     Default2d default2d;
     HboxGraphics hbox_graphics(camera, .1, 100, 90);
     Font test_glyph("test_glyph.png");
@@ -170,8 +172,9 @@ int main(void)
 
     glfwSetWindowSize(window, 1600, 1200);
 
-    camera.setPlayer(&center);
-
+    camera.setParent(&center);
+    camera.connectTo(&center);
+    camera.enableMouseControl(window);
     //need to add objects to the shaders manually
 
     std::vector<uint8_t> screenshot_buffer(1200*1600*3);

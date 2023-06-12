@@ -4,6 +4,7 @@
 #define PUPPET_ANIMATION
 
 #include <string>
+#include <iostream>
 #include "sequence.h"
 
 class AnimationBase {
@@ -20,6 +21,8 @@ protected:
 
 
 public:
+	static constexpr char debug_path[] = "C:\\Users\\Justin\\source\\repos\\Puppet2\\Puppet2\\assets\\";
+	static std::string default_path;
 
 	virtual bool load() = 0;
 
@@ -84,7 +87,7 @@ public:
 	bool load() final override {
 		loaded_ = true;
 		animation_data_ = new StateSequence<n_dofs>();
-		if (!animation_data_->readFromFile(fname_)) {
+		if (!animation_data_->readFromFile(fname_, AnimationBase::default_path)) {
 			animation_data_->addCol(0, Eigen::Vector<float, n_dofs>::Constant(0));
 		}
 		return true;
@@ -138,7 +141,7 @@ public:
 	}
 
 	bool saveAnimation() const {
-		return animation_data_->saveToFile(fname_);
+		return animation_data_->saveToFile(fname_, AnimationBase::default_path);
 	}
 
 

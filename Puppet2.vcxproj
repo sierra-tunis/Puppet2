@@ -253,6 +253,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="animation.cpp" />
     <ClCompile Include="collision.cpp" />
     <ClCompile Include="debug_camera.cpp" />
     <ClCompile Include="DebugGraphics.cpp" />

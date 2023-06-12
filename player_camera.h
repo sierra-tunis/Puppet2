@@ -16,7 +16,6 @@ using Eigen::Vector3f;
 
 
 
-template<std::derived_from<GameObject> PlayerType>
 class PlayerCamera : public Camera {
 private:
 	float equilibrium_length_;
@@ -25,7 +24,6 @@ private:
 	RotationJoint tilt_;
 	PrismaticJoint dist_;
 	ConnectorChain<OffsetConnector,RotationJoint, RotationJoint, PrismaticJoint> tether_;
-	PlayerType* player_;
 	BoundaryConstraint level_bounds_;
 	MeshSurface cam_box_;
 
@@ -87,20 +85,10 @@ private:
 		}
 	}
 
-	void enableMouseControl(GLFWwindow* window) {
-		window_ = window;
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-		//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-		if (glfwRawMouseMotionSupported()) {
-			glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-		}
-		activateKeyInput(window);
-		activateMouseInput(window);
-	}
-
+	
 
 public:
-	PlayerCamera(float near_clip, float far_clip, float fov,float equilibrium_length,GLFWwindow* window, std::string name) :
+	PlayerCamera(float near_clip, float far_clip, float fov,float equilibrium_length, std::string name=InternalObject::no_name) :
 		Camera(near_clip,far_clip,fov,"PlayerCamera"),
 		equilibrium_length_(equilibrium_length),
 		anchor_(OffsetConnector((Eigen::Matrix4f()<<1.,0.,0.,0.,  0.,1.,0.,.5,  0.,0.,1.,0.,  0., 0., 0., 1.).finished())),
@@ -108,9 +96,8 @@ public:
 		tilt_(RotationJoint(Eigen::Vector3f(1, 0, 0))),
 		dist_(PrismaticJoint(Eigen::Vector3f(0, 1., 3))),
 		tether_(ConnectorChain<OffsetConnector, RotationJoint, RotationJoint, PrismaticJoint>(anchor_,pan_,tilt_,dist_)),
-		cam_box_("cam_box.obj", Model::debug_models) {
+		cam_box_("cam_box.obj", Model::debug_path) {
 
-		enableMouseControl(window);
 		setConnector(&tether_);
 
 	}
@@ -121,7 +108,7 @@ public:
 		float current_extension_ = tether_.getState()(2);
 		dist_.setState(Eigen::Vector<float, 1>(0));
 		Eigen::Vector<float, 3> equilibrium_state(pan_.getState()(0), tilt_.getState()(0), equilibrium_length_);
-		tether_.boundedMove<10>(equilibrium_state, player_->getMotionConstraints());
+		tether_.boundedMove<10>(equilibrium_state, getParent()->getMotionConstraints());
 		float new_extension_ = tether_.getState()(2);
 		float damped_return_to_equilibrium = (new_extension_ + (19) * current_extension_) / (20);
 		dist_.setState(Eigen::Vector<float,1>(damped_return_to_equilibrium));
@@ -141,11 +128,17 @@ public:
 			//moveTo((equilibrium_position_(seq(0, 2), 3) + getLocalPosition()(seq(0, 2), 3)) / 2);
 		}*/
 	}
-
-	void setPlayer(PlayerType* player) {
-		connectTo(player, &tether_);
-		this->player_ = player;
+	void enableMouseControl(GLFWwindow* window) {
+		window_ = window;
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+		if (glfwRawMouseMotionSupported()) {
+			glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+		}
+		activateKeyInput(window);
+		activateMouseInput(window);
 	}
+
 
 	friend void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 
