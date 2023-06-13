@@ -56,12 +56,16 @@ protected:
 	LimbConnector arm_R_;
 	LimbConnector leg_L_;
 	LimbConnector leg_R_;
+
 public:
 	static constexpr int n_dofs = 2*RotationJoint::getDoF() + 2*BallJoint::getDoF() + 4 * LimbConnector::getDoF();
 	static constexpr int upper_dofs_ = 2 * LimbConnector::getDoF() + 2 * BallJoint::getDoF() + RotationJoint::getDoF();
 	static constexpr int lower_dofs_ = 2 * LimbConnector::getDoF() + RotationJoint::getDoF();
 
 private:
+
+	Eigen::Vector<float, n_dofs> clipboard_;
+
 	std::array<Slider*,n_dofs> debug_sliders_;
 
 	DynamicModel* dyn_model_;
@@ -193,6 +197,17 @@ protected:
 
 		refreshDebugSliders();
 	}
+
+	void onKeyPress(int key) override {
+		if (key == GLFW_KEY_C) {
+			clipboard_ = getState();
+		} else if (key == GLFW_KEY_V) {
+			if (this->edit_animation_mode_ && this->edit_animation_ != nullptr) {
+				this->edit_animation_->setFrame(clipboard_);
+			}
+		}
+	}
+
 public:
 
 	Humanoid(std::string name, KeyStateCallback_base& key_state_callback_caller):
