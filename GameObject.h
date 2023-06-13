@@ -65,8 +65,6 @@ private:
 	variable which contains information about constrainst on motion relative to parent
 	*/
 
-	
-
 protected:
 	
 	void setModel(Model* model) {
@@ -112,6 +110,8 @@ protected:
 	//inline virtual void onAnimationEnd(const AnimationBase* animation) {}
 
 public:
+
+	static std::unordered_set<GameObject*> global_game_objects;
 
 	void updatePosition() {
 		if (connector_ != nullptr) {

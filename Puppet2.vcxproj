@@ -260,6 +260,7 @@
     <ClCompile Include="Default2d.cpp" />
     <ClCompile Include="Default3d.cpp" />
     <ClCompile Include="Dynamic3d.cpp" />
+    <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="InternalObject.cpp" />

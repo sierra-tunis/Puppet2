@@ -24,7 +24,7 @@ private:
 	//static std::vector <Level> level_catalog_;
 
 	enum LoadStatus { active, standby, frozen }; //by default, active is fully loaded and updated, standby is loaded but not updated, frozen is unloaded and unupdated
-	std::vector<GameObject*> contents_;
+	std::unordered_set<GameObject*> contents_;
 	GLFWwindow* window_;
 	LoadStatus load_state_;//how "loaded" the level is
 	std::string fname;
@@ -118,7 +118,7 @@ public:
 		}
 		prev_level_ = current_level_;
 		current_level_ = new_level;
-		new_level->activate();
+ 		new_level->activate();
 		for (auto& neig : new_level->neighbors_) {
 			neig->enterStandby();
 		}
@@ -187,7 +187,7 @@ public:
 		setModel(model);
 		setTexture(texture);
 		for (auto& obj : layout) {
-			contents_.push_back(obj);
+			contents_.insert(obj);
 		}
 		moveTo(model->getBoxCenter());
 		model->centerVerts();
@@ -242,7 +242,7 @@ public:
 	}
 
 	void add(GameObject& obj) {
-		contents_.push_back(&obj);
+		contents_.insert(&obj);
 	}
 
 	void addNeighbor(Level* neighbor) {
@@ -261,7 +261,7 @@ public:
 		neighbors_[neighbor_index]->activate();
 	}*/
 
-	const std::vector<GameObject*>& getContents() const {
+	const std::unordered_set<GameObject*>& getContents() const {
 		return contents_;
 	}
 
@@ -271,6 +271,10 @@ public:
 
 	void setTheme(Sound theme) {
 		theme_ = theme;
+	}
+
+	static std::vector<Level*> AllLevels() {
+		return all_levels_;
 	}
 
 

@@ -426,6 +426,7 @@ class UIIterator : public GameObject{
 public:
 	
 	class UIIterator(float height, float width) :
+		iterable_(nullptr),
 		iterator_model_(height,width),
 		height_(height),
 		width_(width),
@@ -488,7 +489,7 @@ public:
 	}
 
 	obj_T* getTarget() {
-		if (target_iterator_ == iterable_->end()) {
+		if (iterable_ == nullptr || target_iterator_ == iterable_->end()) {
 			return nullptr;
 		} else {
 			return *target_iterator_;
@@ -501,8 +502,11 @@ public:
 	}
 
 	void setIterable(const std::unordered_set<obj_T*>* iterable) {
+		obj_T* prev_target = getTarget();
 		iterable_ = iterable;
 		target_iterator_ = iterable_->begin();
+		callback_on_change_(prev_target, getTarget(), callback_input_);
+
 	}
 
 

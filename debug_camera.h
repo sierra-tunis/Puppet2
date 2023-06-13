@@ -102,28 +102,30 @@ public:
 	}
 
 	void onRoomActivation() override {
-		current_level_ = Level::getCurrentLevel();
-		NoCollideConstraint<Surface<3>, MeshSurface> new_bounds(current_level_->getCollisionSurface(), &current_level_->getPosition(), &hitbox_);
-		if (new_bounds.breaksConstraint(getPosition(), getPosition())) {
+		/*if (new_bounds.breaksConstraint(getPosition(), getPosition())) {
 			Level::goToPrevLevel();
 			return;
-		}
+		}*/
 		//level_bounds_->setBoundary(current_level_->getCollisionSurface());
 		//level_bounds_->setBoundaryPosition(&current_level_->getPosition());
-		*level_bounds_ = new_bounds;
 	}
 	void onRoomDeactivation() override {
 		//Level::getCurrentLevel()->remove(*this);
 	}
 
 	void onStep() override {
-		SurfaceNodeCollision(current_level_->getCollisionSurface(), &hitbox_, getPosition()-current_level_->getPosition(), &collision_info);
+		if (current_level_ != Level::getCurrentLevel()) {
+			current_level_ = Level::getCurrentLevel();
+			NoCollideConstraint<Surface<3>, MeshSurface> new_bounds(current_level_->getCollisionSurface(), &current_level_->getPosition(), &hitbox_);
+			*level_bounds_ = new_bounds;
+		}
+		/*SurfaceNodeCollision(current_level_->getCollisionSurface(), &hitbox_, getPosition() - current_level_->getPosition(), &collision_info);
 		if (fullyOutsideLevel()) {
 			int neig_ind = current_level_->neighborAt(getPosition()(seq(0, 2), 3));
 			if (neig_ind != -1) {
 				Level::getCurrentLevel()->goToNeighbor(neig_ind);
 			}
-		}
+		}*/
 		//kin_model_.updateData();
 	}
 

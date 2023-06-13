@@ -24,20 +24,21 @@ private:
 	RotationJoint tilt_;
 	PrismaticJoint dist_;
 	ConnectorChain<OffsetConnector,RotationJoint, RotationJoint, PrismaticJoint> tether_;
-	BoundaryConstraint level_bounds_;
 	MeshSurface cam_box_;
 
 	bool look_mode_;
 
 	GLFWwindow* window_;
 
+
+
 	void onMouseMove(float x, float y, float dx, float dy) override {
 		if (look_mode_) {
 			if (dx != 0) {
-				pan_.setState(Eigen::Vector<float, 1>(pan_.getState()(0) - dx * .01));
+				pan_.setState(Eigen::Vector<float, 1>(pan_.getState()(0) - dx * .004));
 			}
 			if (dy != 0) {
-				float new_state = tilt_.getState()(0) - dy * .01;
+				float new_state = tilt_.getState()(0) - dy * .004;
 				if (new_state <= M_PI * 1.1 / 2. && new_state >= -M_PI * .667 / 2.) {
 					tilt_.setState(Eigen::Vector<float, 1>(new_state));
 				}
