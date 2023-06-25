@@ -31,19 +31,21 @@ public:
 		fov_(0),
 		perspective_(Eigen::Matrix4f::Identity()){
 	}
-
-	Camera(float near_clip, float far_clip, float fov,std::string name= InternalObject::no_name) : 
-		GameObject(name),screenshot_flag_(false),
+	Camera(float near_clip, float far_clip, float fov, float pixels_width, float pixels_height, std::string name = InternalObject::no_name) :
+		GameObject(name), screenshot_flag_(false),
 		near_clip_(near_clip),
 		far_clip_(far_clip),
-		fov_(fov){
+		fov_(fov) {
 
 		float S = 1. / (tan(fov_ / 2. * M_PI / 180.));
 		perspective_ << S, 0, 0, 0,
-			0, S, 0, 0,
+			0, S* pixels_width / pixels_height, 0, 0,
 			0, 0, -(far_clip_) / (far_clip_ - near_clip_), -2 * far_clip_ * near_clip_ / (far_clip_ - near_clip_),
 			0, 0, -1., 0;
 	}
+
+	Camera(float near_clip, float far_clip, float fov, std::string name= InternalObject::no_name) :
+		Camera(near_clip,far_clip,fov,1,1,name){}
 
 	void onKeyPress(int key) override {
 		if (key == GLFW_KEY_F1) {

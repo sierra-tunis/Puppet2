@@ -89,8 +89,8 @@ private:
 	
 
 public:
-	PlayerCamera(float near_clip, float far_clip, float fov,float equilibrium_length, std::string name=InternalObject::no_name) :
-		Camera(near_clip,far_clip,fov,"PlayerCamera"),
+	PlayerCamera(float near_clip, float far_clip, float fov, float pixels_width, float pixels_height, float equilibrium_length, std::string name=InternalObject::no_name) :
+		Camera(near_clip,far_clip,fov,pixels_width,pixels_height,"PlayerCamera"),
 		equilibrium_length_(equilibrium_length),
 		anchor_(OffsetConnector((Eigen::Matrix4f()<<1.,0.,0.,0.,  0.,1.,0.,.5,  0.,0.,1.,0.,  0., 0., 0., 1.).finished())),
 		pan_(RotationJoint(Eigen::Vector3f(0, 1, 0))),

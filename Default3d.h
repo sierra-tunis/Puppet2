@@ -22,6 +22,8 @@ private:
 
 	const Camera* camera_;
 
+	Eigen::Vector3f atmosphere_color_;
+	float atmosphere_strength_;
 
 	constexpr int& getVAO(Cache cache) const {
 		return std::get<0>(cache);
@@ -93,6 +95,11 @@ private:
 
 public:
 
+	void setAtmosphere(Eigen::Vector3f color, float strength) {
+		atmosphere_color_ = color;
+		atmosphere_strength_ = strength;
+	}
+
 	void drawObj(const GameObject& obj, Cache cache) const override {
 			glBindTexture(GL_TEXTURE_2D, getTexID(cache));
 			glBindVertexArray(getVAO(cache));
@@ -111,6 +118,9 @@ public:
 
 		glUniformMatrix4fv(perspective_location_, 1, GL_FALSE, camera_->getPerspective().data());
 		glUniformMatrix4fv(camera_location_, 1, GL_FALSE, camera_->getCameraMatrix().data());
+
+		glUniform4f(glGetUniformLocation(gl_id, "atmosphere_color"), atmosphere_color_(0), atmosphere_color_(1), atmosphere_color_(2), atmosphere_strength_);
+
 		//default3d specific code
 	}
 
@@ -132,10 +142,4 @@ public:
 	}
 
 };
-/*
-Matrix4f Default3d::perspective_((Matrix4f() << 1.0, 0.0, 0.0, 0.0,
-	0.0, 1.0, 0.0, 0.0,
-	0.0, 0.0, 1.0, 0.0,
-	0.0, 0.0, 0.0, 1.0).finished());*/
-
 #endif

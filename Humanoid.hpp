@@ -210,7 +210,7 @@ protected:
 
 public:
 
-	Humanoid(std::string name, KeyStateCallback_base& key_state_callback_caller):
+	Humanoid(std::string name, const KeyStateCallback_base& key_state_callback_caller):
 		GameObject(name,key_state_callback_caller),
 		origin_(0, .15, 0),
 		chest_rotation_(BallJoint::YXY),
@@ -388,14 +388,33 @@ public:
 	}*/
 
 	void openDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) override {
-		float slider_height = .7 / n_dofs;
+		float slider_height = .6 / n_dofs;
+		int n_sections = 6;
 		for (int i = 0; i < n_dofs; i++) {
 			debug_sliders_[i] = new Slider(slider_height, .5, -M_PI, M_PI);
-			debug_sliders_[i]->moveTo(-.5, -static_cast<float>(i)/n_dofs, 0);
 			addDependent(debug_sliders_[i]);
 			debug_sliders_[i]->load(window, graphics_2d, text_graphics);
 			debug_sliders_[i]->setParent(UI_container);
 		}
+		for (int i = 0; i < 4; i++) {
+			debug_sliders_[i]->moveTo(-.5, -static_cast<float>(i) / (n_dofs+n_sections), 0);
+		}
+		for (int i = 4; i < 11; i++) {
+			debug_sliders_[i]->moveTo(-.5, -static_cast<float>(i+1) / (n_dofs + n_sections), 0);
+		}
+		for (int i = 11; i < 18; i++) {
+			debug_sliders_[i]->moveTo(-.5, -static_cast<float>(i+2) / (n_dofs + n_sections), 0);
+		}
+		for (int i = 18; i < 25; i++) {
+			debug_sliders_[i]->moveTo(-.5, -static_cast<float>(i+3) / (n_dofs + n_sections), 0);
+		}
+		for (int i = 25; i < 32; i++) {
+			debug_sliders_[i]->moveTo(-.5, -static_cast<float>(i+4) / (n_dofs + n_sections), 0);
+		}
+		for (int i = 32; i < n_dofs; i++) {
+			debug_sliders_[i]->moveTo(-.5, -static_cast<float>(i+5) / (n_dofs + n_sections), 0);
+		}
+		
 		setSliderCallbacks();
 
 		Button* prev_frame = new Button(.1,.35);

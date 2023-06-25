@@ -11,20 +11,30 @@ const char* Default3d::vertex_code = "\n"
 "uniform mat4 camera;\n"
 "uniform mat4 model;\n"
 
+
 "out vec2 texCoord;\n"
+"out vec3 position;\n"
+"out vec3 normal;"
 
 "void main()\n"
 "{\n"
-"   gl_Position = perspective * camera * model * vec4(pos.x, pos.y, pos.z, 1.0);\n"
+"	position = (camera * model * vec4(pos.x, pos.y, pos.z, 1.0)).xyz;"
+"	normal = norm;"
+"   gl_Position = perspective* vec4(position.x, position.y, position.z, 1.0);\n"
 "	texCoord = vt;\n"
 "}\0";
+
 const char* Default3d::fragment_code = "#version 330 core\n"
 "in vec2 texCoord;\n "
+"in vec3 position;\n"
+"in vec3 normal;\n"
+
 "uniform sampler2D tex;\n"
+"uniform vec4 atmosphere_color;\n" //alpha is atmosphere strength
 
 "out vec4 FragColor;\n"
 
 "void main()\n"
 "{\n"
-"	FragColor = texture(tex,texCoord);\n"
+"	FragColor = texture(tex,texCoord) + atmosphere_color*atmosphere_color.w*log(length(position));\n"
 " } ";

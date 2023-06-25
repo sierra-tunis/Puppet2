@@ -66,13 +66,15 @@ int main(void)
     DebugCamera center("debug_cam");
     DebugPlayer dbg_player;
     dbg_player.activateKeyInput(window);
-    PlayerCamera camera(.1, 5000, 90, 1.0, "player1cam");
+    PlayerCamera camera(.1, 5000, 90, 1600,1200,1.0, "player1cam");
     CollisionPair<Surface<3>, MeshSurface> tester(center.getHitbox(), dbg_player.getHitbox());
     center.addCollisionPair(&dbg_player,&tester);
 
     camera.activateKeyInput(window);
     Default3d default3d;
     default3d.setCamera(&camera);
+    Eigen::Vector3f atmosphere_color = Eigen::Vector3f(0.7f, 0.7f, 0.7f);
+    default3d.setAtmosphere(atmosphere_color,.02);
     Dynamic3d dynamic3d;
     dynamic3d.setCamera(&camera);
     Default2d default2d;
@@ -80,6 +82,7 @@ int main(void)
     Font test_glyph("test_glyph.png");
     TextGraphics text_graphics(test_glyph);
     DebugMenu debugMenu(window, default2d, text_graphics, center);
+
 
     layout.push_back(&center);
     layout.push_back(&dbg_player);
@@ -235,7 +238,7 @@ int main(void)
         }
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glClearColor(0.7f, 0.7f, 0.7f, 1.0f);
+        glClearColor(atmosphere_color(0),atmosphere_color(1),atmosphere_color(2), 1.0f);
 
         default3d.drawAll();
         dynamic3d.drawAll();

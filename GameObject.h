@@ -61,10 +61,6 @@ private:
 
 	std::unordered_set<GameObject*> dependents_; //dependents get updated and modified by this object
 
-	/*
-	variable which contains information about constrainst on motion relative to parent
-	*/
-
 protected:
 	
 	void setModel(Model* model) {
@@ -124,7 +120,7 @@ public:
 		InternalObject(name, key_state_callback_caller),
 		t_ref_(system_clock::now()),
 		parent_(nullptr),
-		connector_(nullptr) {
+		connector_(nullptr){
 
 	}
 	/*GameObject(std::string name) :
@@ -162,20 +158,6 @@ public:
 		for (auto& child : dependents_) {
 			child->update(window);
 		}
-		/*if (last_position_(seq(0, 2), 3) != getPosition()(seq(0, 2), 3)) {
-			for (auto m_c : motion_constraints_) {
-				
-			}
-		}*/
-		//move according to velocity and acceleration
-		/*if (freefall_) {
-			velocity_ += acceleration_ * dt_.count();
-			translate(velocity_ * dt_.count());
-		}
-		else {
-			//not efficient
-			velocity_ *= 0;
-		}*/
 	}
 
 
@@ -362,9 +344,16 @@ public:
 		//stale_global_position_ = true;
 	};
 
-	virtual std::string getDebugInfo() const { return ""; };
-	virtual void openDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {};
-	virtual void closeDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {};
+	virtual std::string getDebugInfo() const {
+		const Eigen::Matrix4f& M = getPosition();
+		constexpr char fs[] = "{:.3}";
+		return std::format(fs, M(0, 0)) + "\t " + std::format(fs, M(0, 1)) + "\t " + std::format(fs, M(0, 2)) + "\t " + std::format(fs, M(0, 3)) + "\n" +
+			std::format(fs, M(1, 0)) + "\t " + std::format(fs, M(1, 1)) + "\t " + std::format(fs, M(1, 2)) + "\t " + std::format(fs, M(1, 3)) + "\n" +
+			std::format(fs, M(2, 0)) + "\t " + std::format(fs, M(2, 1)) + "\t " + std::format(fs, M(2, 2)) + "\t " + std::format(fs, M(2, 3)) + "\n" +
+			std::format(fs, M(3, 0)) + "\t " + std::format(fs, M(3, 1)) + "\t " + std::format(fs, M(3, 2)) + "\t " + std::format(fs, M(3, 3)) + "\n"; 
+	}
+	virtual void openDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {}
+	virtual void closeDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {}
 	
 
 	void addDependent(GameObject* child) {

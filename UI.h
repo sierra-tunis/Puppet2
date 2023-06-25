@@ -6,10 +6,8 @@
 #include "Model.h"
 #include "GameObject.h"
 #include "Default2d.hpp"
+#include "text_graphics.hpp"
 #include "textbox_object.hpp"
-
-Texture rect_tex("puppet_button.jpg", Texture::debug_path);
-Texture border_rect_tex("puppet_border.jpg", Texture::debug_path);
 
 class Rect2d : public Model {
 private:
@@ -36,6 +34,9 @@ private:
 
 
 public:
+
+	static Texture rect_tex;
+	static Texture border_rect_tex;
 
 	Rect2d(float height, float width):
 	Model(RectVerts(height,width),RectNorms(),RectTex(1.,1.,0.,0.),RectFace(),RectFaceNorm(),RectFaceTex()){}
@@ -82,7 +83,7 @@ public:
 		text_graphics_(nullptr){
 
 		setModel(&button_model_);
-		setTexture(&rect_tex);
+		setTexture(&Rect2d::rect_tex);
 		label_.box_width = width_*.9;
 		label_.connectTo(this, new OffsetConnector(0, 0, 0));
 		addDependent(&label_);
@@ -96,7 +97,7 @@ public:
 		text_graphics_(nullptr){
 
 		setModel(&button_model_);
-		setTexture(&rect_tex);
+		setTexture(&Rect2d::rect_tex);
 		label_.box_width = width_*.9;
 		label_.connectTo(this, new OffsetConnector(0, 0, 0));//idk why this needs to be height/2 instead of 0
 		addDependent(&label_);
@@ -232,7 +233,7 @@ public:
 		upper_lim_offset_(0, 2*height_, 0),
 		slider_connector_(Eigen::Vector3f(1.,0.,0.)){
 		
-		setTexture(&rect_tex);
+		setTexture(&Rect2d::rect_tex);
 		setModel(&slider_model_);
 
 		increment_.connectTo(this, &increment_offset_);
@@ -336,14 +337,14 @@ public:
 		callback_input_ = callback_input;
 	}
 };
-
+/*
 template<std::derived_from<GameObject> T>
 std::vector<GameObject*> openDebugUI(T obj, const GameObject* UI_container, Default2d& graphics_2d, TextGraphics& text_graphics) {};
 template<std::derived_from<GameObject> T>
 std::vector<GameObject*> closeDebugUI(T obj, const GameObject* UI_container, Default2d& graphics_2d, TextGraphics& text_graphics) {};
 //virtual void openDebugUI(const GameObject* UI_container, Default2d& graphics_2d, TextGraphics& text_graphics) {};
 //virtual void closeDebugUI(const GameObject* UI_container, Default2d& graphics_2d, TextGraphics& text_graphics) {};
-
+*/
 template<class T, class Obj_T>
 concept UI_Iterable = requires(T iter, Obj_T* obj) {
 	{(*(iter.begin()))}->std::convertible_to<Obj_T*>;
@@ -436,7 +437,7 @@ public:
 		prev_offset_(-width/2-width/8,0,0),
 		name_offset_(0,-height/2,0){
 
-		setTexture(&border_rect_tex);
+		setTexture(&Rect2d::border_rect_tex);
 		setModel(&iterator_model_);
 
 		prev_target_.setCallback(prevTargetCallback,this);
