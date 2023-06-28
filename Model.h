@@ -10,7 +10,6 @@
 
 #include<Eigen/Dense>
 
-#define MODEL_PATH "C:\\Users\\Justin\\source\\repos\\Puppet2\\Puppet2\\assets\\"
 //this is conceptually the same as "mesh" may want to rename since a model can also be nurbs, but a mesh is always a mesh
 class Model {
 protected:
@@ -110,10 +109,10 @@ public:
 		calculateBoundingBox();
 	}
 
-	Model(std::string fname) : Model(fname, default_path) {
+	Model(std::string fname, bool force_shade_hard=false) : Model(fname, default_path, force_shade_hard) {
 	}
 
-	Model(std::string fname, std::string path) {
+	Model(std::string fname, std::string path, bool force_shade_hard=false) {
 		std::string line;
 		std::string type;
 		std::string value;
@@ -158,7 +157,7 @@ public:
 		n_verts_ = verts_.size()/3;
 		n_faces_ = faces_.size()/3;
 
-		if (face_norms_[0] == face_norms_[1] && face_norms_[1]==face_norms_[2]) {
+		if (force_shade_hard || (face_norms_[0] == face_norms_[1] && face_norms_[1]==face_norms_[2])) {
 			shade_smooth_ = false;
 			reformatShadedHard();
 		} else {

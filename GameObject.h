@@ -105,6 +105,10 @@ protected:
 
 	//inline virtual void onAnimationEnd(const AnimationBase* animation) {}
 
+	const std::unordered_set<GameObject*>& getDependents() const {
+		return dependents_;
+	}
+
 public:
 
 	static std::unordered_set<GameObject*> global_game_objects;

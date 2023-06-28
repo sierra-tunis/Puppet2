@@ -15,7 +15,7 @@ const char* Dynamic3d::vertex_code = "\n"
 
 "void main()\n"
 "{\n"
-"   gl_Position = perspective * camera * model * vec4(pos.x, pos.y, pos.z, 1.0);\n"
+"   gl_Position = perspective * camera * vec4(pos.x, pos.y, pos.z, 1.0);\n"
 "	texCoord = vt;\n"
 "}\0";
 const char* Dynamic3d::fragment_code = "#version 330 core\n"

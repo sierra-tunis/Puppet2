@@ -104,6 +104,7 @@ private:
 
 	void setState(Eigen::Vector<float, n_dofs> new_state) {
 		//this can all be automatically generated via templates
+		origin_.setState(Eigen::Vector<float, 0>());
 		waist_rotation_.setState(new_state(seq(0, 0)));
 		chest_rotation_.setState(new_state(seq(1, 3)));
 		arm_L_.setState(new_state(seq(4, 10)));
@@ -216,13 +217,13 @@ public:
 		chest_rotation_(BallJoint::YXY),
 		waist_rotation_(Eigen::Vector3f(0, 1, 0)),
 		shoulder_offset_L_(Eigen::Vector3f(- .1607, .5952, 0), Eigen::Vector3f(0, .15, 0)),
-		shoulder_L_(BallJoint::XYX),
+		shoulder_L_(BallJoint::XZX),
 		elbow_offset_L_(Eigen::Vector3f(- .48123, .5879, 0), Eigen::Vector3f(-.1607, .5952, 0)),
 		elbow_L_(Eigen::Vector3f(0, 1, 0)),
 		wrist_offset_L_(Eigen::Vector3f( - .77558, .60311, 0), Eigen::Vector3f(-.48123, .5879, 0)),
 		wrist_L_(BallJoint::ZYX),
 		shoulder_offset_R_(Eigen::Vector3f(.1607, .5952, 0), Eigen::Vector3f(0, .15, 0)),
-		shoulder_R_(BallJoint::XYX),
+		shoulder_R_(BallJoint::XZX),
 		elbow_offset_R_(Eigen::Vector3f(.48123, .5879, 0), Eigen::Vector3f(.1607, .5952, 0)),
 		elbow_R_(Eigen::Vector3f(0, 1, 0)),
 		wrist_offset_R_(Eigen::Vector3f(.77558, .60311, 0), Eigen::Vector3f(.48123, .5879, 0)),
@@ -298,6 +299,10 @@ public:
 
 		vert_tforms[model->getInd("neck")] = &neck_.getEndTransform();
 		vert_tforms[model->getInd("head")] = &head_tilt_.getEndTransform();
+		vert_tforms[model->getInd("eye_L")] = &head_tilt_.getEndTransform();
+		vert_tforms[model->getInd("eye_R")] = &head_tilt_.getEndTransform();
+
+
 
 		model->setVertTforms(vert_tforms);
 		model->offsetVerts();

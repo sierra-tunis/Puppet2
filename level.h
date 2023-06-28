@@ -24,7 +24,6 @@ private:
 	//static std::vector <Level> level_catalog_;
 
 	enum LoadStatus { active, standby, frozen }; //by default, active is fully loaded and updated, standby is loaded but not updated, frozen is unloaded and unupdated
-	std::unordered_set<GameObject*> contents_;
 	GLFWwindow* window_;
 	LoadStatus load_state_;//how "loaded" the level is
 	std::string fname;
@@ -67,7 +66,7 @@ private:
 			enterStandby(); // cant go from frozen straight to active
 		}
 		load_state_ = active;
-		for (auto& obj : contents_) {
+		for (auto& obj : getDependents()) {
 			obj->onRoomActivation();
 		}
 		theme_.play();
@@ -83,7 +82,7 @@ private:
 
 	void deactivate() {
 		load_state_ = standby;
-		for (auto& obj : contents_) {
+		for (auto& obj : getDependents()) {
 			obj->onRoomActivation();
 		}
 		theme_.stop();
@@ -169,9 +168,7 @@ public:
 	}
 
 	void onStep() override {
-		for (auto& c : contents_) {
-			c->update(window_);
-		}
+		
 	}
 
 	Level(std::vector<GameObject*> layout, GLFWwindow* window, Model* model, Texture* texture, std::string room_name) :
@@ -187,7 +184,7 @@ public:
 		setModel(model);
 		setTexture(texture);
 		for (auto& obj : layout) {
-			contents_.insert(obj);
+			addDependent(obj);
 		}
 		moveTo(model->getBoxCenter());
 		model->centerVerts();
@@ -241,10 +238,6 @@ public:
 		return -1;
 	}
 
-	void add(GameObject& obj) {
-		contents_.insert(&obj);
-	}
-
 	void addNeighbor(Level* neighbor) {
 		neighbors_.push_back(neighbor);
 		const_neighbors_.push_back(neighbor);
@@ -262,7 +255,7 @@ public:
 	}*/
 
 	const std::unordered_set<GameObject*>& getContents() const {
-		return contents_;
+		return getDependents();
 	}
 
 	int getLevelNum() const {

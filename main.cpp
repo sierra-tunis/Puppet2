@@ -167,7 +167,7 @@ int main(void)
     //debugMenu.setDebugTarget(&center);
 
     Debugger dbg1(Eigen::Matrix4f::Identity(), "tester1", cult_spiral_stairs);
-    cult_impluvium.add(dbg1);
+    cult_impluvium.addDependent(&dbg1);
     //default3d.add(dbg1);
 
     dynamic3d.add(center);

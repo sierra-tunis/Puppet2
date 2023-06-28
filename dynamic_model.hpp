@@ -35,16 +35,23 @@ class DynamicModel : public Model {
 
 public:
 
-	DynamicModel(std::string model_fname, std::string vertex_groups_fname):
-	Model(model_fname){
+	DynamicModel(std::string model_fname, std::string vertex_groups_fname, bool force_shade_hard=false) :
+		DynamicModel(model_fname, vertex_groups_fname, Model::default_path, force_shade_hard) {}
+
+
+	DynamicModel(std::string model_fname, std::string vertex_groups_fname, std::string path, bool force_shade_hard=false) :
+	Model(model_fname, path, force_shade_hard){
 		
+		if (!shade_smooth_) {
+			std::cerr << "hard dynamic models not implemented yet";
+		}
 		loadMatrices();
 
 		std::string line;
 		std::string type;
 		std::string value;
 		std::string entries;
-		std::ifstream objFile(MODEL_PATH + vertex_groups_fname);
+		std::ifstream objFile(Model::default_path + vertex_groups_fname);
 		while (std::getline(objFile, line)) {
 			std::stringstream ss(line);
 			std::getline(ss, type, ' ');
