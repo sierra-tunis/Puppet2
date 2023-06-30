@@ -17,7 +17,7 @@ class DebugPlayer : public Humanoid {
 	void onKeyPress(int key) override {
 		if (key == GLFW_KEY_UP || key == GLFW_KEY_DOWN) {
 			if (n_move_keys_down_ == 0) {
-				setSkeletonAnimation(&the_griddy_);
+				setActiveAnimation(&the_griddy_);
 				the_griddy_.start();
 			}
 			n_move_keys_down_++;
@@ -28,7 +28,7 @@ class DebugPlayer : public Humanoid {
 			n_move_keys_down_--;
 			if (n_move_keys_down_ == 0) {
 				the_griddy_.stop();
-				setSkeletonAnimation(&standing_);
+				setActiveAnimation(&standing_);
 			}
 		}
 
@@ -71,7 +71,7 @@ public:
 
 		addAnimation(&standing_);
 		standing_.load();
-		setSkeletonAnimation(&standing_);
+		setActiveAnimation(&standing_);
 	}
 
 

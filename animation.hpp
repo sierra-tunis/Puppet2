@@ -172,9 +172,13 @@ public:
 			new_animation_data.addCol(animation_data_->getData(old_idx));
 		}
 		*(animation_data_) = new_animation_data;
-
+		
 	}
 
+
+	void setLooping(bool looping) {
+		animation_data_->setLooping(looping);
+	}
 };
 
 

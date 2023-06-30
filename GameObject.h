@@ -40,6 +40,7 @@ private:
 	Model* model_; //model is all the model data in one place and can be subclassed for other shader types
 	Texture* texture_; //texture has all the texture packed into it like color, normal etc, and can just be subclassed to add more
 	std::unordered_set<AnimationBase*> animations_;
+	AnimationBase* active_animation_;
 	//inherited from parent (might want to make seperate "visibility_parent_")
 	bool hidden_;
 
@@ -76,6 +77,10 @@ protected:
 		animation->load();
 	}
 
+	void setActiveAnimation(AnimationBase* animation) {
+		active_animation_ = animation;
+	}
+
 	virtual Eigen::Vector3f onInvalidTranslation(Eigen::Vector3f translation, BoundaryConstraint* broken_constraint) {
 		//motion constraint::bestTranslate/limitTranslate will NEVER return an invalid translation, however if the
 		//user wants to perform some chikanery here and decide to do something else they are allowed
@@ -108,6 +113,8 @@ protected:
 	const std::unordered_set<GameObject*>& getDependents() const {
 		return dependents_;
 	}
+
+	inline virtual void onAnimationEnd(AnimationBase* animation){}
 
 public:
 
@@ -152,10 +159,13 @@ public:
 		}
 
 		//update animations
-		for (AnimationBase* animation : animations_) {
+		/*for (AnimationBase* animation : animations_) {
 			if (animation != nullptr) {
 				animation->advance(getdt());
 			}
+		}*/
+		if (active_animation_ != nullptr) {
+			active_animation_->advance(getdt());
 		}
 		//perform user code
 		onStep();
@@ -204,6 +214,10 @@ public:
 	
 	const std::unordered_set<AnimationBase*>& getAnimations() const {
 		return animations_;
+	}
+
+	const AnimationBase* getActiveAnimation() const {
+		return active_animation_;
 	}
 
 	const Matrix4f& getPosition() const {

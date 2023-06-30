@@ -145,6 +145,10 @@ public:
 		return sequence_(0, sequence_.cols() - 1);
 	}
 
+	void setLooping(bool looping) {
+		looping_ = looping;
+	}
+
 
 };
 

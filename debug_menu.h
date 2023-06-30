@@ -39,6 +39,8 @@ class DebugMenu : public GameObject {
 	GLFWwindow* window_;
 	Default2d& graphics_2d_;
 
+	PlayerCamera* prev_camera_;
+
 	//Button show_hitboxes_;
 
 	void onKeyPress(int key) override {

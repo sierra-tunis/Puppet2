@@ -69,7 +69,6 @@ private:
 	std::array<Slider*,n_dofs> debug_sliders_;
 
 	DynamicModel* dyn_model_;
-	Animation<n_dofs>* current_animation_;
 
 	std::vector<Button*> anim_buttons_;
 	UIIterator<AnimationBase> animation_iterator_;
@@ -188,8 +187,8 @@ protected:
 		if (edit_animation_mode_ && edit_animation_ != nullptr) { //set state using edit_frame cursor
 			new_state = edit_animation_->getFrame()(seq(1, n_dofs));
 		}
-		else if (!edit_animation_mode_ && current_animation_ != nullptr) {//set state using elapsed time
-			new_state = current_animation_->getState();
+		else if (!edit_animation_mode_ && getActiveAnimation() != nullptr) {//set state using elapsed time
+			new_state = dynamic_cast<const Animation<n_dofs>*>(getActiveAnimation())->getState();
 		}
 		else {
 			new_state = Eigen::Vector<float, n_dofs>::Constant(0);
@@ -485,10 +484,6 @@ public:
 		animation_iterator_.unload(window, graphics_2d, text_graphics);
 
 		edit_animation_mode_ = false;
-	}
-
-	void setSkeletonAnimation(Animation<n_dofs>* animation) {
-		current_animation_ = animation;
 	}
 
 	const MeshSurface& getHitbox() const {
