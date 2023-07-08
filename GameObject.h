@@ -55,7 +55,7 @@ private:
 
 	Surface<3>* hitbox;
 	std::unordered_map<GameObject*,CollisionPairBase*> collidors_; //should be a safe pointer
-	std::vector<bool> collision_flags_;
+	std::unordered_map<GameObject*, bool> collision_flags_;
 
 	const GameObject* parent_;
 	PositionConstraint* connector_;
@@ -106,7 +106,9 @@ protected:
 
 	inline virtual void onCollision(const GameObject* other, const CollisionPairBase* collision) {};
 
-	inline virtual void onDecollision(const GameObject& other, const CollisionPairBase* collision) {};
+	inline virtual void onDecollision(const GameObject* other, const CollisionPairBase* collision) {};
+
+	inline virtual void whileCollision(const GameObject* other, const CollisionPairBase* collision) {};
 
 	//inline virtual void onAnimationEnd(const AnimationBase* animation) {}
 
@@ -154,7 +156,24 @@ public:
 		//check collisions
 		for (auto& collidor : collidors_) {
 			if (collidor.second->isCollision(getPosition(),collidor.first->getPosition())) {
-				onCollision(collidor.first,collidor.second);
+				collidor.second->fullCollisionInfo(getPosition(), collidor.first->getPosition());
+				if (collision_flags_.at(collidor.first) == false) {
+					//is colliding, hasnt called onCollision
+					onCollision(collidor.first, collidor.second);
+					collision_flags_.at(collidor.first) = true;
+				} else {
+					//is collidiing, has called onCollision
+					whileCollision(collidor.first, collidor.second);
+				}
+			} else {
+				if (collision_flags_.at(collidor.first) == true) {
+					//isnt colliding, has called onCllision
+					onDecollision(collidor.first, collidor.second);
+					collision_flags_.at(collidor.first) = false;
+				} else {
+					//isnt colliding hasn't called onCollision
+				}
+
 			}
 		}
 
@@ -165,7 +184,11 @@ public:
 			}
 		}*/
 		if (active_animation_ != nullptr) {
-			active_animation_->advance(getdt());
+			bool animation_over = false;
+			active_animation_->advance(getdt(),&animation_over);
+			if (animation_over) {
+				onAnimationEnd(active_animation_);
+			}
 		}
 		//perform user code
 		onStep();
@@ -177,6 +200,7 @@ public:
 
 	void addCollisionPair(GameObject* other, CollisionPairBase* collision_pair) {
 		this->collidors_.insert({ other,collision_pair });
+		this->collision_flags_.insert({ other,false });
 		//this->collision_flags_.emplace_back(false);
 	}
 
@@ -211,7 +235,6 @@ public:
 		parent_ = parent;
 	}
 
-	
 	const std::unordered_set<AnimationBase*>& getAnimations() const {
 		return animations_;
 	}
@@ -306,12 +329,14 @@ public:
 			connector->setRootTransform(&parent_->getPosition());
 		}
 	}
+
 	void connectTo(const GameObject* parent) {
 		this->parent_ = parent;
 		if (connector_ != nullptr) {
 			connector_->setRootTransform(&parent_->getPosition());
 		}
 	}
+
 	void setConnector(PositionConstraint* connector) {
 		this->connector_ = connector;
 	}
@@ -370,6 +395,8 @@ public:
 			std::format(fs, M(2, 0)) + "\t " + std::format(fs, M(2, 1)) + "\t " + std::format(fs, M(2, 2)) + "\t " + std::format(fs, M(2, 3)) + "\n" +
 			std::format(fs, M(3, 0)) + "\t " + std::format(fs, M(3, 1)) + "\t " + std::format(fs, M(3, 2)) + "\t " + std::format(fs, M(3, 3)) + "\n"; 
 	}
+	//this is a terrible way of doing this since there is just total boilerplate code where you have to add all new objects to UI_container
+	//also if the object is deleted, the UI elements associated with it would also be deleted???
 	virtual void openDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {}
 	virtual void closeDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {}
 	

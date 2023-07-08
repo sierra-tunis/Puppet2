@@ -218,5 +218,8 @@
     <ClInclude Include="animation.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="collision_info.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

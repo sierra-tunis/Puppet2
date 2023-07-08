@@ -35,6 +35,10 @@ class DynamicModel : public Model {
 
 public:
 
+	DynamicModel():
+		Model(){
+	}
+
 	DynamicModel(std::string model_fname, std::string vertex_groups_fname, bool force_shade_hard=false) :
 		DynamicModel(model_fname, vertex_groups_fname, Model::default_path, force_shade_hard) {}
 

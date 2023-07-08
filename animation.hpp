@@ -11,6 +11,8 @@ class AnimationBase {
 
 	float elapsed_time_;
 	float playback_speed_;
+	bool looping_;
+	float length_;
 
 protected:
 
@@ -33,7 +35,7 @@ public:
 	}
 
 
-	virtual void advance(float dt) {
+	virtual void advance(float dt, bool* animation_over=nullptr) {
 		if (!paused_) {
 			elapsed_time_ += playback_speed_*dt;
 		}
@@ -64,13 +66,33 @@ public:
 		return fname_;
 	}
 
+	float getLength() const {
+		return length_;
+	}
+
+	void setLength(float length) {
+		length_ = length;
+	}
+
+	bool isLooping() const {
+		return looping_;
+	}
+
+	void setLooping(bool looping) {
+		looping_ = looping;
+	}
 	/*
 	template <int n_dofs>
 	const Eigen::Vector<float, n_dofs>& getState() {
 		std::cerr << "illegal function call (not callable on AnimationBase)";
 	}*/
 
-	AnimationBase(std::string fname) :fname_(fname),elapsed_time_(0), playback_speed_(1),edit_frame_(0) {
+	AnimationBase(std::string fname) :
+		fname_(fname),elapsed_time_(0),
+		playback_speed_(1),
+		edit_frame_(0),
+		looping_(true),
+		length_(0){
 
 	}
 
@@ -90,6 +112,7 @@ public:
 		if (!animation_data_->readFromFile(fname_, AnimationBase::default_path)) {
 			animation_data_->addCol(0, Eigen::Vector<float, n_dofs>::Constant(0));
 		}
+		setLength(animation_data_->getLastTime());
 		return true;
 		
 	}
@@ -109,12 +132,18 @@ public:
 		return true;
 	}
 
-	void advance(float dt) final override {
-		if (animation_data_ == nullptr){
+	void advance(float dt, bool* animation_over=nullptr) final override{
+		if (animation_data_ == nullptr) {
 			std::cerr << "animation not loaded!\n";
 		}
 		AnimationBase::advance(dt);
 		current_state_ = animation_data_->getState(getElapsed());
+		if (!isLooping() && getLength() > 0 && getElapsed() >= getLength()) {
+			stop();
+			if (animation_over != nullptr) {
+				*animation_over = true;
+			}
+		}
 	}
 
 	const Eigen::Vector<float, n_dofs>& getState() const {
@@ -176,9 +205,6 @@ public:
 	}
 
 
-	void setLooping(bool looping) {
-		animation_data_->setLooping(looping);
-	}
 };
 
 

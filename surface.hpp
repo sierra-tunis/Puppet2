@@ -94,15 +94,36 @@ class MeshSurface : public Surface<3> {
 		} else {
 			return true;
 		}
+	}
 
+	static bool crossesTriangle(Eigen::Vector3f e1, Eigen::Vector3f e2, Eigen::Vector3f t1, Eigen::Vector3f t2, Eigen::Vector3f t3, float* k) {
 
+		Eigen::Vector3f t21 = t2 - t1;
+		Eigen::Vector3f t31 = t3 - t1;
+		
+		Eigen::Matrix3f tmp;
+		tmp(seq(0, 2), 0) = t21;
+		tmp(seq(0, 2), 1) = t31;
+		tmp(seq(0, 2), 2) = (e1 - e2);
+		
+		if (tmp.determinant() == 0) {
+			return false;
+		}
+		Eigen::Vector3f abk = tmp.inverse() * (e1 - t1);
+		*k = abk(2);
+		if (abk(2) > 1. || abk(2) < 0 || abk(0) < 0 || abk(1) < 0 || abk(0) + abk(1) > 1.) {
+			return false;
+		}
+		else {
+			return true;
+		}
 	}
 
 public:
 
 	//this (primary surface) is the "shield" and other(secondary surface) is the "sword"
 	//i.e. if secondary is a single edge then it will work but not vice versa
-	virtual bool crossesSurface(Eigen::Vector<float, 3> first_state, Eigen::Vector<float, 3> second_state) const override {
+	bool crossesSurface(Eigen::Vector<float, 3> first_state, Eigen::Vector<float, 3> second_state) const override {
 		for (const std::tuple<int, int, int>& f : faces_) {
 			if (crossesTriangle(first_state, second_state, verts_[std::get<0>(f)], verts_[std::get<1>(f)], verts_[std::get<2>(f)])) {
 				return true;
@@ -111,20 +132,40 @@ public:
 		return false;
 	}
 
+	bool crossesSurface(Eigen::Vector<float, 3> first_state, Eigen::Vector<float, 3> second_state, float* loc) const {
+		for (const std::tuple<int, int, int>& f : faces_) {
+			if (crossesTriangle(first_state, second_state, verts_[std::get<0>(f)], verts_[std::get<1>(f)], verts_[std::get<2>(f)],loc)) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 	const std::vector<Eigen::Vector3f>& getVerts() const {
 		return verts_;
 	}
+	void addVert(float x, float y, float z) {
+		verts_.emplace_back(x, y, z);
+	}
+
 	const std::vector<std::pair<int, int>>& getEdges() const {
 		return edges_;
 	}
+	void addEdge(int first_ind, int second_ind) {
+		edges_.emplace_back( first_ind,second_ind );
+	}
+
 	const std::vector<std::tuple<int, int, int>>& getFaces() const {
 		return faces_;
+	}
+	void addFace(int first_ind, int second_ind, int third_ind) {
+		faces_.emplace_back(first_ind, second_ind, third_ind);
 	}
 
 	explicit MeshSurface(std::string fname);
 	MeshSurface(std::string fname, std::string path);
 
+	MeshSurface(){}
 
 };
 
@@ -137,9 +178,4 @@ public:
 	};
 
 };
-
-/*
-crazy chatgpt moment: it recommended changing "surface" to "boundary " without knowing about BoundaryConstraint, namely "const Surface<3>* boundary_;"
-*/
-
 #endif

@@ -97,7 +97,8 @@ public:
 		tilt_(RotationJoint(Eigen::Vector3f(1, 0, 0))),
 		dist_(PrismaticJoint(Eigen::Vector3f(0, 1., 3))),
 		tether_(ConnectorChain<OffsetConnector, RotationJoint, RotationJoint, PrismaticJoint>(anchor_,pan_,tilt_,dist_)),
-		cam_box_("cam_box.obj", Model::debug_path) {
+		cam_box_("cam_box.obj", Model::debug_path),
+		look_mode_(true){
 
 		setConnector(&tether_);
 
