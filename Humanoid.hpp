@@ -307,7 +307,7 @@ public:
 		model->offsetVerts();
 		dyn_model_ = model;
 		setModel(model);
-		setTexture(new Texture("rocky.jpg", Texture::debug_path));
+		setTexture(new Texture("human_tex.jpg", Texture::debug_path));
 
 		edit_animation_mode_ = false;
 	}

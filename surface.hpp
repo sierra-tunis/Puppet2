@@ -147,6 +147,9 @@ public:
 	void addVert(float x, float y, float z) {
 		verts_.emplace_back(x, y, z);
 	}
+	void addVert(Eigen::Vector3f vert) {
+		verts_.emplace_back(vert);
+	}
 
 	const std::vector<std::pair<int, int>>& getEdges() const {
 		return edges_;

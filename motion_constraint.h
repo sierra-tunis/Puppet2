@@ -45,6 +45,7 @@ protected:
 
 public:
 	bool breaksConstraint(Eigen::Matrix4f old_tform, Eigen::Matrix4f new_tform) const { 
+		if (boundary_ == nullptr) return false;
 		return invalidPosition(new_tform) || 
 			boundary_->crossesSurface(old_tform(seq(0, 2), 3)-(*boundary_position_)(seq(0,2),3),
 										new_tform(seq(0, 2), 3)-(*boundary_position_)(seq(0,2),3));
