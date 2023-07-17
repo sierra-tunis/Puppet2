@@ -266,10 +266,7 @@ public:
 		refresh();
 
 		DynamicModel* model = new DynamicModel("human.obj", "human.txt");
-		std::vector<const Eigen::Matrix4f*> vert_tforms;
-		for (int i = 0; i < model->glen(); i++) {
-			vert_tforms.push_back(nullptr);
-		}
+		
 		model->getGroup("fingers_L")->setTform(&wrist_L_.getEndTransform());
 		model->getGroup("fingers_L")->setTform(&wrist_L_.getEndTransform());
 		model->getGroup("thumb_L")->setTform(&wrist_L_.getEndTransform());
@@ -495,6 +492,9 @@ public:
 		return exact_hitbox_;
 	}
 
+	const DynamicModel* getDynamicModel() const {
+		return dyn_model_;
+	}
 
 };
 

@@ -230,5 +230,8 @@
     <ClInclude Include="vertex_group.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="skeleton.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

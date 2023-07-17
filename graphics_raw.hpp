@@ -15,6 +15,10 @@ template <class Object>
 class GraphicsRaw {
 public:
 
+	struct Error {
+
+	};
+
 	void refresh(const Object& obj) {
 		unload(obj);
 		add(obj);

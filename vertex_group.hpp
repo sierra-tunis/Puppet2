@@ -37,8 +37,12 @@ public:
 		vertices_.emplace_back(vert_index);
 	}
 
-	const std::vector<vertex>& getVerts() {
+	const std::vector<vertex>& getVerts() const {
 		return vertices_;
+	}
+
+	std::string getName() const {
+		return name_;
 	}
 
 };

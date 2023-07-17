@@ -372,6 +372,31 @@ public:
 		hidden_ = false;
 	}
 
+	//these return an error because we are relying on a function call in another "Module"
+	//and also information cant be extracted from void const functions so I should 
+	//future proof this with error checking
+	/*GraphicsRaw<GameObject>::Error draw(GraphicsRaw<GameObject>* shader) const {
+		return shader->add(*this);
+	}*/
+	void draw(GraphicsRaw<GameObject>* shader) const {
+		shader->add(*this);
+	}
+	void drawFamily(GraphicsRaw<GameObject>* shader) const {
+		draw(shader);
+		for (auto& child : getDependents()) {
+			child->drawFamily(shader);
+		}
+	}
+	void erase(GraphicsRaw<GameObject>* shader) const {
+		shader->remove(*this);
+	}
+	void eraseFamily(GraphicsRaw<GameObject>* shader) const {
+		for (auto& child : getDependents()) {
+			child->drawFamily(shader);
+		}
+		draw(shader);//undraws in reverse order
+	}
+
 	void translate(Eigen::Vector3f vec) {
 		Eigen::Matrix4f new_pos = getPosition();
 		for (auto m_c : motion_constraints_) {
