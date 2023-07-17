@@ -92,6 +92,20 @@ private:
 
 
 	}
+protected:
+
+	void setVert(int index, Eigen::Vector3f data) {
+		verts_[3 * index] = data(0);
+		verts_[3 * index+1] = data(1);
+		verts_[3 * index+2] = data(2);
+	}
+
+
+	void setNorm(int index, Eigen::Vector3f data) {
+		norms_[3 * index] = data(0);
+		norms_[3 * index + 1] = data(1);
+		norms_[3 * index + 2] = data(2);
+	}
 
 public:
 	static constexpr char debug_path[] = "C:\\Users\\Justin\\source\\repos\\Puppet2\\Puppet2\\assets\\";
@@ -270,6 +284,5 @@ public:
 	void rescale(float scale_factor) {
 		
 	}*/
-
 };
 #endif

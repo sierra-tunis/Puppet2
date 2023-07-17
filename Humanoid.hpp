@@ -76,6 +76,7 @@ private:
 	Animation<n_dofs>* edit_animation_;
 
 	MeshSurface hitbox_;
+	MeshSurface exact_hitbox_;
 
 	void refreshDebugSliders() {
 		if (debug_sliders_.size() != 0) {
@@ -250,7 +251,8 @@ public:
 		leg_R_(hip_offset_R_, hip_R_, knee_offset_R_, knee_R_, ankle_offset_R_, ankle_R_),
 		head_chain_(neck_offset_,neck_,head_offset_,head_tilt_),
 		animation_iterator_(.3,.6),
-		hitbox_("human_static_hitbox.obj", AnimationBase::debug_path) {
+		hitbox_("human_static_hitbox.obj", AnimationBase::debug_path),
+		exact_hitbox_("human.obj",AnimationBase::debug_path){
 
 		arm_L_.setRootTransform(&chest_rotation_.getEndTransform());
 		arm_R_.setRootTransform(&chest_rotation_.getEndTransform());
@@ -268,42 +270,41 @@ public:
 		for (int i = 0; i < model->glen(); i++) {
 			vert_tforms.push_back(nullptr);
 		}
+		model->getGroup("fingers_L")->setTform(&wrist_L_.getEndTransform());
+		model->getGroup("fingers_L")->setTform(&wrist_L_.getEndTransform());
+		model->getGroup("thumb_L")->setTform(&wrist_L_.getEndTransform());
+		model->getGroup("palm_L")->setTform(&wrist_L_.getEndTransform());
+		model->getGroup("forearm_L")->setTform(&elbow_L_.getEndTransform());
+		model->getGroup("humerus_L")->setTform(&shoulder_L_.getEndTransform());
+		model->getGroup("shoulder_L")->setTform(&shoulder_L_.getEndTransform());
 
-		vert_tforms[model->getInd("fingers_L")] = &wrist_L_.getEndTransform();
-		vert_tforms[model->getInd("thumb_L")] = &wrist_L_.getEndTransform();
-		vert_tforms[model->getInd("palm_L")] = &wrist_L_.getEndTransform();
-		vert_tforms[model->getInd("forearm_L")] = &elbow_L_.getEndTransform();
-		vert_tforms[model->getInd("humerus_L")] = &shoulder_L_.getEndTransform();
-		vert_tforms[model->getInd("shoulder_L")] = &shoulder_L_.getEndTransform();
+		model->getGroup("fingers_R")->setTform(&wrist_R_.getEndTransform());
+		model->getGroup("thumb_R")->setTform(&wrist_R_.getEndTransform());
+		model->getGroup("palm_R")->setTform(&wrist_R_.getEndTransform());
+		model->getGroup("forearm_R")->setTform(&elbow_R_.getEndTransform());
+		model->getGroup("humerus_R")->setTform(&shoulder_R_.getEndTransform());
+		model->getGroup("shoulder_R")->setTform(&shoulder_R_.getEndTransform());
 
-		vert_tforms[model->getInd("fingers_R")] = &wrist_R_.getEndTransform();
-		vert_tforms[model->getInd("thumb_R")] = &wrist_R_.getEndTransform();
-		vert_tforms[model->getInd("palm_R")] = &wrist_R_.getEndTransform();
-		vert_tforms[model->getInd("forearm_R")] = &elbow_R_.getEndTransform();
-		vert_tforms[model->getInd("humerus_R")] = &shoulder_R_.getEndTransform();
-		vert_tforms[model->getInd("shoulder_R")] = &shoulder_R_.getEndTransform();
+		model->getGroup("ribcage")->setTform(&chest_rotation_.getEndTransform());
+		model->getGroup("waist")->setTform(&waist_rotation_.getEndTransform());
 
-		vert_tforms[model->getInd("ribcage")] = &chest_rotation_.getEndTransform();
-		vert_tforms[model->getInd("waist")] = &waist_rotation_.getEndTransform();
+		model->getGroup("hip_L")->setTform(&hip_offset_L_.getEndTransform());
+		model->getGroup("thigh_L")->setTform(&hip_L_.getEndTransform());
+		model->getGroup("calf_L")->setTform(&knee_L_.getEndTransform());
+		model->getGroup("foot_L")->setTform(&ankle_L_.getEndTransform());
 
-		vert_tforms[model->getInd("hip_L")] = &hip_offset_L_.getEndTransform();
-		vert_tforms[model->getInd("thigh_L")] = &hip_L_.getEndTransform();
-		vert_tforms[model->getInd("calf_L")] = &knee_L_.getEndTransform();
-		vert_tforms[model->getInd("foot_L")] = &ankle_L_.getEndTransform();
+		model->getGroup("hip_R")->setTform(&hip_offset_R_.getEndTransform());
+		model->getGroup("thigh_R")->setTform(&hip_R_.getEndTransform());
+		model->getGroup("calf_R")->setTform(&knee_R_.getEndTransform());
+		model->getGroup("foot_R")->setTform(&ankle_R_.getEndTransform());
 
-		vert_tforms[model->getInd("hip_R")] = &hip_offset_R_.getEndTransform();
-		vert_tforms[model->getInd("thigh_R")] = &hip_R_.getEndTransform();
-		vert_tforms[model->getInd("calf_R")] = &knee_R_.getEndTransform();
-		vert_tforms[model->getInd("foot_R")] = &ankle_R_.getEndTransform();
-
-		vert_tforms[model->getInd("neck")] = &neck_.getEndTransform();
-		vert_tforms[model->getInd("head")] = &head_tilt_.getEndTransform();
-		vert_tforms[model->getInd("eye_L")] = &head_tilt_.getEndTransform();
-		vert_tforms[model->getInd("eye_R")] = &head_tilt_.getEndTransform();
+		model->getGroup("neck")->setTform(&neck_.getEndTransform());
+		model->getGroup("head")->setTform(&head_tilt_.getEndTransform());
+		model->getGroup("eye_L")->setTform(&head_tilt_.getEndTransform());
+		model->getGroup("eye_R")->setTform(&head_tilt_.getEndTransform());
 
 
 
-		model->setVertTforms(vert_tforms);
 		model->offsetVerts();
 		dyn_model_ = model;
 		setModel(model);
@@ -488,6 +489,10 @@ public:
 
 	const MeshSurface& getHitbox() const {
 		return hitbox_;
+	}
+
+	const MeshSurface& getExactHitbox() const {
+		return exact_hitbox_;
 	}
 
 

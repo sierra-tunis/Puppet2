@@ -97,7 +97,6 @@ class MeshSurface : public Surface<3> {
 	}
 
 	static bool crossesTriangle(Eigen::Vector3f e1, Eigen::Vector3f e2, Eigen::Vector3f t1, Eigen::Vector3f t2, Eigen::Vector3f t3, float* k) {
-
 		Eigen::Vector3f t21 = t2 - t1;
 		Eigen::Vector3f t31 = t3 - t1;
 		
@@ -105,16 +104,17 @@ class MeshSurface : public Surface<3> {
 		tmp(seq(0, 2), 0) = t21;
 		tmp(seq(0, 2), 1) = t31;
 		tmp(seq(0, 2), 2) = (e1 - e2);
-		
+		//a*(t21) + b*t31 + t1 = k*(e2-e1)+e1
+		//[t21 | t31 | (e1-e2)]*[a;b;k;] = e1-t1
 		if (tmp.determinant() == 0) {
 			return false;
 		}
 		Eigen::Vector3f abk = tmp.inverse() * (e1 - t1);
-		*k = abk(2);
 		if (abk(2) > 1. || abk(2) < 0 || abk(0) < 0 || abk(1) < 0 || abk(0) + abk(1) > 1.) {
 			return false;
 		}
 		else {
+			*k = abk(2);
 			return true;
 		}
 	}

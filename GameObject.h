@@ -210,7 +210,8 @@ public:
 	}
 
 	float getdt() const {
-		return dt_.count();
+		//below 100 fps, game will just slow down
+		return std::min(.01f, dt_.count());
 	}//note this is a copy, not a ref
 
 	/*

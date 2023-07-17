@@ -221,5 +221,14 @@
     <ClInclude Include="collision_info.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="mesh_utils.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="physics_mesh.hpp">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vertex_group.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

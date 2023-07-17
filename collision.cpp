@@ -46,8 +46,8 @@ bool SurfaceNodeCollision(const MeshSurface* PrimarySurf, const MeshSurface* Sec
 		}
 		float* collision_loc = &collision_info->getEdgeInfo()[i].collision_location;
 		//std::vector<int>* collision_faces = &collision_info->getEdgeInfo()[i].collision_faces;
-		collision_info->getEdgeInfo()[i].is_colliding = PrimarySurf->crossesSurface(SecondarySurf->getVerts()[e.first] + p, SecondarySurf->getVerts()[e.second] + p,collision_loc);
-		if (result == false && collision_info->getEdgeInfo().back().is_colliding) {
+		collision_info->getEdgeInfo()[i].is_colliding = PrimarySurf->crossesSurface(R * SecondarySurf->getVerts()[e.first] + p, R * SecondarySurf->getVerts()[e.second] + p,collision_loc);
+		if (result == false && collision_info->getEdgeInfo()[i].is_colliding) {
 			result = true;
 		}
 		i++;

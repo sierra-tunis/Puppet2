@@ -294,9 +294,11 @@
     <ClInclude Include="graphics_raw.hpp" />
     <ClInclude Include="Humanoid.hpp" />
     <ClInclude Include="interface.hpp" />
+    <ClInclude Include="mesh_utils.hpp" />
     <ClInclude Include="motion_constraint.h" />
     <ClInclude Include="no_collide_constraint.hpp" />
     <ClInclude Include="physics.hpp" />
+    <ClInclude Include="physics_mesh.hpp" />
     <ClInclude Include="player_camera.h" />
     <ClInclude Include="scene.hpp" />
     <ClInclude Include="sequence.h" />
@@ -308,6 +310,7 @@
     <ClInclude Include="textbox_object.hpp" />
     <ClInclude Include="text_graphics.hpp" />
     <ClInclude Include="UI.h" />
+    <ClInclude Include="vertex_group.hpp" />
     <ClInclude Include="zdata.hpp" />
     <ClInclude Include="zmap.h" />
     <ClInclude Include="ZMapper.h" />
