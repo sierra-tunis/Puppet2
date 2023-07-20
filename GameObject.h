@@ -145,7 +145,7 @@ public:
 	}*/
 
 
-	void update(GLFWwindow* window) override{
+	void update(GLFWwindow* window) override {
 		InternalObject::update(window); //should rename this function eventually
 		updatePosition();
 		//update time
@@ -191,10 +191,11 @@ public:
 			}
 		}
 		//perform user code
-		onStep();
 		for (auto& child : dependents_) {
 			child->update(window);
 		}
+		onStep();
+
 	}
 
 

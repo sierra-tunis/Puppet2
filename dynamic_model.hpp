@@ -106,15 +106,17 @@ public:
 
 	void updateData() override {
 		for (auto& vg : vert_groups_) {
-			const Eigen::Matrix4f& tform = *vg->getTform();
-			const Eigen::Matrix3f& rot = tform(seq(0, 2), seq(0, 2));
-			for (const VertexGroup::vertex& vert : vg->getVerts()) {
-				Eigen::Vector3f pos = vert_mat_(seq(0, 2), vert.index);
-				pos = rot * pos + tform(seq(0, 2), 3);
-				setVert(vert.index, pos);
-				Eigen::Vector3f norm = norm_mat_(seq(0, 2), vert.index);
-				norm = rot * norm;
-				setNorm(vert.index, norm);
+			if (vg->getTform() != nullptr) {
+				const Eigen::Matrix4f& tform = *vg->getTform();
+				const Eigen::Matrix3f& rot = tform(seq(0, 2), seq(0, 2));
+				for (const VertexGroup::vertex& vert : vg->getVerts()) {
+					Eigen::Vector3f pos = vert_mat_(seq(0, 2), vert.index);
+					pos = rot * pos + tform(seq(0, 2), 3);
+					setVert(vert.index, pos);
+					Eigen::Vector3f norm = norm_mat_(seq(0, 2), vert.index);
+					norm = rot * norm;
+					setNorm(vert.index, norm);
+				}
 			}
 		}
 	}
@@ -145,7 +147,12 @@ public:
 		std::vector<Eigen::Matrix4f> inverse_positions_data;
 		std::vector<const Eigen::Matrix4f*> inverse_positions;
 		for (auto& vg : vert_groups_) {
-			inverse_positions_data.emplace_back(vg->getTform()->inverse());
+			if (vg->getTform() != nullptr) {
+				inverse_positions_data.emplace_back(vg->getTform()->inverse());
+			} else {
+				inverse_positions_data.emplace_back(Eigen::Matrix4f::Identity());
+
+			}
 			tmp.emplace_back(vg->getTform());
 		}
 		for (int i = 0; i < vert_groups_.size(); i++) {
