@@ -83,7 +83,13 @@ private:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex.width, tex.height, 0, GL_RGB, GL_UNSIGNED_BYTE, tex.getData().data());
+		if (tex.n_channels == 3) {
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex.width, tex.height, 0, GL_RGB, GL_UNSIGNED_BYTE, tex.getData().data());
+		}
+		else if (tex.n_channels == 4) {
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, tex.width, tex.height, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex.getData().data());
+
+		}
 		glGenerateMipmap(GL_TEXTURE_2D);
 
 		return std::tuple<int, int, size_t>{VAO, tex_id, model.flen()};
@@ -120,6 +126,9 @@ public:
 		glUniformMatrix4fv(camera_location_, 1, GL_FALSE, camera_->getCameraMatrix().data());
 
 		glUniform4f(glGetUniformLocation(gl_id, "atmosphere_color"), atmosphere_color_(0), atmosphere_color_(1), atmosphere_color_(2), atmosphere_strength_);
+
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 		//default3d specific code
 	}

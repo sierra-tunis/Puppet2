@@ -37,5 +37,6 @@ const char* Default3d::fragment_code = "#version 330 core\n"
 "void main()\n"
 "{\n"
 "   float a = atmosphere_color.w * (length(position));"
-"	FragColor = (texture(tex,texCoord) + atmosphere_color * a)/(1 + a);\n"
+"	FragColor.xyz = (texture(tex,texCoord).xyz + atmosphere_color.xyz * a)/(1 + a);\n"
+"	FragColor.w = texture(tex,texCoord).w;\n"
 " } ";

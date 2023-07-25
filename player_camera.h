@@ -66,8 +66,8 @@ private:
 
 	void onMouseScroll(float dx, float dy) override {
 		equilibrium_length_ -= dy * .025;
-		if (equilibrium_length_ < .1) {
-			equilibrium_length_ = .1;
+		if (equilibrium_length_ < .125) {
+			equilibrium_length_ = .125;
 		}
 		else if (equilibrium_length_ > 20.) {
 			equilibrium_length_ = 20.;
@@ -91,10 +91,10 @@ public:
 	PlayerCamera(float near_clip, float far_clip, float fov, float pixels_width, float pixels_height, float equilibrium_length, std::string name=InternalObject::no_name) :
 		Camera(near_clip,far_clip,fov,pixels_width,pixels_height,"PlayerCamera"),
 		equilibrium_length_(equilibrium_length),
-		anchor_(OffsetConnector((Eigen::Matrix4f()<<1.,0.,0.,0.,  0.,1.,0.,.7,  0.,0.,1.,0.,  0., 0., 0., 1.).finished())),
+		anchor_(OffsetConnector((Eigen::Matrix4f()<<1.,0.,0.,0.,  0.,1.,0.,.75,  0.,0.,1.,0.,  0., 0., 0., 1.).finished())),
 		pan_(RotationJoint(Eigen::Vector3f(0, 1, 0))),
 		tilt_(RotationJoint(Eigen::Vector3f(1, 0, 0))),
-		dist_(PrismaticJoint(Eigen::Vector3f(0, .1, 3))),
+		dist_(PrismaticJoint(Eigen::Vector3f(0., .1, 3))),
 		tether_(ConnectorChain<OffsetConnector, RotationJoint, RotationJoint, PrismaticJoint>(anchor_,pan_,tilt_,dist_)),
 		cam_box_("cam_box.obj", Model::debug_path),
 		look_mode_(true){

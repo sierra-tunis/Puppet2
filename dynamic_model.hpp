@@ -51,7 +51,7 @@ public:
 	Model(model_fname, path, force_shade_hard){
 		
 		if (!shade_smooth_) {
-			std::cerr << "hard dynamic models not implemented yet";
+			std::cerr << "hard dynamic models not implemented yet!\n";
 		}
 		loadMatrices();
 

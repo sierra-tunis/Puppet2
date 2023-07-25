@@ -53,7 +53,7 @@ private:
 		glCompileShader(vertexShader);
 
 		check_compile_error(vertexShader);
-		std::cout << vertex_code;
+		//std::cout << vertex_code;
 		return vertexShader;
 	}
 
@@ -62,7 +62,7 @@ private:
 		glShaderSource(fragmentShader, 1, &fragment_code, NULL);
 		glCompileShader(fragmentShader);
 		check_compile_error(fragmentShader);
-		std::cout << fragment_code;
+		//std::cout << fragment_code;
 		return fragmentShader;
 	}
 
@@ -94,7 +94,7 @@ protected:
 
 		glDeleteShader(vertexShader);
 		glDeleteShader(fragmentShader);
-		std::cout << shaderProgram;
+		//std::cout << shaderProgram;
 		return shaderProgram;
 	}
 	
@@ -200,10 +200,10 @@ public:
 
 
 	Graphics() :gl_id(static_cast<int>(Graphics<Object,data...>::compile_program())),FBO_(-1) {
-		GLenum error = glGetError();
+		/*GLenum error = glGetError();
 		if (error != GL_NO_ERROR) {
 			printf("Error during Graphics creation: 0x%x\n", error);
-		}
+		}*/
 	}
 
 };

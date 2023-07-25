@@ -37,11 +37,18 @@ protected:
 private:
 	void reassign_vtx() {
 		std::vector<float> tex_temp(tex_coords_);
+		std::vector<float> norm_temp(norms_);
 		tex_coords_ = std::vector<float>(n_verts_*2);
+		norms_ = std::vector<float>(n_verts_ * 3);
 		for (size_t i = 0; i < faces_.size(); i++) {
 			tex_coords_[2*faces_[i]] = tex_temp[2*face_tex_[i]];
 			//if crash here then the blender model is not in smooth vertex mode
 			tex_coords_[2*faces_[i]+1] = tex_temp[2 * face_tex_[i]+1];
+
+			norms_[3 * faces_[i]] = norm_temp[3 * face_norms_[i]];
+			norms_[3 * faces_[i] + 1] = norm_temp[3 * face_norms_[i]+1];
+			norms_[3 * faces_[i] + 2] = norm_temp[3 * face_norms_[i] + 2];
+
 
 		}
 		return;
