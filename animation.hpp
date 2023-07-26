@@ -109,6 +109,23 @@ public:
 	bool load() final override {
 		loaded_ = true;
 		animation_data_ = new StateSequence<n_dofs>();
+		std::ifstream animFile(AnimationBase::default_path + fname_);
+		if (animFile.is_open()) {
+			std::string anim_info;
+			std::getline(animFile, anim_info);
+			if (anim_info[0] == 'v') {
+				std::string file_version;
+				std::string playback_speed;
+				std::string looping;
+				std::stringstream ss(anim_info);
+				std::getline(ss, file_version, ' ');
+				std::getline(ss, playback_speed, ' ');
+				std::getline(ss, looping, ' ');
+				setPlaybackSpeed(std::stof(playback_speed));
+				setLooping(looping == "true");
+			}
+			animFile.close();
+		}
 		if (!animation_data_->readFromFile(fname_, AnimationBase::default_path)) {
 			animation_data_->addCol(0, Eigen::Vector<float, n_dofs>::Constant(0));
 		}
