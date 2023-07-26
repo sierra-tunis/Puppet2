@@ -4,6 +4,7 @@
 #define PUPPET_LEVEL
 
 #define _USE_MATH_DEFINES
+#include <cmath>
 #include <map>
 
 #include "GameObject.h"

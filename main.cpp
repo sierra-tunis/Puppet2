@@ -1,7 +1,7 @@
-#include <Eigen/Dense>
 #define _USE_MATH_DEFINES
 
 #include <cmath>
+#include <Eigen/Dense>
 #include <chrono>
 
 #include "Default3d.h"

@@ -9,7 +9,9 @@
 
 #include "sound.hpp"
 
-#define PATH_TO_AUDIO "C:\\Users\\Justin\\source\\repos\\Puppet2\\Puppet2\\assets\\audio\\"
+//#define PATH_TO_AUDIO "C:\\Users\\Justin\\source\\repos\\Puppet2\\Puppet2\\assets\\audio\\"
+
+std::string Sound::default_path = Sound::debug_path;
 
 bool msiSendString(std::string string) {
 	//code courtesy of https://stackoverflow.com/questions/6814646/convert-string-to-t-in-cpp
@@ -33,7 +35,7 @@ bool msiSendString(std::string string) {
 
 bool Sound::load(){
 	if (!is_loaded_) {
-		std::string full_command = std::string("open \"") + std::string(PATH_TO_AUDIO) + fname_ + std::string("\" type mpegvideo alias ") + name_;
+		std::string full_command = std::string("open \"") + std::string(path_) + fname_ + std::string("\" type mpegvideo alias ") + name_;
 		if (msiSendString(full_command)) {
 			is_loaded_ = true;
 			return true;

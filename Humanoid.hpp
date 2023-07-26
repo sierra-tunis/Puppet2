@@ -3,10 +3,17 @@
 #ifndef PUPPET_GAMEOBJECT_HUMANOID
 #define PUPPET_GAMEOBJECT_HUMANOID
 
+
+#define _USE_MATH_DEFINES
+#include<cmath>
+
+#include <Eigen/Dense>
+
 #include "GameObject.h"
 #include "dynamic_model.hpp"
 #include "UI.h"
 #include "animation.hpp"
+
 
 using LimbConnector = ConnectorChain<OffsetConnector, BallJoint, OffsetConnector, RotationJoint, OffsetConnector, BallJoint>;
 
@@ -240,9 +247,9 @@ public:
 		knee_R_(Eigen::Vector3f(1, 0, 0)),
 		ankle_offset_R_(Eigen::Vector3f(.0596, -.9047, 0), Eigen::Vector3f(.0862, -.4319, 0)),
 		ankle_R_(BallJoint::ZXY),
-		neck_offset_(Vector3f(0,.6866,0), Eigen::Vector3f(0, .15, 0)),
+		neck_offset_(Eigen::Vector3f(0,.6866,0), Eigen::Vector3f(0, .15, 0)),
 		neck_(BallJoint::YXY),
-		head_offset_(Vector3f(0, .8766, 0),Vector3f(0, .6866, 0)),
+		head_offset_(Eigen::Vector3f(0, .8766, 0),Eigen::Vector3f(0, .6866, 0)),
 		head_tilt_(Eigen::Vector3f(1.,0,0)),
 
 		arm_L_(shoulder_offset_L_, shoulder_L_, elbow_offset_L_, elbow_L_, wrist_offset_L_, wrist_L_),

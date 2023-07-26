@@ -74,8 +74,12 @@ protected:
 
 	void addAnimation(AnimationBase* animation) {
 		animations_.insert(animation);
-		animation->load();
+		//animation->load();
 	}
+	void removeAnimation(AnimationBase* animation) {
+		animations_.erase(animation);
+	}
+
 
 	void setActiveAnimation(AnimationBase* animation) {
 		active_animation_ = animation;

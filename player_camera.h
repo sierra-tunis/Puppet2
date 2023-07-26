@@ -114,6 +114,8 @@ public:
 		float damped_return_to_equilibrium = (new_extension_ + (19) * current_extension_) / (20);
 		dist_.setState(Eigen::Vector<float,1>(damped_return_to_equilibrium));
 		tether_.setState(tether_.getState());
+
+		//scale camera mesh by certain ratio 
 		
 		//float delta_len = getParent()->getPosition()(seq(0, 2), seq(0, 2)) * damped_return_to_equilibrium;
 		//float new_len = bounds_->findMaxTravel(getParent()->getPosition(), delta_pos, 0, 0, 10, 100).norm();
