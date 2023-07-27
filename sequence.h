@@ -127,8 +127,11 @@ public:
 				std::getline(ss, index_time, ' ');
 				float t = std::stof(index_time);
 				for (int i = 0; i < n_dofs; i++) {
-					std::getline(ss, dof_state, ' ');
-					new_col(i) = std::stof(dof_state);
+					if (std::getline(ss, dof_state, ' ')) {
+						new_col(i) = std::stof(dof_state);
+					} else {
+						new_col(i) = 0;
+					}
 				}
 				addCol(t, new_col);
 			}

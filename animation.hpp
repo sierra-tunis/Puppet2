@@ -221,6 +221,12 @@ public:
 		
 	}
 
+	void interpolateCurrentFrame() {
+		if (edit_frame_ > 0 && edit_frame_ < size() - 1) {
+			Eigen::Vector<float, n_dofs + 1> interp_data = (animation_data_->getData(edit_frame_ - 1) + animation_data_->getData(edit_frame_ + 1))/2;
+			animation_data_->setCol(edit_frame_, interp_data);
+		}
+	}
 
 };
 

@@ -20,6 +20,8 @@ using LimbConnector = ConnectorChain<OffsetConnector, BallJoint, OffsetConnector
 class Humanoid : public GameObject {
 protected:
 	//origin is at navel
+	CartesianJoint origin_position_;
+
 	OffsetConnector origin_;
 	RotationJoint waist_rotation_;
 	BallJoint chest_rotation_;
@@ -65,7 +67,7 @@ protected:
 	LimbConnector leg_R_;
 
 public:
-	static constexpr int n_dofs = 2*RotationJoint::getDoF() + 2*BallJoint::getDoF() + 4 * LimbConnector::getDoF();
+	static constexpr int n_dofs = CartesianJoint::getDoF() + 2*RotationJoint::getDoF() + 2*BallJoint::getDoF() + 4 * LimbConnector::getDoF();
 	static constexpr int upper_dofs_ = 2 * LimbConnector::getDoF() + 2 * BallJoint::getDoF() + RotationJoint::getDoF();
 	static constexpr int lower_dofs_ = 2 * LimbConnector::getDoF() + RotationJoint::getDoF();
 
@@ -119,17 +121,19 @@ private:
 		leg_L_.setState(new_state(seq(18,24)));
 		leg_R_.setState(new_state(seq(25,31)));
 		head_chain_.setState(new_state(seq(32, 35)));
+		origin_position_.setState(new_state(seq(36, 38)));
 	}
 
-	Eigen::Vector<float,n_dofs> getState() const {
+	Eigen::Vector<float, n_dofs> getState() const {
 		Eigen::Vector<float, n_dofs> ret;
-		ret(seq(0,0)) = waist_rotation_.getState();
+		ret(seq(0, 0)) = waist_rotation_.getState();
 		ret(seq(1, 3)) = chest_rotation_.getState();
 		ret(seq(4, 10)) = arm_L_.getState();
 		ret(seq(11, 17)) = arm_R_.getState();
 		ret(seq(18, 24)) = leg_L_.getState();
 		ret(seq(25, 31)) = leg_R_.getState();
 		ret(seq(32, 35)) = head_chain_.getState();
+		ret(seq(36, 38)) = origin_position_.getState();
 		return ret;
 	}
 
@@ -188,6 +192,13 @@ private:
 			this_->edit_animation_->setAnimationStart();
 		}
 	}
+	static void interpolateFrame(void* must_be_this) {
+		Humanoid* this_ = static_cast<Humanoid*>(must_be_this);
+		if (this_->edit_animation_ != nullptr) {
+			this_->edit_animation_->interpolateCurrentFrame();
+		}
+	}
+
 protected:
 	void onStep() {
 		dyn_model_->updateData();
@@ -268,7 +279,8 @@ public:
 		head_chain_.setRootTransform(&chest_rotation_.getEndTransform());
 		chest_rotation_.setRootTransform(&origin_.getEndTransform());
 		waist_rotation_.setRootTransform(&origin_.getEndTransform());
-		origin_.setRootTransform(&getPosition());
+		origin_.setRootTransform(&origin_position_.getEndTransform());
+		origin_position_.setRootTransform(&getPosition());
 
 		refresh();
 
@@ -398,7 +410,7 @@ public:
 
 	void openDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) override {
 		float slider_height = .6 / n_dofs;
-		int n_sections = 6;
+		int n_sections = 7;
 		for (int i = 0; i < n_dofs; i++) {
 			debug_sliders_[i] = new Slider(slider_height, .5, -M_PI, M_PI);
 			addDependent(debug_sliders_[i]);
@@ -420,8 +432,11 @@ public:
 		for (int i = 25; i < 32; i++) {
 			debug_sliders_[i]->moveTo(-.5, -static_cast<float>(i+4) / (n_dofs + n_sections), 0);
 		}
-		for (int i = 32; i < n_dofs; i++) {
+		for (int i = 32; i < 36; i++) {
 			debug_sliders_[i]->moveTo(-.5, -static_cast<float>(i+5) / (n_dofs + n_sections), 0);
+		}
+		for (int i = 36; i < n_dofs; i++) {
+			debug_sliders_[i]->moveTo(-.5, -static_cast<float>(i + 6) / (n_dofs + n_sections), 0);
 		}
 		
 		setSliderCallbacks();
@@ -432,6 +447,7 @@ public:
 		Button* insert_new_frame = new Button(.1,.8);
 		Button* toggle_edit_mode = new Button(.1, .8);
 		Button* set_animation_start = new Button(.1, .8);
+		Button* interpolate_frame = new Button(.1, .8);
 
 
 		prev_frame->setLabel("prev frame");
@@ -440,14 +456,16 @@ public:
 		insert_new_frame->setLabel("  new frame  ");
 		toggle_edit_mode->setLabel("toggle edit mode");
 		set_animation_start->setLabel("set start frame");
+		interpolate_frame->setLabel("interpolate frame");
 
 		animation_iterator_.moveTo(.5, .9, 0);
-		prev_frame->moveTo(.275, -.1, 0);
-		next_frame->moveTo(.725, -.1, 0);
-		insert_new_frame->moveTo(.5, -.3, 0);
-		save_animation->moveTo(.5, -.5, 0);
-		toggle_edit_mode->moveTo(.5, -.7, 0);
-		set_animation_start->moveTo(.5, -.9, 0);
+		prev_frame->moveTo(.275, -.05, 0);
+		next_frame->moveTo(.725, -.05, 0);
+		insert_new_frame->moveTo(.5, -.2, 0);
+		save_animation->moveTo(.5, -.35, 0);
+		toggle_edit_mode->moveTo(.5, -.5, 0);
+		set_animation_start->moveTo(.5, -.65, 0);
+		interpolate_frame->moveTo(.5, -.8, 0);
 
 		//issue here: if animation iterator changes current_animation without reloading debug menu it doesnt update current_animation_
 		//should move static callbacks back into humanoid, but leave non-static helpers in animation
@@ -457,8 +475,9 @@ public:
 		insert_new_frame->setCallback(&newFrame, this);
 		set_animation_start->setCallback(&setAnimationStart, this);
 		toggle_edit_mode->setCallback(&toggleEditMode, this);
+		interpolate_frame->setCallback(&interpolateFrame, this);
 
-		std::vector<Button*> anim_buttons{ prev_frame,next_frame,save_animation,insert_new_frame,toggle_edit_mode,set_animation_start };
+		std::vector<Button*> anim_buttons{ prev_frame,next_frame,save_animation,insert_new_frame,toggle_edit_mode,set_animation_start,interpolate_frame };
 		anim_buttons_ = anim_buttons;
 		for (Button* button : anim_buttons_) {
 			addDependent(button);

@@ -417,6 +417,15 @@ public:
 	}
 };
 
+class CartesianJoint : public ConnectorConstraint<3> {
+public:
+	Eigen::Matrix4f computeConnectorTransform(Eigen::Vector<float, 3> state_vec) const override {
+		Eigen::Matrix4f ret = Eigen::Matrix4f::Identity();
+		ret(seq(0, 2), 3) = state_vec;
+		return ret;
+	}
+};
+
 class BallJoint : public ConnectorConstraint<3> {
 private:
 
