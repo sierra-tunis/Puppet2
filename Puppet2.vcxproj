@@ -271,6 +271,7 @@
     <ClCompile Include="surface.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="UI.cpp" />
+    <ClCompile Include="vertex_group.cpp" />
     <ClCompile Include="zmap.cpp" />
     <ClCompile Include="ZMapper.cpp" />
   </ItemGroup>

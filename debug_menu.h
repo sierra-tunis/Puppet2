@@ -9,6 +9,9 @@
 #include "zdata.hpp"
 
 class DebugMenu : public GameObject {
+
+	KeyStateCallback<GLFW_KEY_UP, GLFW_KEY_DOWN, GLFW_KEY_LEFT, GLFW_KEY_RIGHT, GLFW_KEY_PAGE_UP,GLFW_KEY_PAGE_DOWN> key_state_callback_caller_;
+
 	std::vector<Button*> buttons_;
 
 	Button test_button_;
@@ -17,9 +20,14 @@ class DebugMenu : public GameObject {
 	TextboxObject fps_tbox_;
 	TextGraphics& text_graphics_;
 	Slider test_slider_;
+	Button reposition_target_;
+	bool reposition_mode_;
+	Button set_init_position_;
+	Button reset_level_;
 
 	DebugCamera& debug_cam_;
 	OffsetConnector cam_clamp_;
+	PlayerCamera debug_camera_;
 
 	UIIterator<GameObject> target_iterator_;
 	GameObject* debug_target_;
@@ -39,31 +47,66 @@ class DebugMenu : public GameObject {
 	GLFWwindow* window_;
 	Default2d& graphics_2d_;
 
-	PlayerCamera* prev_camera_;
-
 	//Button show_hitboxes_;
 
 	void onKeyPress(int key) override {
 		if (key == GLFW_KEY_F3) {
 			toggleHidden();
-			/*for (auto& b : buttons_) {
-				b->setHideState(isHidden());
+		}
+	}
+
+	void onKeyDown(int key) override {
+		if (reposition_mode_ && debug_target_ != nullptr) {
+			switch (key) {
+			case GLFW_KEY_UP:
+				debug_target_->translate(getdt()*Eigen::Vector3f(debug_camera_.getPosition()(seq(0,2),0)).cross(Eigen::Vector3f(0,1.,0)));
+				break;
+			case GLFW_KEY_DOWN:
+				debug_target_->translate(getdt() * Eigen::Vector3f(debug_camera_.getPosition()(seq(0, 2), 0)).cross(Eigen::Vector3f(0, -1., 0)));
+				break;
+			case GLFW_KEY_LEFT:
+				debug_target_->translate(getdt() * Eigen::Vector3f(debug_camera_.getPosition()(seq(0, 2), 2)).cross(Eigen::Vector3f(0, 1., 0)));
+				break;
+			case GLFW_KEY_RIGHT:
+				debug_target_->translate(getdt() * Eigen::Vector3f(debug_camera_.getPosition()(seq(0, 2), 2)).cross(Eigen::Vector3f(0, -1., 0)));
+				break;
+			case GLFW_KEY_PAGE_UP:
+				debug_target_->translate(getdt() * debug_camera_.getPosition()(seq(0, 2), 1));
+				break;
+			case GLFW_KEY_PAGE_DOWN:
+				debug_target_->translate(getdt() * -debug_camera_.getPosition()(seq(0, 2), 1));
+				break;
 			}
-			if (!isHidden()) {
-				text_graphics_.add(fps_tbox_);
-				text_graphics_.add(target_dbg_info_);
-				text_graphics_.add(target_name_);
-				text_graphics_.add(level_display_);
-			} else {
-				text_graphics_.remove(fps_tbox_);
-				text_graphics_.remove(target_dbg_info_);
-				text_graphics_.remove(target_name_);
-				text_graphics_.remove(level_display_);
-			}*/
 		}
 	}
 
 public:
+
+	static void repositionTarget(void* must_be_this) {
+		DebugMenu* this_ = static_cast<DebugMenu*>(must_be_this);
+		this_->reposition_mode_ = !this_->reposition_mode_;
+		if (this_->reposition_mode_) {
+			this_->reposition_target_.setLabel("done repositioning");
+		} else {
+			this_->reposition_target_.setLabel("reposition target");
+		}
+
+	}
+
+	static void resetLevel(void* must_be_this) {
+		DebugMenu* this_ = static_cast<DebugMenu*>(must_be_this);
+		if (this_->level_iterator_.getTarget() != nullptr) {
+			this_->level_iterator_.getTarget()->reset();
+		}
+	}
+
+	static void setInitialPosition(void* must_be_this) {
+		DebugMenu* this_ = static_cast<DebugMenu*>(must_be_this);
+		if (this_->level_iterator_.getTarget() != nullptr && this_->debug_target_ != nullptr) {
+			this_->level_iterator_.getTarget()->saveLayoutFile(this_->debug_target_);
+		}
+		
+	}
 
 	static void levelIterCallback(Level* prev, Level* next, void* must_be_this) {
 		DebugMenu* this_ = static_cast<DebugMenu*>(must_be_this);
@@ -73,6 +116,8 @@ public:
 			this_->target_iterator_.setIterable(&next->getContents());
 		}
 	}
+
+
 	/*
 	static void nextLevelCallback(void* must_be_this) {
 		DebugMenu* this_ = static_cast<DebugMenu*>(must_be_this);
@@ -159,9 +204,12 @@ public:
 		buttons_.push_back(button);
 	}
 
-	DebugMenu(GLFWwindow* window, Default2d& graphics, TextGraphics& text_graphics, DebugCamera& debug_camera) : GameObject("debug_menu"),
+	DebugMenu(GLFWwindow* window, Default2d& graphics, TextGraphics& text_graphics, DebugCamera& debug_camera) : GameObject("debug_menu",key_state_callback_caller_),
 		test_button_(.1, .2, "test_button"),
 		test_slider_(.1, .3, 0, 1),
+		reposition_target_(.1,.5),
+		set_init_position_(.1,.5),
+		reset_level_(.1,.5),
 		//next_target_(.2, .2, "next_target"),
 		//prev_target_(.2, .2, "prev_target"),
 		//next_level_(.2, .2, "next_level"),
@@ -175,13 +223,35 @@ public:
 		window_(window),
 		debug_target_(nullptr),
 		target_iterator_(.3,.6),
-		level_iterator_(.3,.6){
+		level_iterator_(.3,.6),
+		debug_camera_(0, 5000, 60, 1600, 800, 1.0, "debug_camera"){
 
 		test_button_.activateMouseInput(window);
 		test_button_.moveTo(.6, .6, 0);
 		test_button_.clampTo(this);
 		test_button_.setLabel("tester");
 		test_button_.load(window, graphics_2d_, text_graphics_);
+
+		reposition_target_.moveTo(.6, .8, 0);
+		reposition_target_.clampTo(this);
+		reposition_target_.setLabel("reposition target");
+		reposition_target_.load(window, graphics_2d_, text_graphics_);
+		reposition_target_.setCallback(&repositionTarget, this);
+		addDependent(&reposition_target_);
+
+		set_init_position_.moveTo(.6, .65, 0);
+		set_init_position_.clampTo(this);
+		set_init_position_.setLabel("set init position");
+		set_init_position_.load(window, graphics_2d_, text_graphics_);
+		set_init_position_.setCallback(&setInitialPosition, this);
+		addDependent(&set_init_position_);
+
+		reset_level_.moveTo(.6, .5, 0);
+		reset_level_.clampTo(this);
+		reset_level_.setLabel("reset level");
+		reset_level_.load(window, graphics_2d_, text_graphics_);
+		reset_level_.setCallback(&resetLevel, this);
+		addDependent(&reset_level_);
 
 		fps_tbox_.text = "0";
 		fps_tbox_.box_height = char_info(' ').unscaled_height;

@@ -3,6 +3,10 @@
 #ifndef PUPPET_VERTEXGROUP
 #define PUPPET_VERTEXGROUP
 
+#include<vector>
+#include<string>
+#include<Eigen\Dense>
+
 class VertexGroup {
 
 
@@ -19,6 +23,17 @@ private:
 	std::vector<vertex> vertices_;
 	std::string name_;
 	const Eigen::Matrix4f* tform_;
+
+	void (*physics_func_)(VertexGroup*, float, void*);
+	void* physics_input_;
+
+	void setPhysicsFunction(void (*physics_func)(VertexGroup*, float, void*), void* physics_input) {
+		physics_func_ = physics_func;
+		physics_input_ = physics_input;
+	}
+
+	struct FabricPhysics_info;
+	static void FabricPhysics(VertexGroup* vert_group, float dt, void* must_be_FabricPhysics_ptr);
 
 public:
 
@@ -44,6 +59,8 @@ public:
 	std::string getName() const {
 		return name_;
 	}
+
+	void setAsFabric(float density, float thickness);
 
 };
 

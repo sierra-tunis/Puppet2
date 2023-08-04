@@ -106,13 +106,13 @@ int main(void)
     //Debugger right((Eigen::Matrix4f()<<1, 0, 0, .5, 0, 1, 0, 0, 0, 0, 1, .5, 0, 0, 0, 1).finished(), 2, default3d);
     //ZMapper zmapper;
     Texture rocky_texture("soil.jpg");
-    Level cult_spiral_stairs(layout,window,new Model("spiral_staircase_cult_exit.obj"),&rocky_texture ,"spiral_staircase");
-    Level cult_landing(layout, window, new Model("cult_exit_landing.obj"), &rocky_texture, "cult_exit_landing");
-    Level cult_hallway1(layout, window, new Model("cult_exit_hallway.obj"), &rocky_texture, "cult_exit_hallway");
-    Level cult_stairs1(layout, window, new Model("cult_ascencion_stairs.obj"), &rocky_texture, "cult_ascension_stairs");
-    Level cult_impluvium(layout, window, new Model("cult_impluvium.obj"), &rocky_texture, "cult_impluvium");
-    Level cult_ritual(layout, window, new Model("cult_ritual_room.obj"), &rocky_texture, "cult_ritual_room");
-    Level path_to_town(layout, window, new Model("path_to_town.obj"), &rocky_texture, "path_to_town");
+    Level cult_spiral_stairs("cult_spiral_stairs.txt", window, new Model("spiral_staircase_cult_exit.obj"), &rocky_texture, "spiral_staircase");
+    Level cult_landing("cult_landing.txt", window, new Model("cult_exit_landing.obj"), &rocky_texture, "cult_exit_landing");
+    Level cult_hallway1("cult_hallway1.txt", window, new Model("cult_exit_hallway.obj"), &rocky_texture, "cult_exit_hallway");
+    Level cult_stairs1("cult_stairs1.txt", window, new Model("cult_ascencion_stairs.obj"), &rocky_texture, "cult_ascension_stairs");
+    Level cult_impluvium("cult_impluvium.txt", window, new Model("cult_impluvium.obj"), &rocky_texture, "cult_impluvium");
+    Level cult_ritual("cult_ritual.txt", window, new Model("cult_ritual_room.obj"), &rocky_texture, "cult_ritual_room");
+    Level path_to_town("path_to_town.txt", window, new Model("path_to_town.obj"), &rocky_texture, "path_to_town");
 
 
     cult_spiral_stairs.addNeighbor(&cult_landing);

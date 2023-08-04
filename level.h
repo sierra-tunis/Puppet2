@@ -27,7 +27,7 @@ private:
 	enum LoadStatus { active, standby, frozen }; //by default, active is fully loaded and updated, standby is loaded but not updated, frozen is unloaded and unupdated
 	GLFWwindow* window_;
 	LoadStatus load_state_;//how "loaded" the level is
-	std::string fname;
+	std::string fname_;
 	std::vector<Level*> neighbors_; //neighbors enter standby when this is active
 	std::vector<const Level*> const_neighbors_;
 	Surface<3>* collision_surface_;
@@ -38,6 +38,7 @@ private:
 	static Level* prev_level_;
 	static std::vector<Level*> all_levels_;
 
+	
 	Sound theme_;
 
 	//we can render the floor like an image with color corresponding to the height.
@@ -90,6 +91,75 @@ private:
 	}
 
 public:
+	static std::string default_path;
+	static constexpr char debug_path[] = "C:\\Users\\Justin\\source\\repos\\Puppet2\\Puppet2\\assets\\";
+
+	void reset() {
+		std::ifstream layout_file(Level::default_path + fname_);
+		if (layout_file.is_open()) {
+			std::string game_object_initialization_info;
+			while (std::getline(layout_file, game_object_initialization_info)) {
+				std::stringstream ss(game_object_initialization_info);
+				std::string name;
+				std::getline(ss, name, '\t');
+				for (auto& obj : getDependents()) {
+					if (obj->getName() == name) {
+						std::string init_string;
+						std::getline(ss, init_string, '\n');
+						obj->initialize(init_string);
+						//not efficient since this does a full loop even if the object is found
+					}
+				}
+			}
+		} else {
+			std::cerr << "layout file not opened!\n";
+		}
+	}
+
+	void saveLayoutFile(GameObject* obj =nullptr){
+		if (obj == nullptr) {
+			std::ofstream layout_out(Level::default_path + fname_);
+			if (!layout_out.is_open()) {
+				std::cerr << "layout file not opened for writing!\n";
+				return;
+			}
+			else {
+				for (auto& o : getDependents()) {
+					if (o->getName() != InternalObject::no_name) {
+						std::string new_line = o->getName() + "\t" + o->save();
+						layout_out << new_line << "\n";
+					}
+				}
+				layout_out.close();
+			}
+		} else {
+			std::ifstream layout_in(Level::default_path + fname_);
+			if (!layout_in.is_open()) {
+				std::cerr << "layout file not opened (read or write)!\n";
+				return;
+			} else {
+				std::string line;
+				std::string output = "";
+				while (std::getline(layout_in, line)) {
+					std::stringstream ss(line);
+					std::string obj_name;
+					std::getline(ss, obj_name, '\t');
+					if (obj_name == obj->getName()) {
+						std::string new_line = obj->getName() + "\t" + obj->save();
+						output +=  new_line + "\n";
+					} else {
+						output += line;
+					}
+				}
+				std::ofstream layout_out(Level::default_path + fname_);
+				if (!layout_out.is_open()) {
+					std::cerr << "layout file not opened!";
+				} else {
+					layout_out << output;
+				}
+			}
+		}
+	}
 
 	static Level* getCurrentLevel() {
 		return current_level_;
@@ -172,11 +242,11 @@ public:
 		
 	}
 
-	Level(std::vector<GameObject*> layout, GLFWwindow* window, Model* model, Texture* texture, std::string room_name) :
+	Level(std::string layout_fname, GLFWwindow* window, Model* model, Texture* texture, std::string room_name) :
 		GameObject(room_name),
 		load_state_(frozen),
 		window_(window),
-		fname(""),
+		fname_(layout_fname),
 		collision_surface_(nullptr),
 		level_number_(all_levels_.size())
 		//for now this uses current window size as resolution since thats what ZMapper will output as
@@ -184,9 +254,8 @@ public:
 		all_levels_.push_back(this); //need to add remove call for destruction
 		setModel(model);
 		setTexture(texture);
-		for (auto& obj : layout) {
-			addDependent(obj);
-		}
+		
+
 		moveTo(model->getBoxCenter());
 		model->centerVerts();
 		for (auto& neig : neighbors_) {
@@ -197,19 +266,30 @@ public:
 	//Level(std::string fname, GLFWwindow* window):fname(fname),window_(window) {}
 
 	bool save() const {
-		if (fname == "") {/*error*/ }
+		if (fname_ == "") {/*error*/ }
 	}
 
 	const Surface<3>* getCollisionSurface() const {
 		return collision_surface_;
 	}
 	
+
 	void createZmapCollisionSurface(unsigned int n_steps, ZMapper* zmapper) {
 		std::vector<const GameObject*> neighbors;
 		for (const auto& neig : neighbors_) {
 			neighbors.push_back(neig);
 		}
 		Zmap* collision_surface = new Zmap(Level::getWindowSize(window_)[1], Level::getWindowSize(window_)[0], getModel());
+		collision_surface->createData(*this, n_steps, neighbors, static_cast<void*>(zmapper));
+		collision_surface_ = collision_surface;
+		level_region_ = collision_surface;
+	}
+	void createZmapCollisionSurface(unsigned int n_steps, ZMapper* zmapper, int x_res, int y_res) {
+		std::vector<const GameObject*> neighbors;
+		for (const auto& neig : neighbors_) {
+			neighbors.push_back(neig);
+		}
+		Zmap* collision_surface = new Zmap(y_res, x_res, getModel());
 		collision_surface->createData(*this, n_steps, neighbors, static_cast<void*>(zmapper));
 		collision_surface_ = collision_surface;
 		level_region_ = collision_surface;

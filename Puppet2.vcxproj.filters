@@ -78,6 +78,9 @@
     <ClCompile Include="UI.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="vertex_group.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Default3d.h">

@@ -54,8 +54,8 @@ private:
 	Eigen::Matrix4f last_position_;
 
 	Surface<3>* hitbox;
-	std::unordered_map<GameObject*,CollisionPairBase*> collidors_; //should be a safe pointer
-	std::unordered_map<GameObject*, bool> collision_flags_;
+	std::unordered_map<const GameObject*,CollisionPairBase*> collidors_; //should be a safe pointer
+	std::unordered_map<const GameObject*, bool> collision_flags_;
 
 	const GameObject* parent_;
 	PositionConstraint* connector_;
@@ -203,9 +203,14 @@ public:
 	}
 
 
-	void addCollisionPair(GameObject* other, CollisionPairBase* collision_pair) {
+	void addCollisionPair(const GameObject* other, CollisionPairBase* collision_pair) {
 		this->collidors_.insert({ other,collision_pair });
 		this->collision_flags_.insert({ other,false });
+		//this->collision_flags_.emplace_back(false);
+	}
+	void removeCollisionPair(const GameObject* other) {
+		this->collidors_.erase(other);
+		this->collision_flags_.erase(other);
 		//this->collision_flags_.emplace_back(false);
 	}
 
@@ -437,6 +442,27 @@ public:
 	}
 	void removeDependent(GameObject* child) {
 		dependents_.erase(child);
+	}
+
+	virtual void initialize(std::string init_string) {
+		Eigen::Matrix4f init_position = Eigen::Matrix4f::Identity();
+		int i = 0;
+		std::string elem_value;
+		std::stringstream ss(init_string);
+		while (std::getline(ss, elem_value, '\t') && i < 16) {
+			init_position(i / 4, i % 4) = std::stof(elem_value);
+			i++;
+		}
+		setPosition(init_position);
+	}
+
+	virtual std::string save() {
+		const Eigen::Matrix4f& M = getPosition();
+		constexpr char fs[] = "{:.3}";
+		return std::format(fs, M(0, 0)) + "\t" + std::format(fs, M(0, 1)) + "\t" + std::format(fs, M(0, 2)) + "\t" + std::format(fs, M(0, 3)) + "\t" +
+			std::format(fs, M(1, 0)) + "\t" + std::format(fs, M(1, 1)) + "\t" + std::format(fs, M(1, 2)) + "\t" + std::format(fs, M(1, 3)) + "\t" +
+			std::format(fs, M(2, 0)) + "\t" + std::format(fs, M(2, 1)) + "\t" + std::format(fs, M(2, 2)) + "\t" + std::format(fs, M(2, 3)) + "\t" +
+			std::format(fs, M(3, 0)) + "\t" + std::format(fs, M(3, 1)) + "\t" + std::format(fs, M(3, 2)) + "\t" + std::format(fs, M(3, 3));
 	}
 
 };

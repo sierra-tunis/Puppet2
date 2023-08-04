@@ -13,7 +13,7 @@ class Rect2d : public Model {
 private:
 
 	constexpr static std::vector<float> RectVerts(float height, float width) {
-		return std::vector<float>{width/2,height/2,0,-width/2,height/2,0,width/2,-height/2,0,-width/2,-height/2,0 };
+		return std::vector<float>{-width/2,-height/2,0,width/2,-height/2,0,-width/2,height/2,0,width/2,height/2,0 };
 	}
 	constexpr static std::vector<float> RectNorms() {
 		return std::vector<float>{0.,0.,-1.,0,0,-1,0,0,-1,0,0,-1};
@@ -393,7 +393,9 @@ class UIIterator : public GameObject{
 		} else {
 			this_->target_iterator_++;
 		}
-		this_->callback_on_change_(prev_target, this_->getTarget(), this_->callback_input_);
+		if (this_->callback_on_change_ != nullptr) {
+			this_->callback_on_change_(prev_target, this_->getTarget(), this_->callback_input_);
+		}
 		if (this_->getTarget() == nullptr) {
 			this_->target_name_.text = "None";
 		}
@@ -413,7 +415,9 @@ class UIIterator : public GameObject{
 		} else {
 			this_->target_iterator_--;
 		}
-		this_->callback_on_change_(prev_target, this_->getTarget(), this_->callback_input_);
+		if (this_->callback_on_change_ != nullptr) {
+			this_->callback_on_change_(prev_target, this_->getTarget(), this_->callback_input_);
+		}
 		if (this_->getTarget() == nullptr) {
 			this_->target_name_.text = "None";
 		} else {
@@ -489,7 +493,7 @@ public:
 		prev_target_.unload(window, graphics_2d, text_graphics);
 	}
 
-	obj_T* getTarget() {
+	obj_T* getTarget() const {
 		if (iterable_ == nullptr || target_iterator_ == iterable_->end()) {
 			return nullptr;
 		} else {
@@ -506,9 +510,18 @@ public:
 		obj_T* prev_target = getTarget();
 		iterable_ = iterable;
 		target_iterator_ = iterable_->begin();
-		callback_on_change_(prev_target, getTarget(), callback_input_);
-
+		if (callback_on_change_ != nullptr) {
+			callback_on_change_(prev_target, getTarget(), callback_input_);
+		}
 	}
+
+
+};
+
+class ProgressBar : public GameObject {
+
+	GameObject background_;
+
 
 
 };

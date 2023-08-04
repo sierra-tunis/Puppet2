@@ -21,6 +21,7 @@ class DynamicModel : public Model {
 	std::unordered_map<std::string, int> group_index_by_name_;
 	std::unordered_map<std::string, VertexGroup*> group_by_name_;
 	std::vector<VertexGroup*> primary_group_by_vert_;
+
 	int n_groups_;
 
 	void loadMatrices() {

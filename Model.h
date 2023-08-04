@@ -54,31 +54,6 @@ private:
 		return;
 	}
 
-	void reformatShadedHard() {
-		std::vector<float> verts_temp(verts_);
-		std::vector<float> norms_temp(norms_);
-		std::vector<float> vtx_temp(tex_coords_);
-		n_verts_ = n_faces_ * 3;
-		verts_ = std::vector<float>(n_verts_ * 3);
-		norms_ = std::vector<float>(n_verts_ * 3);
-		tex_coords_ = std::vector<float>(n_verts_ * 2);
-		for (size_t i = 0; i < 3 * n_faces_; i++) {
-			verts_[3 * i] = verts_temp[3 * faces_[i]];
-			verts_[3 * i + 1] = verts_temp[3 * faces_[i]+1];
-			verts_[3 * i + 2] = verts_temp[3 * faces_[i]+2];
-			faces_[i] = i;
-
-			norms_[3 * i] = norms_temp[3 * face_norms_[i]];
-			norms_[3 * i + 1] = norms_temp[3 * face_norms_[i] + 1];
-			norms_[3 * i + 2] = norms_temp[3 * face_norms_[i] + 2];
-			face_norms_[i] = i;
-
-			tex_coords_[2 * i] = vtx_temp[2 * face_tex_[i]];
-			tex_coords_[2 * i+1] = vtx_temp[2 * face_tex_[i] + 1];
-			face_tex_[i] = i;
-		}
-		return;
-	}
 
 	void calculateBoundingBox() {
 		std::array<float, 3> min = { INFINITY,INFINITY,INFINITY };
@@ -115,6 +90,33 @@ protected:
 	}
 
 public:
+
+
+	void reformatShadedHard() {
+		std::vector<float> verts_temp(verts_);
+		std::vector<float> norms_temp(norms_);
+		std::vector<float> vtx_temp(tex_coords_);
+		n_verts_ = n_faces_ * 3;
+		verts_ = std::vector<float>(n_verts_ * 3);
+		norms_ = std::vector<float>(n_verts_ * 3);
+		tex_coords_ = std::vector<float>(n_verts_ * 2);
+		for (size_t i = 0; i < 3 * n_faces_; i++) {
+			verts_[3 * i] = verts_temp[3 * faces_[i]];
+			verts_[3 * i + 1] = verts_temp[3 * faces_[i] + 1];
+			verts_[3 * i + 2] = verts_temp[3 * faces_[i] + 2];
+			faces_[i] = i;
+
+			norms_[3 * i] = norms_temp[3 * face_norms_[i]];
+			norms_[3 * i + 1] = norms_temp[3 * face_norms_[i] + 1];
+			norms_[3 * i + 2] = norms_temp[3 * face_norms_[i] + 2];
+			face_norms_[i] = i;
+
+			tex_coords_[2 * i] = vtx_temp[2 * face_tex_[i]];
+			tex_coords_[2 * i + 1] = vtx_temp[2 * face_tex_[i] + 1];
+			face_tex_[i] = i;
+		}
+		return;
+	}
 	static constexpr char debug_path[] = "C:\\Users\\Justin\\source\\repos\\Puppet2\\Puppet2\\assets\\";
 	static std::string default_path;
 
