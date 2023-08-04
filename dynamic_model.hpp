@@ -44,17 +44,20 @@ public:
 		Model(){
 	}
 
-	DynamicModel(std::string model_fname, std::string vertex_groups_fname, bool force_shade_hard=false) :
+	DynamicModel(std::string model_fname, std::string vertex_groups_fname, bool force_shade_hard=true) :
 		DynamicModel(model_fname, vertex_groups_fname, Model::default_path, force_shade_hard) {}
 
 
-	DynamicModel(std::string model_fname, std::string vertex_groups_fname, std::string path, bool force_shade_hard=false) :
+	DynamicModel(std::string model_fname, std::string vertex_groups_fname, std::string path, bool force_shade_hard=true) :
 	Model(model_fname, path, force_shade_hard){
 		
 		if (!shade_smooth_) {
-			std::cerr << "hard dynamic models not implemented yet!\n";
+			//std::cerr << "hard dynamic models not implemented yet!\n";
 		}
 		loadMatrices();
+
+		std::vector<unsigned int> OBJ_groups;
+		std::vector<unsigned int> OBJ_indices;
 
 		std::string line;
 		std::string type;
@@ -80,12 +83,26 @@ public:
 				int index = std::stoi(type);
 				std::getline(ss, value, ' ');
 				int group = std::stoi(value);
-				vert_groups_[group]->addVert(index); //only get first group
-				primary_group_by_vert_.push_back(vert_groups_[group]);//works because verts are ordered in file
+				OBJ_indices.push_back(index);
+				OBJ_groups.push_back(group);
 			}
+
 		}
 		objFile.close();
+
+		std::vector<unsigned int> gl_groups;
+		std::vector<unsigned int> gl_indices;
+
+		objVertData2gl<unsigned int,1>(OBJ_indices, gl_indices);
+		objVertData2gl<unsigned int,1>(OBJ_groups, gl_groups);
+
+		for (int i = 0; i < gl_groups.size(); i++) {
+			vert_groups_[gl_groups[i]]->addVert(i); //only get first group
+			primary_group_by_vert_.push_back(vert_groups_[gl_groups[i]]);//works because verts are ordered in file
+		}
+		
 		n_groups_ = vert_groups_.size();
+
 	}
 
 	VertexGroup* getGroup(std::string group_name) const {

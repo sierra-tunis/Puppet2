@@ -6,7 +6,7 @@
 MeshSurface::MeshSurface(std::string fname) : MeshSurface(fname, Model::default_path) {}
 
 MeshSurface::MeshSurface(std::string fname, std::string path){
-	Model model(fname, path);
+	Model model(fname, path, false);
 	for (int i = 0; i < model.vlen(); i++) {
 		verts_.emplace_back(model.getVerts()[3 * i], model.getVerts()[3 * i + 1], model.getVerts()[3 * i + 2]);
 	}

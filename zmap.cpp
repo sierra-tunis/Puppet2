@@ -11,6 +11,10 @@ void Zmap::createData(const GameObject& level, unsigned int n_steps, const std::
 		 std::cerr << "n_steps must be greater than 2";
 	 }
 	 int layer = 0;
+	 if (z_step == 0.) {
+		 std::cerr << "level model is empty!\n";
+		 return;
+	 }
 	 while (z <= model.getBoxCenter()[1] + model.getBoundingBox()[1] / 2 + z_step) {
 		 std::vector<uint8_t> data(x_resolution_ * y_resolution_ * 4);
 		 zmapper.renderZstep(level, y_resolution_, x_resolution_, z, z_step,xy_padding_, &data, neighbors, "ZmapImages\\"+level.getName()+"\\"+ "zmap_layer" + std::to_string(layer) + "_" + level.getName() + ".png");
