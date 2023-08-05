@@ -129,6 +129,10 @@ public:
 		glUniformMatrix4fv(camera_location_, 1, GL_FALSE, scene_->camera->getCameraMatrix().data());
 
 		glUniform4f(glGetUniformLocation(gl_id, "atmosphere_color"), scene_->atmosphere_color(0), scene_->atmosphere_color(1), scene_->atmosphere_color(2), scene_->atmosphere_strength);
+		if (scene_->lights.size() > 0) {
+			glUniform3fv(glGetUniformLocation(gl_id, "light_position"), 1, scene_->lights[0]->position.data());
+			glUniform3fv(glGetUniformLocation(gl_id, "light_color"), 1, scene_->lights[0]->color.data());
+		}
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -145,6 +149,10 @@ public:
 			scene_ = new Scene();
 		}
 		scene_->camera = camera;
+	}
+
+	void setScene(Scene* scene) {
+		scene_ = scene;
 	}
 
 	Default3d():

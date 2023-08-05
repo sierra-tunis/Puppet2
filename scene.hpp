@@ -5,21 +5,20 @@
 
 #include <Eigen\Dense>
 #include <camera.h>
-
-struct light {
-	float brightness;
-	Eigen::Vector3f color;
-	Eigen::Vector3f position;
-
-};
-
-struct orthogonalLight : public light {
-
-	Eigen::Vector3f direction_;
-
-};
-
 struct Scene {
+
+	struct light {
+		float brightness;
+		Eigen::Vector3f color;
+		Eigen::Vector3f position;
+
+	};
+
+	struct orthogonalLight : public light {
+
+		Eigen::Vector3f direction_;
+
+	};
 
 	std::vector<const light*> lights;
 	const orthogonalLight* shadow_light;

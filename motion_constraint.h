@@ -51,21 +51,24 @@ public:
 										new_tform(seq(0, 2), 3)-(*boundary_position_)(seq(0,2),3));
 	}
 
-	Eigen::Vector3f bestTranslate(Eigen::Matrix4f current, Eigen::Vector3f delta_pos, Eigen::Vector3f normal, Eigen::Vector3f binormal) const {
+	Eigen::Vector3f bestTranslate(Eigen::Matrix4f current, Eigen::Vector3f delta_pos, Eigen::Vector3f normal, Eigen::Vector3f binormal, int n_iters=5) const {
 			//Eigen::Matrix3f delta_pos = target(seq(0, 2), 3) - current(seq(0, 2), 3);
 		float delta_norm = delta_pos.norm();
-		Eigen::Vector3f fwd = limitTranslate(current, delta_pos);
+		Eigen::Vector3f fwd = limitTranslate(current, delta_pos, n_iters);
 		float fwd_ratio = fwd.norm() / delta_pos.norm();
 		if (fwd_ratio == 1.) {
 			return fwd;
 		}
 		Eigen::Matrix4f next = current;
 		next(seq(0,2),3) += fwd;
-		Eigen::Vector3f pos_norm = limitTranslate(next, (1 - fwd_ratio) * delta_norm * normal);
-		Eigen::Vector3f neg_norm = limitTranslate(next, -(1 - fwd_ratio) * delta_norm * normal);
-		Eigen::Vector3f pos_binorm = limitTranslate(next, (1 - fwd_ratio) * delta_norm * binormal);
-		Eigen::Vector3f neg_binorm = limitTranslate(next, -(1 - fwd_ratio) * delta_norm * binormal);
-		return fwd + (pos_norm + neg_norm) + (pos_binorm + neg_binorm);
+		Eigen::Vector3f pos_norm = limitTranslate(next, (1 - fwd_ratio) * delta_norm * normal, n_iters);
+		Eigen::Vector3f neg_norm = limitTranslate(next, -(1 - fwd_ratio) * delta_norm * normal, n_iters);
+		Eigen::Vector3f pos_binorm = limitTranslate(next, (1 - fwd_ratio) * delta_norm * binormal, n_iters);
+		Eigen::Vector3f neg_binorm = limitTranslate(next, -(1 - fwd_ratio) * delta_norm * binormal, n_iters);
+		Eigen::Vector3f bounce_vec = fwd + (pos_norm + neg_norm) + (pos_binorm + neg_binorm);
+		Eigen::Matrix4f new_pos = current;
+		new_pos(seq(0, 2), 3) += bounce_vec;
+		return bounce_vec + limitTranslate(new_pos,delta_pos, n_iters);
 	}
 
 	BoundaryConstraint() : boundary_(nullptr),boundary_position_(nullptr) {}
