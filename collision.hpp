@@ -131,6 +131,13 @@ public:
 
 };
 
+class CollisionSetBase {
+	
+
+
+};
+
+
 
 
 

@@ -13,7 +13,7 @@ const char* Default2d::vertex_code = "\n"
 
 "void main()\n"
 "{\n"
-"   gl_Position = position_matrix * vec4(pos.x, pos.y, 0, 1.0);\n"
+"   gl_Position = position_matrix * vec4(pos.x, pos.y, 0., 1.0);\n"
 "	texCoord = vt;\n"
 "}\0";
 const char* Default2d::fragment_code = "#version 330 core\n"
@@ -24,6 +24,8 @@ const char* Default2d::fragment_code = "#version 330 core\n"
 
 "void main()\n"
 "{\n"
-"	FragColor = texture(tex,texCoord);\n"
+"	vec4 tex_color = texture(tex,texCoord);\n"
+"	if(tex_color.w < .1) discard;\n"
+"	FragColor = tex_color;\n"
 //"	FragColor = vec4(0.,0.,0.,1.);\n"
 " } ";

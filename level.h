@@ -37,7 +37,6 @@ private:
 	static Level* current_level_;
 	static Level* prev_level_;
 	static std::vector<Level*> all_levels_;
-
 	
 	Sound theme_;
 	Scene scene_;
@@ -141,6 +140,7 @@ public:
 			} else {
 				std::string line;
 				std::string output = "";
+				bool obj_line_found = false;
 				while (std::getline(layout_in, line)) {
 					std::stringstream ss(line);
 					std::string obj_name;
@@ -148,6 +148,7 @@ public:
 					if (obj_name == obj->getName()) {
 						std::string new_line = obj->getName() + "\t" + obj->save();
 						output +=  new_line + "\n";
+						obj_line_found = true;
 					} else {
 						output += line;
 					}
@@ -156,6 +157,10 @@ public:
 				if (!layout_out.is_open()) {
 					std::cerr << "layout file not opened!";
 				} else {
+					if (!obj_line_found) {
+						std::string new_line = obj->getName() + "\t" + obj->save();
+						output += new_line + "\n";
+					}
 					layout_out << output;
 				}
 			}

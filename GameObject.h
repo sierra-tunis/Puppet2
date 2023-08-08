@@ -64,14 +64,6 @@ private:
 
 protected:
 	
-	void setModel(Model* model) {
-		model_ = model;
-	}
-
-	void setTexture(Texture* tex) {
-		texture_ = tex;
-	}
-
 	void addAnimation(AnimationBase* animation) {
 		animations_.insert(animation);
 		//animation->load();
@@ -489,6 +481,15 @@ public:
 			return nullptr;
 		}
 	}
+
+	void setModel(Model* model) {
+		model_ = model;
+	}
+
+	void setTexture(Texture* tex) {
+		texture_ = tex;
+	}
+
 
 };
 //template <class G, int ... Keys>

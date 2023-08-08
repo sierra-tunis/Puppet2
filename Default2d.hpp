@@ -77,7 +77,7 @@ public:
 	Default2d() : position_location_(glGetUniformLocation(gl_id, "position_matrix")) {}
 
 	void beginDraw() const override {
-		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_DEPTH_TEST);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 		//default3d specific code

@@ -57,24 +57,26 @@ class DebugMenu : public GameObject {
 
 	void onKeyDown(int key) override {
 		if (reposition_mode_ && debug_target_ != nullptr) {
+			Eigen::Vector3f new_pos;
 			switch (key) {
 			case GLFW_KEY_UP:
-				debug_target_->translate(getdt()*Eigen::Vector3f(debug_camera_.getPosition()(seq(0,2),0)).cross(Eigen::Vector3f(0,1.,0)));
+				new_pos = debug_target_->getPosition()(seq(0, 2), 3) + getdt() * Eigen::Vector3f(debug_camera_.getPosition()(seq(0, 2), 0)).cross(Eigen::Vector3f(0, 1., 0));
+				debug_target_->moveTo(new_pos);
 				break;
 			case GLFW_KEY_DOWN:
-				debug_target_->translate(getdt() * Eigen::Vector3f(debug_camera_.getPosition()(seq(0, 2), 0)).cross(Eigen::Vector3f(0, -1., 0)));
+				debug_target_->moveTo(debug_target_->getPosition()(seq(0, 2), 3) + getdt() * Eigen::Vector3f(debug_camera_.getPosition()(seq(0, 2), 0)).cross(Eigen::Vector3f(0, -1., 0)));
 				break;
 			case GLFW_KEY_LEFT:
-				debug_target_->translate(getdt() * Eigen::Vector3f(debug_camera_.getPosition()(seq(0, 2), 2)).cross(Eigen::Vector3f(0, 1., 0)));
+				debug_target_->moveTo(debug_target_->getPosition()(seq(0, 2), 3) + getdt() * Eigen::Vector3f(debug_camera_.getPosition()(seq(0, 2), 2)).cross(Eigen::Vector3f(0, 1., 0)));
 				break;
 			case GLFW_KEY_RIGHT:
-				debug_target_->translate(getdt() * Eigen::Vector3f(debug_camera_.getPosition()(seq(0, 2), 2)).cross(Eigen::Vector3f(0, -1., 0)));
+				debug_target_->moveTo(debug_target_->getPosition()(seq(0, 2), 3) + getdt() * Eigen::Vector3f(debug_camera_.getPosition()(seq(0, 2), 2)).cross(Eigen::Vector3f(0, -1., 0)));
 				break;
 			case GLFW_KEY_PAGE_UP:
-				debug_target_->translate(getdt() * debug_camera_.getPosition()(seq(0, 2), 1));
+				debug_target_->moveTo(debug_target_->getPosition()(seq(0, 2), 3) + getdt() * debug_camera_.getPosition()(seq(0, 2), 1));
 				break;
 			case GLFW_KEY_PAGE_DOWN:
-				debug_target_->translate(getdt() * -debug_camera_.getPosition()(seq(0, 2), 1));
+				debug_target_->moveTo(debug_target_->getPosition()(seq(0, 2), 3) + getdt() * -debug_camera_.getPosition()(seq(0, 2), 1));
 				break;
 			}
 		}
