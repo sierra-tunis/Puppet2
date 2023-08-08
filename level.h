@@ -128,7 +128,7 @@ public:
 				for (auto& o : getDependents()) {
 					if (o->getName() != InternalObject::no_name) {
 						std::string new_line = o->getName() + "\t" + o->save();
-						layout_out << new_line << "\n";
+						layout_out << new_line + "\n";
 					}
 				}
 				layout_out.close();
