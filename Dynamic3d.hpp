@@ -4,7 +4,6 @@
 #define PUPPET_GRAPHICS_DYNAMIC3D
 
 #include <Eigen/Dense>
-#define _USE_MATH_DEFINES
 #include <cmath>
 
 #include "Graphics.hpp"

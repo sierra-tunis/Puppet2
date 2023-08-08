@@ -3,7 +3,6 @@
 #ifndef PUPPET_LEVEL
 #define PUPPET_LEVEL
 
-#define _USE_MATH_DEFINES
 #include <cmath>
 #include <map>
 
@@ -12,6 +11,7 @@
 #include "zmap.h"
 #include "ZMapper.h"
 #include "sound.hpp"
+#include "scene.hpp"
 
 #include <GLFW/glfw3.h>
 
@@ -40,6 +40,7 @@ private:
 
 	
 	Sound theme_;
+	Scene scene_;
 
 	//we can render the floor like an image with color corresponding to the height.
 	// use some sentinel color for the background to indicate out of bounds regions.
@@ -263,12 +264,6 @@ public:
 		}
 	}
 
-	//Level(std::string fname, GLFWwindow* window):fname(fname),window_(window) {}
-
-	bool save() const {
-		if (fname_ == "") {/*error*/ }
-	}
-
 	const Surface<3>* getCollisionSurface() const {
 		return collision_surface_;
 	}
@@ -351,6 +346,9 @@ public:
 		return all_levels_;
 	}
 
+	Scene& getScene() {
+		return scene_;
+	}
 
 	/*
 	void activate() {

@@ -4,7 +4,6 @@
 #define PUPPET_GRAPHICS_DEFAULT3D
 
 #include <Eigen/Dense>
-#define _USE_MATH_DEFINES
 #include <cmath>
 
 #include "Graphics.hpp"
@@ -132,6 +131,7 @@ public:
 		if (scene_->lights.size() > 0) {
 			glUniform3fv(glGetUniformLocation(gl_id, "light_position"), 1, scene_->lights[0]->position.data());
 			glUniform3fv(glGetUniformLocation(gl_id, "light_color"), 1, scene_->lights[0]->color.data());
+			glUniform1f(glGetUniformLocation(gl_id, "light_strength"), scene_->lights[0]->brightness);
 		}
 
 		glEnable(GL_BLEND);
@@ -165,4 +165,5 @@ public:
 	}
 
 };
+
 #endif

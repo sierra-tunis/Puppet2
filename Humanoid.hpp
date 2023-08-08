@@ -4,10 +4,9 @@
 #define PUPPET_GAMEOBJECT_HUMANOID
 
 
-#define _USE_MATH_DEFINES
-#include<cmath>
-
 #include <Eigen/Dense>
+
+#include "math_constants.hpp"
 
 #include "GameObject.h"
 #include "dynamic_model.hpp"
@@ -520,6 +519,10 @@ public:
 
 	const DynamicModel* getDynamicModel() const {
 		return dyn_model_;
+	}
+
+	void TPose() {
+		setState(Eigen::Vector<float, n_dofs>::Zero());
 	}
 
 };

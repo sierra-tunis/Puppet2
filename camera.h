@@ -3,9 +3,9 @@
 #ifndef PUPPET_CAMERA
 #define PUPPET_CAMERA
 
-#define _USE_MATH_DEFINES
 #include<cmath>
 
+#include "math_constants.hpp"
 #include "GameObject.h"
 #include "Graphics.hpp"
 

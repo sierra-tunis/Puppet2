@@ -4,7 +4,6 @@
 #define PUPPET_PLAYERCAMERA
 
 #include <Eigen/Dense>
-#define _USE_MATH_DEFINES
 
 #include <cmath>
 

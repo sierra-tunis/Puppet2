@@ -4,10 +4,10 @@
 #ifndef PUPPET_ZMAPPER
 #define PUPPET_ZMAPPER
 
-#define _USE_MATH_DEFINES
 
 #include <cmath>
 
+#include "math_constants.hpp"
 #include "Graphics.hpp"
 #include "camera.h"
 #include "zdata.hpp"

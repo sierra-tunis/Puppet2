@@ -295,6 +295,7 @@
     <ClInclude Include="graphics_raw.hpp" />
     <ClInclude Include="Humanoid.hpp" />
     <ClInclude Include="interface.hpp" />
+    <ClInclude Include="math_constants.hpp" />
     <ClInclude Include="mesh_utils.hpp" />
     <ClInclude Include="motion_constraint.h" />
     <ClInclude Include="MyGameObject.hpp" />

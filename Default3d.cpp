@@ -30,8 +30,9 @@ const char* Default3d::fragment_code = "#version 330 core\n"
 
 "uniform sampler2D tex;\n"
 "uniform vec4 atmosphere_color;\n" //alpha is atmosphere strength
-"uniform vec3 light_color;\n"
+"uniform vec4 light_color;\n"
 "uniform vec3 light_position;\n"
+"uniform float light_strength;\n"
 
 "out vec4 FragColor;\n"
 
@@ -40,7 +41,7 @@ const char* Default3d::fragment_code = "#version 330 core\n"
 "   float a = atmosphere_color.w * (length(position));"
 
 "   vec3 light_dir = (light_position - position);\n"
-"	light_dir = (light_dir*5)/(5+dot(light_dir, light_dir));"
+"	light_dir = (light_dir*light_strength)/(light_strength+dot(light_dir, light_dir));\n"//strength scaling
 "	float diff = max(dot(normal, light_dir), 0.0);\n"
 "	vec3 tex_color = (diff + .2) * texture(tex,texCoord).xyz;\n"
 //apply atmospheric perspective

@@ -122,6 +122,20 @@ protected:
 
 	inline virtual void onAnimationEnd(AnimationBase* animation){}
 
+	virtual void initialize(std::string init_string, std::string* remainder_string) {
+		Eigen::Matrix4f init_position = Eigen::Matrix4f::Identity();
+		int i = 0;
+		std::string elem_value;
+		std::stringstream ss(init_string);
+		while (i < 16 && std::getline(ss, elem_value, '\t')) {
+			init_position(i / 4, i % 4) = std::stof(elem_value);
+			i++;
+		}
+		setPosition(init_position);
+		std::getline(ss, *remainder_string, '\0');//rest of string
+
+	}
+
 public:
 
 	static std::unordered_set<GameObject*> global_game_objects;
@@ -444,6 +458,7 @@ public:
 		dependents_.erase(child);
 	}
 
+	
 	virtual void initialize(std::string init_string) {
 		Eigen::Matrix4f init_position = Eigen::Matrix4f::Identity();
 		int i = 0;
@@ -456,13 +471,23 @@ public:
 		setPosition(init_position);
 	}
 
-	virtual std::string save() {
+	virtual std::string save() const {
 		const Eigen::Matrix4f& M = getPosition();
 		constexpr char fs[] = "{:.3}";
 		return std::format(fs, M(0, 0)) + "\t" + std::format(fs, M(0, 1)) + "\t" + std::format(fs, M(0, 2)) + "\t" + std::format(fs, M(0, 3)) + "\t" +
 			std::format(fs, M(1, 0)) + "\t" + std::format(fs, M(1, 1)) + "\t" + std::format(fs, M(1, 2)) + "\t" + std::format(fs, M(1, 3)) + "\t" +
 			std::format(fs, M(2, 0)) + "\t" + std::format(fs, M(2, 1)) + "\t" + std::format(fs, M(2, 2)) + "\t" + std::format(fs, M(2, 3)) + "\t" +
 			std::format(fs, M(3, 0)) + "\t" + std::format(fs, M(3, 1)) + "\t" + std::format(fs, M(3, 2)) + "\t" + std::format(fs, M(3, 3));
+	}
+
+	template<class T = GameObject>
+	static T* getNamedObject(std::string name) {
+		if (InternalObject::getNamedInternalObjects().contains(name)) {
+			return dynamic_cast<T*>(InternalObject::getNamedInternalObjects().at(name));
+		}
+		else {
+			return nullptr;
+		}
 	}
 
 };

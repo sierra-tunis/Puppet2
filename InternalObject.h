@@ -35,7 +35,7 @@ private:
 	//so move(obj1.relativePosition(obj2)) will always move obj1 to obj2 but not need to "modify" global position
 	
 	static int last_id_;
-	static std::unordered_map<std::string,const InternalObject*> named_internal_objects_;
+	static std::unordered_map<std::string, InternalObject*> named_internal_objects_;
 	const int id_;
 	std::string name_;
 
@@ -156,19 +156,8 @@ protected:
 
 	inline virtual void onStep() {};
 
-	virtual bool readFromFiles(std::string directory) {
-		if (name_ == InternalObject::no_name) {
-			std::cerr << "must be called on a named object!";
-			return false;
-		}
-		return true;
-	};
-	virtual bool writeToFiles(std::string directory, bool no_overwrite) const {
-		if (name_ == InternalObject::no_name) {
-			std::cerr << "must be called on a named object!";
-			return false;
-		}
-		return true;
+	static const std::unordered_map<std::string, InternalObject*>& getNamedInternalObjects() {
+		return named_internal_objects_;
 	};
 
 public:
@@ -191,13 +180,19 @@ public:
 		name_(name),
 		key_state_callback_(key_state_callback_){
 
-		this->onCreation();//i dont think this works since you cant use virtual functions in a constructor
-		if (name != no_name) {
-			InternalObject::named_internal_objects_[name] = this;
+		if (name_ != no_name) {
+			if (InternalObject::named_internal_objects_.contains(name_)) {
+				name_ = no_name;
+			} else {
+				InternalObject::named_internal_objects_[name_] = this;
+			}
 		}
 
 	}
 
+	InternalObject(InternalObject& other) : InternalObject(other.getName()) {
+
+	}
 
 	inline virtual void update(GLFWwindow* window) {
 		//this should be rewritten to be consteval eventually
@@ -250,6 +245,8 @@ public:
 	// virtual std::vector<bool> unitTest() = 0;
 
 	const std::string& getName() const { return name_; }
+
+	
 
 };
 
