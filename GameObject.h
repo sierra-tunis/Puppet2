@@ -62,6 +62,8 @@ private:
 
 	std::unordered_set<GameObject*> dependents_; //dependents get updated and modified by this object
 
+	GameObject* position_display_;
+
 protected:
 	
 	void addAnimation(AnimationBase* animation) {
@@ -404,13 +406,13 @@ public:
 		}
 	}
 	void erase(GraphicsRaw<GameObject>* shader) const {
-		shader->remove(*this);
+		shader->unload(*this);
 	}
 	void eraseFamily(GraphicsRaw<GameObject>* shader) const {
 		for (auto& child : getDependents()) {
-			child->drawFamily(shader);
+			child->eraseFamily(shader);
 		}
-		draw(shader);//undraws in reverse order
+		erase(shader);//undraws in reverse order
 	}
 
 	void translate(Eigen::Vector3f vec) {
@@ -439,8 +441,8 @@ public:
 	}
 	//this is a terrible way of doing this since there is just total boilerplate code where you have to add all new objects to UI_container
 	//also if the object is deleted, the UI elements associated with it would also be deleted???
-	virtual void openDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {}
-	virtual void closeDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {}
+	virtual void openDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics);
+	virtual void closeDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics);
 	
 
 	void addDependent(GameObject* child) {

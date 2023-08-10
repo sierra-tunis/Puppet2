@@ -132,12 +132,13 @@ public:
 };
 
 class CollisionSetBase {
-	
-
 
 };
 
+template<PrimaryHitbox PrimaryHitbox_T, SecondaryHitbox<PrimaryHitbox_T> SecondaryHitbox_T>
+class CollisionSet : public CollisionSetBase {
 
+};
 
 
 

@@ -3,8 +3,9 @@
 #include "textbox_object.hpp"
 
 std::unordered_set<GameObject*> GameObject::global_game_objects;
-/*
+
 void GameObject::openDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {
+	/*
 	TextboxObject* position_display = new TextboxObject();
 	position_display->box_width = 1;
 	position_display->box_height = .5;
@@ -19,16 +20,17 @@ void GameObject::openDebugUI(const GameObject* UI_container, GLFWwindow* window,
 	position_display->clampTo(UI_container);
 	text_graphics.add(*position_display);
 	position_display_ = position_display;
-
+	*/
 }
 
 void GameObject::closeDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {
+	/*
 	TextboxObject* position_display = static_cast<TextboxObject*>(position_display_);
 	removeDependent(position_display);
 	text_graphics.unload(*position_display);
 	delete position_display_;
 	position_display_ = nullptr;
-
+	*/
 
 }
-*/
+

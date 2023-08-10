@@ -408,6 +408,7 @@ public:
 	}*/
 
 	void openDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) override {
+		GameObject::openDebugUI(UI_container, window, graphics_2d, text_graphics);
 		float slider_height = .6 / n_dofs;
 		int n_sections = 7;
 		for (int i = 0; i < n_dofs; i++) {
