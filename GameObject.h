@@ -56,6 +56,7 @@ private:
 	Surface<3>* hitbox;
 	std::unordered_map<const GameObject*,CollisionPairBase*> collidors_; //should be a safe pointer
 	std::unordered_map<const GameObject*, bool> collision_flags_;
+	bool active_hitbox_;
 
 	const GameObject* parent_;
 	PositionConstraint* connector_;
@@ -145,7 +146,8 @@ public:
 		InternalObject(name, key_state_callback_caller),
 		t_ref_(system_clock::now()),
 		parent_(nullptr),
-		connector_(nullptr){
+		connector_(nullptr),
+		active_hitbox_(true){
 
 	}
 	/*GameObject(std::string name) :
@@ -167,7 +169,7 @@ public:
 		
 		//check collisions
 		for (auto& collidor : collidors_) {
-			if (collidor.second->isCollision(getPosition(),collidor.first->getPosition())) {
+			if (active_hitbox_ && collidor.first->active_hitbox_ && collidor.second->isCollision(getPosition(),collidor.first->getPosition())) {
 				collidor.second->fullCollisionInfo(getPosition(), collidor.first->getPosition());
 				if (collision_flags_.at(collidor.first) == false) {
 					//is colliding, hasnt called onCollision
@@ -490,6 +492,13 @@ public:
 
 	void setTexture(Texture* tex) {
 		texture_ = tex;
+	}
+
+	void activateHitbox() {
+		active_hitbox_ = true;
+	}
+	void deactivateHitbox() {
+		active_hitbox_ = false;
 	}
 
 
