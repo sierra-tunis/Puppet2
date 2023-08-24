@@ -9,6 +9,7 @@
 #include "Graphics.hpp"
 #include "camera.h"
 #include "GameObject.h"
+#include "scene.hpp"
 
 using Eigen::Matrix4f;
 
@@ -19,7 +20,7 @@ private:
 	const unsigned int camera_location_;
 	const unsigned int model_location_;
 
-	const Camera* camera_;
+	Scene* scene_;
 
 
 	constexpr int& getVAO(Cache cache) const {
@@ -135,8 +136,15 @@ public:
 		glEnable(GL_DEPTH_TEST);
 		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-		glUniformMatrix4fv(perspective_location_, 1, GL_FALSE, camera_->getPerspective().data());
-		glUniformMatrix4fv(camera_location_, 1, GL_FALSE, camera_->getCameraMatrix().data());
+		glUniformMatrix4fv(perspective_location_, 1, GL_FALSE, scene_->camera->getPerspective().data());
+		glUniformMatrix4fv(camera_location_, 1, GL_FALSE, scene_->camera->getCameraMatrix().data());
+
+		glUniform4f(glGetUniformLocation(gl_id, "atmosphere_color"), scene_->atmosphere_color(0), scene_->atmosphere_color(1), scene_->atmosphere_color(2), scene_->atmosphere_strength);
+		if (scene_->lights.size() > 0) {
+			glUniform3fv(glGetUniformLocation(gl_id, "light_position"), 1, scene_->lights[0]->position.data());
+			glUniform3fv(glGetUniformLocation(gl_id, "light_color"), 1, scene_->lights[0]->color.data());
+			glUniform1f(glGetUniformLocation(gl_id, "light_strength"), scene_->lights[0]->brightness);
+		}
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -149,14 +157,21 @@ public:
 	}
 
 	void setCamera(Camera* camera) {
-		camera_ = camera;
+		if (scene_ == nullptr) {
+			scene_ = new Scene();
+		}
+		scene_->camera = camera;
+	}
+
+	void setScene(Scene* scene) {
+		scene_ = scene;
 	}
 
 	Dynamic3d() :
 		model_location_(glGetUniformLocation(gl_id, "model")),
 		camera_location_(glGetUniformLocation(gl_id, "camera")),
 		perspective_location_(glGetUniformLocation(gl_id, "perspective")),
-		camera_(nullptr) {
+		scene_(nullptr) {
 
 		//perspective_ << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1;
 	}
