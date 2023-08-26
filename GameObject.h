@@ -98,6 +98,10 @@ protected:
 		return broken_constraint->bestTranslate(getPosition(), translation, normal, binormal);
 	}
 
+	virtual Eigen::Matrix3f onInvalidRotation(Eigen::Matrix3f rotation, BoundaryConstraint* broken_constraint) {
+		return Eigen::Matrix3f::Identity();
+	}
+
 	virtual void onInvalidConstraintChange(BoundaryConstraint* bc) {
 
 	}
@@ -289,8 +293,20 @@ public:
 		//stale_global_position_ = true;
 	}
 
+	void rotateTo(Eigen::Matrix3f rot) {
+		position_(seq(0, 2), seq(0, 2)) = rot;
+	}
+
 	void rotate(Eigen::Matrix3f rot) {
-		position_(seq(0, 2), seq(0, 2)) = rot * getPosition()(seq(0, 2), seq(0, 2));
+		Eigen::Matrix4f new_pos = getPosition();
+		for (auto m_c : motion_constraints_) {
+			new_pos(seq(0, 2), seq(0,2)) = rot * getPosition()(seq(0, 2), seq(0, 2));
+			if (m_c->breaksConstraint(getPosition(), new_pos)) {
+				rot = onInvalidRotation(rot, m_c);
+			}
+		}
+		rotateTo(rot * getPosition()(seq(0, 2), seq(0, 2)));
+		//position_(seq(0, 2), seq(0, 2)) = rot * getPosition()(seq(0, 2), seq(0, 2));
 		//stale_global_position_ = true;
 	}
 
@@ -307,8 +323,9 @@ public:
 	void rotateY(float angle) { rotateAxisAngle(Eigen::Vector3f(0, 1, 0), angle); };
 	void rotateZ(float angle) { rotateAxisAngle(Eigen::Vector3f(0, 0, 1), angle); };
 
+	//deprecated
 	void setOrientation(Eigen::Matrix3f orientation) {
-		position_(seq(0, 2), seq(0, 2)) = orientation;
+		rotateTo(orientation);
 	}
 
 	void setVelocity(Eigen::Vector3f velocity) {
@@ -425,7 +442,13 @@ public:
 				vec = onInvalidTranslation(vec, m_c);
 			}
 		}
-		moveTo(getPosition()(seq(0,2),3) + vec);
+		new_pos(seq(0, 2), 3) = getPosition()(seq(0, 2), 3) + vec;
+		for (auto m_c : motion_constraints_) {
+			if (m_c->breaksConstraint(getPosition(), new_pos) || m_c->breaksConstraint(new_pos, getPosition())) {
+				return;
+			}
+		}
+		moveTo(new_pos(seq(0,2),3));
 		//stale_global_position_ = true;
 	};
 	void translate(float dx, float dy, float dz) {
