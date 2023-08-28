@@ -9,6 +9,7 @@
 
 #include "camera.h"
 #include "GameObject.h"
+#include "signal.hpp"
 
 using Eigen::Matrix4f;
 using Eigen::Vector3f;
@@ -29,6 +30,7 @@ private:
 
 	GLFWwindow* window_;
 
+	//Signal damped_tether_length_;
 
 	void onMouseMove(float x, float y, float dx, float dy) override {
 		if (look_mode_) {
@@ -99,6 +101,7 @@ public:
 		look_mode_(true){
 
 		setConnector(&tether_);
+
 
 	}
 

@@ -442,6 +442,7 @@ public:
 				vec = onInvalidTranslation(vec, m_c);
 			}
 		}
+		//ensure invalid translate vec is still valid
 		new_pos(seq(0, 2), 3) = getPosition()(seq(0, 2), 3) + vec;
 		for (auto m_c : motion_constraints_) {
 			if (m_c->breaksConstraint(getPosition(), new_pos) || m_c->breaksConstraint(new_pos, getPosition())) {

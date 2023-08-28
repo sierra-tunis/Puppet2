@@ -305,6 +305,7 @@
     <ClInclude Include="player_camera.h" />
     <ClInclude Include="scene.hpp" />
     <ClInclude Include="sequence.h" />
+    <ClInclude Include="signal.hpp" />
     <ClInclude Include="skeleton.hpp" />
     <ClInclude Include="sound.hpp" />
     <ClInclude Include="stb_image_write.h" />
