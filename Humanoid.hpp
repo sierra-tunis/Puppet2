@@ -200,7 +200,6 @@ private:
 
 protected:
 	void onStep() {
-		dyn_model_->updateData();
 		Eigen::Vector<float, n_dofs> new_state;
 		if (edit_animation_mode_ && edit_animation_ != nullptr) { //set state using edit_frame cursor
 			new_state = edit_animation_->getFrame()(seq(1, n_dofs));
@@ -212,6 +211,7 @@ protected:
 			new_state = Eigen::Vector<float, n_dofs>::Constant(0);
 		}
 		setState(new_state);
+		dyn_model_->updateData();
 
 		refreshDebugSliders();
 	}
@@ -280,6 +280,7 @@ public:
 		waist_rotation_.setRootTransform(&origin_.getEndTransform());
 		origin_.setRootTransform(&origin_position_.getEndTransform());
 		origin_position_.setRootTransform(&getPosition());
+		//origin_position_.setRootTransform(nullptr);
 
 		refresh();
 
@@ -321,6 +322,7 @@ public:
 
 
 		model->offsetVerts();
+		model->setRootTransform(&getPosition());
 		dyn_model_ = model;
 		setModel(model);
 		setTexture(new Texture("human_tex.jpg", Texture::debug_path));

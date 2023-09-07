@@ -209,10 +209,11 @@ public:
 			}
 		}
 		//perform user code
-		for (auto& child : dependents_) {
+		onStep();
+		for (auto& child : dependents_) {//since dependenets DEPEND on parent state they should update after
+
 			child->update(window);
 		}
-		onStep();
 
 	}
 
@@ -370,7 +371,7 @@ public:
 
 	void connectTo(const GameObject* parent) {
 		this->parent_ = parent;
-		if (connector_ != nullptr) {
+		if (connector_ != nullptr && parent_ != nullptr) {
 			connector_->setRootTransform(&parent_->getPosition());
 		}
 	}

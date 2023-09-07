@@ -101,6 +101,7 @@ public:
 		look_mode_(true){
 
 		setConnector(&tether_);
+		tether_.setRootTransform(nullptr);
 
 
 	}
@@ -111,7 +112,9 @@ public:
 		float current_extension_ = tether_.getState()(2);
 		dist_.setState(Eigen::Vector<float, 1>(0));
 		Eigen::Vector<float, 3> equilibrium_state(pan_.getState()(0), tilt_.getState()(0), equilibrium_length_);
-		tether_.boundedMove<10>(equilibrium_state, getParent()->getMotionConstraints());
+		if (getParent() != nullptr) {
+			tether_.boundedMove<10>(equilibrium_state, getParent()->getMotionConstraints());
+		}
 		float new_extension_ = tether_.getState()(2);
 		float damped_return_to_equilibrium = (new_extension_ + (19) * current_extension_) / (20);
 		dist_.setState(Eigen::Vector<float,1>(damped_return_to_equilibrium));

@@ -17,6 +17,7 @@ class DynamicModel : public Model {
 	Eigen::Matrix<float, 3, -1> norm_mat_;
 
 	std::vector<VertexGroup*> vert_groups_;
+	const Eigen::Matrix4f* root_tform_;
 
 	std::unordered_map<std::string, int> group_index_by_name_;
 	std::unordered_map<std::string, VertexGroup*> group_by_name_;
@@ -126,10 +127,11 @@ public:
 		for (auto& vg : vert_groups_) {
 			if (vg->getTform() != nullptr) {
 				const Eigen::Matrix4f& tform = *vg->getTform();
-				const Eigen::Matrix3f& rot = tform(seq(0, 2), seq(0, 2));
+				const Eigen::Matrix4f rel_tform = root_tform_ == nullptr ? tform : root_tform_->inverse() * tform;
+				const Eigen::Matrix3f& rot = rel_tform(seq(0, 2), seq(0, 2));
 				for (const VertexGroup::vertex& vert : vg->getVerts()) {
 					Eigen::Vector3f pos = vert_mat_(seq(0, 2), vert.index);
-					pos = rot * pos + tform(seq(0, 2), 3);
+					pos = rot * pos + rel_tform(seq(0, 2), 3);
 					setVert(vert.index, pos);
 					Eigen::Vector3f norm = norm_mat_(seq(0, 2), vert.index);
 					norm = rot * norm;
@@ -190,6 +192,10 @@ public:
 
 	int getInd(std::string group_name) const {
 		return group_index_by_name_.at(group_name);
+	}
+	
+	void setRootTransform(const Eigen::Matrix4f* root_transform) {
+		root_tform_ = root_transform;
 	}
 
 };

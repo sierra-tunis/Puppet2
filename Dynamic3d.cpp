@@ -17,7 +17,7 @@ const char* Dynamic3d::vertex_code = "\n"
 
 "void main()\n"
 "{\n"
-"	position = (camera  * vec4(pos.x, pos.y, pos.z, 1.0)).xyz;"
+"	position = (camera * model * vec4(pos.x, pos.y, pos.z, 1.0)).xyz;"
 "	normal = (camera  *  vec4(norm.x, norm.y, norm.z, 0.0)).xyz;"
 "   gl_Position = perspective* vec4(position.x, position.y, position.z, 1.0);\n"
 "	texCoord = vt;\n"

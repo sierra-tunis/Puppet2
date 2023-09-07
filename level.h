@@ -19,9 +19,11 @@
 using std::array;
 using std::vector;
 
+extern class DebugMenu;
+
 class Level : public GameObject {
 private:
-
+	friend DebugMenu;
 	//static std::vector <Level> level_catalog_;
 
 	enum LoadStatus { active, standby, frozen }; //by default, active is fully loaded and updated, standby is loaded but not updated, frozen is unloaded and unupdated
@@ -116,6 +118,7 @@ public:
 		}
 	}
 
+	/*
 	void saveLayoutFile(GameObject* obj =nullptr){
 		if (obj == nullptr) {
 			std::ofstream layout_out(Level::default_path + fname_);
@@ -164,6 +167,22 @@ public:
 					layout_out << output;
 				}
 			}
+		}
+	}*/
+	void saveLayoutFile() {
+		std::ofstream layout_out(Level::default_path + fname_);
+		if (!layout_out.is_open()) {
+			std::cerr << "layout file not opened for writing!\n";
+			return;
+		}
+		else {
+			for (auto& o : getDependents()) {
+				if (o->getName() != InternalObject::no_name) {
+					std::string new_line = o->getName() + "\t" + o->save();
+					layout_out << new_line + "\n";
+				}
+			}
+			layout_out.close();
 		}
 	}
 

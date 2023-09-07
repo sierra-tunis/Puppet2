@@ -42,6 +42,17 @@ public:
 	Model(RectVerts(height,width),RectNorms(),RectTex(1.,1.,0.,0.),RectFace(),RectFaceNorm(),RectFaceTex()){}
 };
 
+class UIElement : public GameObject {
+	float height_, width_;
+	Rect2d model_;
+
+	TextboxObject label_;
+
+	virtual void load(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) = 0;
+	virtual void unload(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) = 0;
+
+};
+
 
 class Button : public GameObject{
 
@@ -518,9 +529,95 @@ public:
 
 };
 
+class Pane : public GameObject {
+
+	float height_, width_;
+
+};
+
+class TabbedPane : public GameObject {
+	
+	float height_, width_;
+
+	std::vector<Pane*> panes_;
+	std::vector<Button*> tabs_;
+	float total_tab_width_;
+	float tab_height_;
+	static constexpr int max_tabs = 10;
+
+	int active_pane_index_;
+
+	//whether this function is private or public says a lot about the architecture of puppet code pachake/puppet software
+	void activatePane(int i) {
+		panes_[active_pane_index_]->hide();
+		panes_[i]->show();
+		active_pane_index_ = i;
+	}
+
+	template<int i>
+	static void activatePaneCallback(void* must_be_this) {
+		TabbedPane* this_ = static_cast<TabbedPane*>(must_be_this);
+		this_->activatePane(i);
+	}
+
+	template<int index = max_tabs>
+	void setButtonCallbacks() {
+		if (index < tabs_.size()) {
+			tabs_[index]->setCallback(&activatePaneCallback<index>, this);
+		}
+		if constexpr (index > 0) {
+			setButtonCallbacks<index - 1>();
+		}
+	}
+
+public:
+	TabbedPane(float height, float width, float tab_height) :
+		height_(height),
+		width_(width),
+		total_tab_width_(0.0f),
+		tab_height_(.1),
+		active_pane_index_(0){
+
+	}
+
+	void addPane(Pane* new_pane, std::string pane_label, float tab_width) {
+		tabs_.emplace_back(new Button(tab_height_, tab_width));
+		panes_.push_back(new_pane);
+		setButtonCallbacks();
+		tabs_.back()->moveTo(-width_/2 + total_tab_width_+tab_width/2, height_ / 2 + tab_height_ / 2, 0);
+		tabs_.back()->clampTo(this);
+		tabs_.back()->setLabel(pane_label);
+		total_tab_width_ += tab_width;
+		activatePane(tabs_.size()-1);
+		new_pane->clampTo(this);
+	}
+
+	Pane* getPane(int i) {
+		return panes_[i];
+	}
+
+	void load(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {
+		for (auto& tab : tabs_) {
+			graphics_2d.add(*tab);
+			tab->load(window, graphics_2d, text_graphics);
+			addDependent(tab);
+		}
+		activatePane(0);
+	}
+
+	void unload(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {
+		for (auto& tab : tabs_) {
+			graphics_2d.unload(*tab);
+			removeDependent(tab);
+			tab->unload(window, graphics_2d, text_graphics);
+		}
+	}
+
+
+};
+
 class ProgressBar : public GameObject {
 
-	GameObject background_;
 
 
 

@@ -124,6 +124,7 @@ public:
 	virtual void refresh() {
 
 	}
+	PositionConstraint() :root_transform_(nullptr) {}
 
 };
 
