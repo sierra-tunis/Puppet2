@@ -528,6 +528,24 @@ public:
 		setState(Eigen::Vector<float, n_dofs>::Zero());
 	}
 
+	const Eigen::Matrix4f& getLeftHandTform() const {
+		return wrist_L_.getEndTransform();
+	}
+	const Eigen::Matrix4f& getRightHandTform() const {
+		return wrist_R_.getEndTransform();
+	}
+	const Eigen::Matrix4f& getLeftFootTform() const {
+		return ankle_L_.getEndTransform();
+
+	}
+	const Eigen::Matrix4f& getRightFootTform() const {
+		return ankle_R_.getEndTransform();
+
+	}
+	const Eigen::Matrix4f& getHeadTform() const {
+		return head_tilt_.getEndTransform();
+	}
+
 };
 
 #endif // !PUPPET_GAMEOBJECT_HUMANOID

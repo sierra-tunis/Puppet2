@@ -17,9 +17,9 @@ const char* Default3d::vertex_code = "\n"
 
 "void main()\n"
 "{\n"
-"	position = (camera * model * vec4(pos.x, pos.y, pos.z, 1.0)).xyz;"
-"	normal = (camera * model *  vec4(norm.x, norm.y, norm.z, 0.0)).xyz;"
-"   gl_Position = perspective* vec4(position.x, position.y, position.z, 1.0);\n"
+"	position = ( model * vec4(pos.x, pos.y, pos.z, 1.0)).xyz;"
+"	normal = (model *  vec4(norm.x, norm.y, norm.z, 0.0)).xyz;"
+"   gl_Position = perspective * camera *vec4(position.x, position.y, position.z, 1.0);\n"
 "	texCoord = vt;\n"
 "}\0";
 
@@ -41,8 +41,8 @@ const char* Default3d::fragment_code = "#version 330 core\n"
 "   float a = atmosphere_color.w * (length(position));"
 
 "   vec3 light_dir = (light_position - position);\n"
-"	light_dir = (light_dir*light_strength)/(light_strength+dot(light_dir, light_dir));\n"//strength scaling
-"	float diff = max(dot(normal, light_dir), 0.0);\n"
+"	float diff = max(dot(normal, normalize(light_dir)), 0.0);\n"
+"	diff = (diff*light_strength*light_strength)/(light_strength*light_strength+dot(light_dir, light_dir));\n"//strength scaling
 "	vec3 tex_color = (diff + .2) * texture(tex,texCoord).xyz;\n"
 //apply atmospheric perspective
 "	FragColor.xyz = (tex_color + atmosphere_color.xyz * a)/(1 + a);\n"
