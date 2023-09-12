@@ -43,7 +43,7 @@ const char* Default3d::fragment_code = "#version 330 core\n"
 "   vec3 light_dir = (light_position - position);\n"
 "	float diff = max(dot(normal, normalize(light_dir)), 0.0);\n"
 "	diff = (diff*light_strength*light_strength)/(light_strength*light_strength+dot(light_dir, light_dir));\n"//strength scaling
-"	vec3 tex_color = (diff + .2) * texture(tex,texCoord).xyz;\n"
+"	vec3 tex_color = (diff + .3) * texture(tex,texCoord).xyz;\n"
 //apply atmospheric perspective
 "	FragColor.xyz = (tex_color + atmosphere_color.xyz * a)/(1 + a);\n"
 "	FragColor.w = texture(tex,texCoord).w;\n"

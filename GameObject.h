@@ -494,7 +494,7 @@ public:
 
 	virtual std::string save() const {
 		const Eigen::Matrix4f& M = getPosition();
-		constexpr char fs[] = "{:.3}";
+		constexpr char fs[] = "{:.6}";
 		return std::format(fs, M(0, 0)) + "\t" + std::format(fs, M(0, 1)) + "\t" + std::format(fs, M(0, 2)) + "\t" + std::format(fs, M(0, 3)) + "\t" +
 			std::format(fs, M(1, 0)) + "\t" + std::format(fs, M(1, 1)) + "\t" + std::format(fs, M(1, 2)) + "\t" + std::format(fs, M(1, 3)) + "\t" +
 			std::format(fs, M(2, 0)) + "\t" + std::format(fs, M(2, 1)) + "\t" + std::format(fs, M(2, 2)) + "\t" + std::format(fs, M(2, 3)) + "\t" +

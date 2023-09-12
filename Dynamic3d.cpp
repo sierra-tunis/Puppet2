@@ -44,7 +44,7 @@ const char* Dynamic3d::fragment_code = "#version 330 core\n"
 "	diff = (diff*light_strength*light_strength)/(light_strength*light_strength+dot(light_dir, light_dir));\n"//strength scaling
 "	vec4 tex_pixel_data = texture(tex,texCoord);\n"
 "   if(tex_pixel_data.w < .2) discard;\n"
-"	vec3 tex_color = (diff + .2) * tex_pixel_data.xyz;\n"
+"	vec3 tex_color = (diff + .3) * tex_pixel_data.xyz;\n"
 //apply atmospheric perspective
 "	FragColor.xyz = (tex_color + atmosphere_color.xyz * a)/(1 + a);\n"
 

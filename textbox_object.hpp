@@ -16,6 +16,8 @@ private:
 	size_t getID() const override {
 		return GameObject::getID();
 	}
+
+public:
 	bool isHidden() const override{
 		return GameObject::isHidden();
 	}
