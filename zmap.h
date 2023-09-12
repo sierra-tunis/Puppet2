@@ -21,6 +21,35 @@ private:
 	//should really be an ordered vector
 	//const zdata background_;
 
+	static float quad_interpolate(float x, float y, float z11, float z12, float z21, float z22, float quad_side_len) {
+		// 0 < x < quad_side_len
+		// 0 < y < quad_side_len
+		// z11 = z(x-,y-)
+		// z21 = z(x+,y-)
+		// z12 = z(x-,y+)
+		// z22 = z(x+,y+)
+
+		if (x > y) {
+			//Triangle abc
+			Eigen::Vector3f a = Eigen::Vector3f(0, z11, 0);
+			Eigen::Vector3f b = Eigen::Vector3f(quad_side_len, z21, 0);
+			Eigen::Vector3f c = Eigen::Vector3f(quad_side_len, z11, quad_side_len);
+			Eigen::Vector3f plane = (b-a).cross(b-c).normalized();
+			// (Eigen::Vector3f(x,ret,y) - b).plane = 0
+			// (x-b_x)*plane_x + (ret - b_y)*plane_y + (y-b_z)*plane_z = 0
+			// (ret - b_y)*plane_y = (b_x-x)*plane_x  + (b_z - y)*plane_z
+			// ret = ((b_x-x)*plane_x  + (b_z - y)*plane_z)/plane_y + b_y
+			return ((b(0) - x) * plane(0) + (b(2) - y) * plane(2)) / plane(1) + b(1);
+		} else {
+			//Triangle abc
+			Eigen::Vector3f a = Eigen::Vector3f(0, z11, 0);
+			Eigen::Vector3f b = Eigen::Vector3f(quad_side_len, z12, 0);
+			Eigen::Vector3f c = Eigen::Vector3f(quad_side_len, z11, quad_side_len);
+			Eigen::Vector3f plane = (b - a).cross(b - c).normalized();
+			return ((b(0) - x) * plane(0) + (b(2) - y) * plane(2)) / plane(1) + b(1);
+		}
+
+	}
 
 	void addLayer(std::vector<uint8_t> frame_data, float frame_z, float z_step) {
 		int data_resolution = 255;
@@ -121,21 +150,22 @@ public:
 
 	std::pair<zdata, zdata> getZdata(Eigen::Vector3f position, float step_height) const {
 
-		float x_pos = this->x_resolution_ * (position(0) / map_width_+.5);
-		float y_pos = this->y_resolution_ * (position(2) / map_height_+.5);
+		float x_pos = static_cast<float>(this->x_resolution_) * (position(0) / map_width_ + .5);
+		float y_pos = static_cast<float>(this->y_resolution_) * (position(2) / map_height_ + .5);
 		int x_ind_min = static_cast<int>(x_pos);
 		int x_ind_max = static_cast<int>(x_pos) + 1;
 		int y_ind_min = static_cast<int>(y_pos);
 		int y_ind_max = static_cast<int>(y_pos) + 1;
 		float x_remainder = x_pos - x_ind_min;
 		float y_remainder = y_pos - y_ind_min;
-		auto z11 = getZdataDiscrete(position(1), x_ind_min, y_ind_min,step_height);
+		auto z11 = getZdataDiscrete(position(1), x_ind_min, y_ind_min, step_height);
 		auto z21 = getZdataDiscrete(position(1), x_ind_max, y_ind_min, step_height);
 		auto z12 = getZdataDiscrete(position(1), x_ind_min, y_ind_max, step_height);
 		auto z22 = getZdataDiscrete(position(1), x_ind_max, y_ind_max, step_height);
 
-		float z_below = y_remainder * (x_remainder * (z22.first.z - z12.first.z) + z12.first.z - x_remainder * (z21.first.z - z11.first.z) - z11.first.z) + x_remainder * (z21.first.z - z11.first.z) + z11.first.z;
-		float z_above = y_remainder * (x_remainder * (z22.second.z - z12.second.z) + z12.second.z - x_remainder * (z21.second.z - z11.second.z) - z11.second.z) + x_remainder * (z21.second.z - z11.second.z) + z11.second.z;
+		float z_below = quad_interpolate(x_remainder, y_remainder, z11.first.z, z21.first.z, z12.first.z, z22.first.z, 1.);
+		float z_above = quad_interpolate(x_remainder, y_remainder, z11.second.z, z21.second.z, z12.second.z, z22.second.z, 1.);
+
 
 		return std::pair<zdata, zdata>(zdata({ z_below,0,0 }, z11.first.room_id), zdata({ z_above,0,0 }, z11.second.room_id));
 	}

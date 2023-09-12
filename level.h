@@ -260,7 +260,9 @@ public:
 	}
 
 	static void goToPrevLevel() {
-		Level::goToLevel(prev_level_);
+		if (prev_level_ != nullptr) {
+			Level::goToLevel(prev_level_);
+		}
 	}
 
 	void onStep() override {

@@ -85,9 +85,10 @@ protected:
 		//user wants to perform some chikanery here and decide to do something else they are allowed
 		Eigen::Vector3f normal;
 		Eigen::Vector3f binormal;
-		if (translation.dot(getPosition()(seq(0, 2), 1)) == translation.norm()) {
-			normal = getPosition()(seq(0, 2), 2);
-			binormal = getPosition()(seq(0, 2), 0);
+		if (abs(translation.dot(getPosition()(seq(0, 2), 1))) == translation.norm()) {
+			//normal = getPosition()(seq(0, 2), 2);
+			//binormal = getPosition()(seq(0, 2), 0);
+			return broken_constraint->limitTranslate(getPosition(), translation);
 		}
 		else {
 			normal = translation.cross(Eigen::Vector3f(getPosition()(seq(0, 2), 1)));

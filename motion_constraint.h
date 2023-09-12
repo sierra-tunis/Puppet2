@@ -17,26 +17,6 @@ class BoundaryConstraint{
 	const Surface<3>* boundary_;
 	const Eigen::Matrix4f* boundary_position_;
 
-	Eigen::Vector3f limitTranslate(Eigen::Matrix4f position, Eigen::Vector3f delta_pos, int n_iters = 5) const {
-		//Eigen::Vector3f delta_pos = first_guess - position;
-		float delta_norm = delta_pos.norm();
-		float len_ratio = 1.;
-		Eigen::Vector3f longest_vec = Eigen::Vector3f::Zero();
-		for (int i = 0; i < n_iters; i++) {
-			Eigen::Matrix4f new_tform = position;
-			new_tform(seq(0, 2), 3) += longest_vec + len_ratio * delta_pos;
-			if (breaksConstraint(position, new_tform)) {
-
-			} else {
-				if (len_ratio == 1.) {
-					return delta_pos;
-				}
-				longest_vec += delta_pos * len_ratio;
-			}
-			len_ratio /= 2;
-		}
-		return longest_vec;
-	}
 protected:
 
 	virtual bool invalidPosition(Eigen::Matrix4f position) const {
@@ -50,6 +30,30 @@ public:
 			boundary_->crossesSurface(old_tform(seq(0, 2), 3)-(*boundary_position_)(seq(0,2),3),
 										new_tform(seq(0, 2), 3)-(*boundary_position_)(seq(0,2),3));
 	}
+
+	Eigen::Vector3f limitTranslate(Eigen::Matrix4f position, Eigen::Vector3f delta_pos, int n_iters = 5) const {
+		//Eigen::Vector3f delta_pos = first_guess - position;
+		//returns farthest possible delta_pos
+		float delta_norm = delta_pos.norm();
+		float len_ratio = 1.;
+		Eigen::Vector3f longest_vec = Eigen::Vector3f::Zero();
+		for (int i = 0; i < n_iters; i++) {
+			Eigen::Matrix4f new_tform = position;
+			new_tform(seq(0, 2), 3) += longest_vec + len_ratio * delta_pos;
+			if (breaksConstraint(position, new_tform)) {
+
+			}
+			else {
+				if (len_ratio == 1.) {
+					return delta_pos;
+				}
+				longest_vec += delta_pos * len_ratio;
+			}
+			len_ratio /= 2;
+		}
+		return longest_vec;
+	}
+
 
 	Eigen::Vector3f bestTranslate(Eigen::Matrix4f current, Eigen::Vector3f delta_pos, Eigen::Vector3f normal, Eigen::Vector3f binormal, int n_iters=5) const {
 			//Eigen::Matrix3f delta_pos = target(seq(0, 2), 3) - current(seq(0, 2), 3);
