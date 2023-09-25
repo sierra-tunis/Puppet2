@@ -43,6 +43,7 @@ private:
 	Sound theme_;
 	Scene scene_;
 
+
 	//we can render the floor like an image with color corresponding to the height.
 	// use some sentinel color for the background to indicate out of bounds regions.
 	//this lets us rectangularize the whole level and only need to figure out the player position
@@ -95,6 +96,8 @@ private:
 public:
 	static std::string default_path;
 	static constexpr char debug_path[] = "C:\\Users\\Justin\\source\\repos\\Puppet2\\Puppet2\\assets\\";
+
+	static GraphicsRaw<GameObject>* level_shader;
 
 	void reset() {
 		std::ifstream layout_file(Level::default_path + fname_);
@@ -288,6 +291,11 @@ public:
 		for (auto& neig : neighbors_) {
 			const_neighbors_.push_back(neig);
 		}
+
+		if (level_shader != nullptr) {
+			level_shader->add(*this);
+		}
+
 	}
 
 	const Surface<3>* getCollisionSurface() const {
