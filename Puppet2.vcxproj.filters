@@ -245,5 +245,8 @@
     <ClInclude Include="signal.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="solid_tex.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

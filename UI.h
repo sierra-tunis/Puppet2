@@ -8,6 +8,7 @@
 #include "Default2d.hpp"
 #include "text_graphics.hpp"
 #include "textbox_object.hpp"
+#include "solid_tex.hpp"
 
 class Rect2d : public Model {
 private:
@@ -41,6 +42,7 @@ public:
 	Rect2d(float height, float width):
 	Model(RectVerts(height,width),RectNorms(),RectTex(1.,1.,0.,0.),RectFace(),RectFaceNorm(),RectFaceTex()){}
 };
+
 
 class UIElement : public GameObject {
 	float height_, width_;
@@ -616,11 +618,75 @@ public:
 
 };
 
+class PositiveRect2d : public Model {
+private:
+
+	constexpr static std::vector<float> RectVerts(float height, float width) {
+		return std::vector<float>{0.,0., 0, width, 0, 0, 0, height, 0, width, height, 0 };
+	}
+	constexpr static std::vector<float> RectNorms() {
+		return std::vector<float>{0., 0., -1., 0, 0, -1, 0, 0, -1, 0, 0, -1};
+	}
+	constexpr static std::vector<float> RectTex(float height, float width, float top, float left) {
+		//(height ,width, 0,0) is top left
+		return std::vector<float>{left, top, left + width, top, left, top + height, left + width, top + height};
+	}
+	constexpr static std::vector<unsigned int> RectFace() {
+		return std::vector<unsigned int>{0, 1, 2, 3};
+	}
+	constexpr static std::vector<unsigned int> RectFaceNorm() {
+		return std::vector<unsigned int>{0, 1, 2, 3};
+	}
+	constexpr static std::vector<unsigned int> RectFaceTex() {
+		return std::vector<unsigned int>{0, 1, 2, 3};
+	}
+
+
+public:
+
+	static Texture rect_tex;
+	static Texture border_rect_tex;
+
+	PositiveRect2d(float height, float width) :
+		Model(RectVerts(height, width), RectNorms(), RectTex(1., 1., 0., 0.), RectFace(), RectFaceNorm(), RectFaceTex()) {}
+};
+
 class ProgressBar : public GameObject {
 
+	GraphicsRaw<GameObject>* graphics_2d_;
+	
+	PositiveRect2d bar_;
+	Eigen::Vector4f color_;
+	const float* read_float_;
+	float builtin_float_;
+	float bar_max_;
+	float bar_min_;
+
+	void onStep() override {
+		bar_.rescale((*read_float_ - bar_min_) / (bar_max_ - bar_min_),1.0, 1.0);
+		graphics_2d_->refresh(*this);
+	}
+
+public:
+	void readFrom(const float& signal) {
+		read_float_ = &signal;
+	}
 
 
+	ProgressBar(float height, float width, Eigen::Vector4f color, GraphicsRaw<GameObject>* graphics_2d) :
+		read_float_(&builtin_float_),
+		bar_max_(1.0),
+		bar_min_(0.0),
+		builtin_float_(1.0),
+		bar_(height, width) {
 
+		setModel(&bar_);
+		setTexture(new SolidTexture(color(0), color(1), color(2), color(3)));
+
+		draw(graphics_2d);
+		graphics_2d_ = graphics_2d;
+
+	}
 };
 
 #endif

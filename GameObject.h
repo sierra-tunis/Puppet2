@@ -65,6 +65,8 @@ private:
 
 	GameObject* position_display_;
 
+	static float global_game_speed_;
+
 protected:
 	
 	void addAnimation(AnimationBase* animation) {
@@ -138,6 +140,10 @@ protected:
 
 public:
 
+	static void setGlobalGameSpeed(float game_speed) {
+		global_game_speed_ = game_speed;
+	}
+	
 	static std::unordered_set<GameObject*> global_game_objects;
 
 	void updatePosition() {
@@ -237,7 +243,7 @@ public:
 
 	float getdt() const {
 		//below 100 fps, game will just slow down
-		return std::min(.01f, dt_.count());
+		return std::min(.01f, dt_.count()*global_game_speed_);
 	}//note this is a copy, not a ref
 
 	/*

@@ -2,6 +2,7 @@
 #include "UI.h"
 #include "textbox_object.hpp"
 
+float GameObject::global_game_speed_ = 1.0f;
 std::unordered_set<GameObject*> GameObject::global_game_objects;
 
 void GameObject::openDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {

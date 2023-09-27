@@ -307,6 +307,7 @@
     <ClInclude Include="sequence.h" />
     <ClInclude Include="signal.hpp" />
     <ClInclude Include="skeleton.hpp" />
+    <ClInclude Include="solid_tex.hpp" />
     <ClInclude Include="sound.hpp" />
     <ClInclude Include="stb_image_write.h" />
     <ClInclude Include="sub_ui.hpp" />

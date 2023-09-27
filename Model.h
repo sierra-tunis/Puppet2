@@ -63,9 +63,9 @@ protected:
 	std::vector<unsigned int> edge_data_;
 
 	//Mesh data:
-	std::vector<vertex> vertices_;
-	std::vector<face> faces_;
-	std::vector<edge> edges_;
+	//std::vector<vertex> vertices_;
+	//std::vector<face> faces_;
+	//std::vector<edge> edges_;
 
 	Eigen::Vector3f bounding_box_;
 	Eigen::Vector3f box_center_;
@@ -360,9 +360,16 @@ public:
 		OBJ_face_tex_coords_.clear();
 		OBJ_lines_.clear();
 	}
-	/*
-	void rescale(float scale_factor) {
-		
-	}*/
+	
+	void rescale(float x_scale, float y_scale, float z_scale) {
+		if (OBJ_verts_.size() != vert_data_.size()) {
+			OBJ_verts_ = vert_data_;
+		}
+		for (int i = 0; i < OBJ_verts_.size()/3; i++) {
+			vert_data_[3*i] = OBJ_verts_[3*i] * x_scale;
+			vert_data_[3*i + 1] = OBJ_verts_[3*i + 1] * y_scale;
+			vert_data_[3*i + 2] = OBJ_verts_[3*i + 2] * z_scale;
+		}
+	}
 };
 #endif
