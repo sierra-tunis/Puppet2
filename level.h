@@ -272,6 +272,10 @@ public:
 		
 	}
 
+	Level(std::string name, GLFWwindow* window) : Level(name + ".txt", window, new Model(name + ".obj"), new Texture(name + ".png"), name) {}
+	Level(std::string name, GLFWwindow* window, Texture* texture) : Level(name + ".txt", window, new Model(name + ".obj"), texture, name) {}
+
+
 	Level(std::string layout_fname, GLFWwindow* window, Model* model, Texture* texture, std::string room_name) :
 		GameObject(room_name),
 		load_state_(frozen),
