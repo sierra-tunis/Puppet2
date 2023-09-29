@@ -48,6 +48,7 @@ private:
 	Eigen::Vector3f velocity_; //yes this could be a twist, but simplicity over technical accuracy
 	Eigen::Vector3f acceleration_;
 	std::vector<BoundaryConstraint*> motion_constraints_;
+	Eigen::Matrix4f initial_position_;
 
 	time_point<system_clock> t_ref_;
 	std::chrono::duration<float> dt_;
@@ -133,7 +134,8 @@ protected:
 			init_position(i / 4, i % 4) = std::stof(elem_value);
 			i++;
 		}
-		setPosition(init_position);
+		setInitialPosition(init_position);
+		setPosition(initial_position_);
 		std::getline(ss, *remainder_string, '\0');//rest of string
 
 	}
@@ -352,6 +354,13 @@ public:
 		return acceleration_;
 	}
 
+	void setInitialPosition(Eigen::Matrix4f initial_position) {
+		initial_position_ = initial_position;
+	}
+	Eigen::Matrix4f getInitialPosition() const {
+		return initial_position_;
+	}
+
 	void addMotionConstraint(BoundaryConstraint* BC) {
 		motion_constraints_.push_back(BC);
 	}
@@ -496,11 +505,12 @@ public:
 			init_position(i / 4, i % 4) = std::stof(elem_value);
 			i++;
 		}
-		setPosition(init_position);
+		setInitialPosition(init_position);
+		setPosition(initial_position_);
 	}
 
 	virtual std::string save() const {
-		const Eigen::Matrix4f& M = getPosition();
+		const Eigen::Matrix4f& M = getInitialPosition();
 		constexpr char fs[] = "{:.6}";
 		return std::format(fs, M(0, 0)) + "\t" + std::format(fs, M(0, 1)) + "\t" + std::format(fs, M(0, 2)) + "\t" + std::format(fs, M(0, 3)) + "\t" +
 			std::format(fs, M(1, 0)) + "\t" + std::format(fs, M(1, 1)) + "\t" + std::format(fs, M(1, 2)) + "\t" + std::format(fs, M(1, 3)) + "\t" +

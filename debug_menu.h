@@ -119,6 +119,7 @@ public:
 	static void setInitialPosition(void* must_be_this) {
 		DebugMenu* this_ = static_cast<DebugMenu*>(must_be_this);
 		if (this_->level_iterator_.getTarget() != nullptr && this_->debug_target_ != nullptr) {
+			this_->level_iterator_.getTarget()->setInitialPosition(this_->level_iterator_.getTarget()->getPosition());
 			this_->level_iterator_.getTarget()->saveLayoutFile();
 		}
 		
