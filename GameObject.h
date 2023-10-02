@@ -307,7 +307,7 @@ public:
 		position_(seq(0, 2), seq(0, 2)) = rot;
 	}
 
-	void rotate(Eigen::Matrix3f rot) {
+	Eigen::Matrix3f rotate(Eigen::Matrix3f rot) {
 		Eigen::Matrix4f new_pos = getPosition();
 		for (auto m_c : motion_constraints_) {
 			new_pos(seq(0, 2), seq(0,2)) = rot * getPosition()(seq(0, 2), seq(0, 2));
@@ -316,10 +316,12 @@ public:
 			}
 		}
 		rotateTo(rot * getPosition()(seq(0, 2), seq(0, 2)));
+		return rot;
 		//position_(seq(0, 2), seq(0, 2)) = rot * getPosition()(seq(0, 2), seq(0, 2));
 		//stale_global_position_ = true;
 	}
 
+	
 	void rotateAxisAngle(Eigen::Vector3f axis, float angle) {
 		Matrix3f w_hat;
 		w_hat << 0, -axis(2), axis(1),
@@ -329,6 +331,7 @@ public:
 		rotate(rot);
 	}
 
+	//should return floats not void
 	void rotateX(float angle) { rotateAxisAngle(Eigen::Vector3f(1, 0, 0), angle); };
 	void rotateY(float angle) { rotateAxisAngle(Eigen::Vector3f(0, 1, 0), angle); };
 	void rotateZ(float angle) { rotateAxisAngle(Eigen::Vector3f(0, 0, 1), angle); };
@@ -451,7 +454,7 @@ public:
 		erase(shader);//undraws in reverse order
 	}
 
-	void translate(Eigen::Vector3f vec) {
+	Eigen::Vector3f translate(Eigen::Vector3f vec) {
 		Eigen::Matrix4f new_pos = getPosition();
 		for (auto m_c : motion_constraints_) {
 			new_pos(seq(0,2),3) = getPosition()(seq(0,2),3) + vec;
@@ -463,10 +466,11 @@ public:
 		new_pos(seq(0, 2), 3) = getPosition()(seq(0, 2), 3) + vec;
 		for (auto m_c : motion_constraints_) {
 			if (m_c->breaksConstraint(getPosition(), new_pos) || m_c->breaksConstraint(new_pos, getPosition())) {
-				return;
+				return Eigen::Vector3f::Zero();
 			}
 		}
 		moveTo(new_pos(seq(0,2),3));
+		return vec;
 		//stale_global_position_ = true;
 	};
 	void translate(float dx, float dy, float dz) {

@@ -493,7 +493,7 @@ public:
 		animation_iterator_.setChangeCallback(setAnimation_static, this);
 		animation_iterator_.setIterable(&getAnimations());
 
-		edit_animation_mode_ = true;
+		//edit_animation_mode_ = true;
 	}
 	void closeDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) override {
 		for (int i = 0; i < n_dofs; i++) {
