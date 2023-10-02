@@ -97,6 +97,7 @@ private:
 			face_tex_data_[i] = i;
 
 		}
+		edge_data_ = OBJ_lines_;
 		return;
 	}
 

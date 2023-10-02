@@ -161,8 +161,8 @@ public:
 		parent_(nullptr),
 		connector_(nullptr),
 		active_hitbox_(true){
-
 	}
+
 	/*GameObject(std::string name) :
 		position_(Eigen::Matrix4f::Identity()),
 		InternalObject(name),
