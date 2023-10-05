@@ -220,7 +220,6 @@ public:
 		//perform user code
 		onStep();
 		for (auto& child : dependents_) {//since dependenets DEPEND on parent state they should update after
-
 			child->update(window);
 		}
 

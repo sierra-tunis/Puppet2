@@ -147,6 +147,9 @@ public:
 		activateMouseInput(window);
 	}
 
+	float getTilt() const {
+		return tilt_.getState()(0);
+	}
 
 	friend void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
 
