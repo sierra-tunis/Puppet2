@@ -98,8 +98,9 @@ public:
 		setModel(&button_model_);
 		setTexture(&Rect2d::rect_tex);
 		label_.box_width = width_*.9;
-		label_.connectTo(this, new OffsetConnector(0, 0, 0));
 		addDependent(&label_);
+		label_.connectToParent(new OffsetConnector(0, 0, 0));
+
 	}
 
 	Button(float height, float width, std::string name) : 
@@ -112,8 +113,9 @@ public:
 		setModel(&button_model_);
 		setTexture(&Rect2d::rect_tex);
 		label_.box_width = width_*.9;
-		label_.connectTo(this, new OffsetConnector(0, 0, 0));//idk why this needs to be height/2 instead of 0
 		addDependent(&label_);
+		label_.connectToParent(new OffsetConnector(0, 0, 0));//idk why this needs to be height/2 instead of 0
+
 	}
 
 	void setCallback(void (*callback_func)(void*), void* callback_input) {
@@ -249,12 +251,19 @@ public:
 		setTexture(&Rect2d::rect_tex);
 		setModel(&slider_model_);
 
-		increment_.connectTo(this, &increment_offset_);
-		decrement_.connectTo(this, &decrement_offset_);
-		current_value_.connectTo(this, &current_val_offset_);
-		upper_limit_value_.connectTo(&increment_, &upper_lim_offset_);
-		lower_limit_value_.connectTo(&decrement_, &lower_lim_offset_);
-		slider_.connectTo(this, &slider_connector_);
+		addDependent(&increment_);
+		addDependent(&decrement_);
+		addDependent(&current_value_);
+		addDependent(&slider_);
+		increment_.addDependent(&upper_limit_value_);
+		decrement_.addDependent(&lower_limit_value_);
+
+		increment_.connectToParent(&increment_offset_);
+		decrement_.connectToParent(&decrement_offset_);
+		current_value_.connectToParent(&current_val_offset_);
+		upper_limit_value_.connectToParent(&upper_lim_offset_);
+		lower_limit_value_.connectToParent(&lower_lim_offset_);
+		slider_.connectToParent(&slider_connector_);
 
 		increment_.setCallback(incrementCallback, this);
 		decrement_.setCallback(decrementCallback, this);
@@ -332,17 +341,9 @@ public:
 		}
 	}
 
-	void update(GLFWwindow* window) override {
+	void onStep() override {
 
 		slider_connector_.setState(width_ * (current_position_ - lower_limit_) / (upper_limit_ - lower_limit_) - width_ / 2);
-
-		GameObject::update(window);
-		increment_.update(window);
-		decrement_.update(window);
-		slider_.update(window);
-		lower_limit_value_.update(window);
-		upper_limit_value_.update(window);
-		current_value_.update(window);
 	}
 
 	void setSliderChangeCallback(void (*slider_change_callback)(float, void*), void* callback_input) {
@@ -464,16 +465,18 @@ public:
 		target_name_.box_height = height;
 		target_name_.font_size = 1;
 		
-		prev_target_.connectTo(this, &prev_offset_);
-		next_target_.connectTo(this, &next_offset_);
-		target_name_.connectTo(this, &name_offset_);
-
-		prev_target_.setLabel("Prev");
-		next_target_.setLabel("Next");
 
 		addDependent(&prev_target_);
 		addDependent(&next_target_);
 		addDependent(&target_name_);
+
+		prev_target_.connectToParent(&prev_offset_);
+		next_target_.connectToParent(&next_offset_);
+		target_name_.connectToParent(&name_offset_);
+
+		prev_target_.setLabel("Prev");
+		next_target_.setLabel("Next");
+
 	}
 
 	void load(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {
@@ -583,15 +586,18 @@ public:
 	}
 
 	void addPane(Pane* new_pane, std::string pane_label, float tab_width) {
-		tabs_.emplace_back(new Button(tab_height_, tab_width));
 		panes_.push_back(new_pane);
+		addDependent(new_pane);
+
+		tabs_.emplace_back(new Button(tab_height_, tab_width));	
 		setButtonCallbacks();
+		addDependent(tabs_.back());
 		tabs_.back()->moveTo(-width_/2 + total_tab_width_+tab_width/2, height_ / 2 + tab_height_ / 2, 0);
-		tabs_.back()->clampTo(this);
+		tabs_.back()->clampToParent();
 		tabs_.back()->setLabel(pane_label);
 		total_tab_width_ += tab_width;
 		activatePane(tabs_.size()-1);
-		new_pane->clampTo(this);
+		new_pane->clampToParent();
 	}
 
 	Pane* getPane(int i) {
@@ -602,7 +608,6 @@ public:
 		for (auto& tab : tabs_) {
 			graphics_2d.add(*tab);
 			tab->load(window, graphics_2d, text_graphics);
-			addDependent(tab);
 		}
 		activatePane(0);
 	}
@@ -610,7 +615,6 @@ public:
 	void unload(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {
 		for (auto& tab : tabs_) {
 			graphics_2d.unload(*tab);
-			removeDependent(tab);
 			tab->unload(window, graphics_2d, text_graphics);
 		}
 	}

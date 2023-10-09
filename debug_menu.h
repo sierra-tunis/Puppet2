@@ -25,7 +25,6 @@ class DebugMenu : public GameObject {
 	Button set_init_position_;
 	Button reset_level_;
 
-	DebugCamera& debug_cam_;
 	OffsetConnector cam_clamp_;
 	PlayerCamera debug_camera_;
 
@@ -119,7 +118,9 @@ public:
 	static void setInitialPosition(void* must_be_this) {
 		DebugMenu* this_ = static_cast<DebugMenu*>(must_be_this);
 		if (this_->level_iterator_.getTarget() != nullptr && this_->debug_target_ != nullptr) {
-			this_->level_iterator_.getTarget()->setInitialPosition(this_->level_iterator_.getTarget()->getPosition());
+			if (this_->target_iterator_.getTarget() != nullptr) {
+				this_->target_iterator_.getTarget()->setInitialPosition(this_->target_iterator_.getTarget()->getPosition());
+			}
 			this_->level_iterator_.getTarget()->saveLayoutFile();
 		}
 		
@@ -132,11 +133,13 @@ public:
 		}
 		if (next == nullptr) {
 			this_->target_iterator_.setIterable(&GameObject::global_game_objects);
+			//this_->debug_camera_.setConnectorBase(&next->getPosition());
 		}else {
 			this_->target_iterator_.setIterable(&next->getContents());
+			this_->debug_camera_.setConnectorBase(&next->getPosition());
+
 			//next->activate();
 		}
-		this_->debug_camera_.connectTo(next);
 	}
 
 
@@ -161,8 +164,8 @@ public:
 		}
 		if (next != nullptr) {
 			this_->debug_target_->openDebugUI(&this_->custom_obj_pane_, this_->window_, this_->graphics_2d_, this_->text_graphics_);
+			this_->debug_camera_.setConnectorBase(&this_->debug_target_->getPosition());
 		}
-		this_->debug_camera_.connectTo(this_->debug_target_);
 	}
 	/*
 	static void nextTargetCallback(void* must_be_this) {
@@ -227,7 +230,7 @@ public:
 		buttons_.push_back(button);
 	}
 
-	DebugMenu(GLFWwindow* window, Default2d& graphics, TextGraphics& text_graphics, DebugCamera& debug_camera) : GameObject("debug_menu",key_state_callback_caller_),
+	DebugMenu(GLFWwindow* window, Default2d& graphics, TextGraphics& text_graphics) : GameObject("debug_menu",key_state_callback_caller_),
 		//test_button_(.1, .2, "test_button"),
 		//test_slider_(.1, .3, 0, 1),
 		reposition_target_(.1,.5),
@@ -241,7 +244,6 @@ public:
 		frame_counter_(0),
 		text_graphics_(text_graphics),
 		graphics_2d_(graphics),
-		debug_cam_(debug_camera),//should eventually move debug camera construction and management into DebugMenu
 		cam_clamp_(Eigen::Matrix4f::Identity()),
 		window_(window),
 		debug_target_(nullptr),
@@ -258,26 +260,28 @@ public:
 		test_button_.load(window, graphics_2d_, text_graphics_);
 		*/
 
+		addDependent(&reposition_target_);
 		reposition_target_.moveTo(.6, -.2, 0);
 		reposition_target_.clampTo(&reposition_pane_);
 		reposition_target_.setLabel("reposition target");
 		reposition_target_.load(window, graphics_2d_, text_graphics_);
 		reposition_target_.setCallback(&repositionTarget, this);
-		addDependent(&reposition_target_);
 
+		addDependent(&set_init_position_);
 		set_init_position_.moveTo(.6, -.35, 0);
 		set_init_position_.clampTo(&reposition_pane_);
 		set_init_position_.setLabel("set init position");
 		set_init_position_.load(window, graphics_2d_, text_graphics_);
 		set_init_position_.setCallback(&setInitialPosition, this);
-		addDependent(&set_init_position_);
 
+		addDependent(&reset_level_);
 		reset_level_.moveTo(.6, -.5, 0);
 		reset_level_.clampTo(&reposition_pane_);
 		reset_level_.setLabel("reset level");
 		reset_level_.load(window, graphics_2d_, text_graphics_);
 		reset_level_.setCallback(&resetLevel, this);
-		addDependent(&reset_level_);
+
+		addDependent(&fps_tbox_);
 
 		fps_tbox_.text = "0";
 		fps_tbox_.box_height = char_info(' ').unscaled_height;
@@ -285,7 +289,6 @@ public:
 		fps_tbox_.moveTo(.75, .94, 0);
 		text_graphics.add(fps_tbox_);//for some reason removing this and beginning with the menu hidden causes an error
 		fps_tbox_.clampTo(this);
-		addDependent(&fps_tbox_);
 
 
 		/*
@@ -324,7 +327,7 @@ public:
 		edit_pane_.clampTo(this);
 
 		addDependent(&debug_camera_);
-		debug_camera_.connectTo(nullptr);
+		debug_camera_.setConnector(&cam_clamp_);
 		debug_camera_.activateMouseInput(window);
 
 		/*target_dbg_info_.box_width = 2;
@@ -401,12 +404,7 @@ public:
 		}
 
 		//test_slider_.update(window);
-		if (debug_target_ != nullptr) {
-			debug_cam_.connectTo(debug_target_,&cam_clamp_);
-		} else {
-			debug_cam_.setParent(nullptr);
-			debug_cam_.setConnector(nullptr);
-		}
+
 		
 	//	test_button_.update(window);
 
@@ -416,11 +414,9 @@ public:
 			if (debug_target_ == nullptr) {
 				dbg_info = "";
 				name_text = "no Target";
-				debug_cam_.show();
 			}else {
 				dbg_info = debug_target_->getDebugInfo();
 				name_text = debug_target_->getName();
-				debug_cam_.hide();
 			}
 			/*if (dbg_info != target_dbg_info_.text) {
 				text_graphics_.unload(target_dbg_info_);

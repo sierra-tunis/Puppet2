@@ -182,7 +182,7 @@ public:
 
 		if (name_ != no_name) {
 			if (InternalObject::named_internal_objects_.contains(name_)) {
-				name_ = no_name;
+				name_ = no_name; //copies have no name (i.e. all copies are temporary)
 			} else {
 				InternalObject::named_internal_objects_[name_] = this;
 			}
@@ -192,6 +192,13 @@ public:
 
 	InternalObject(InternalObject& other) : InternalObject(other.getName()) {
 
+	}
+	
+	~InternalObject() {
+		last_id_ = getID();
+		if (name_ != no_name) {
+			InternalObject::named_internal_objects_.erase(name_);
+		}
 	}
 
 	inline virtual void update(GLFWwindow* window) {

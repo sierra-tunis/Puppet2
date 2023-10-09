@@ -19,6 +19,19 @@ bool SurfaceNodeCollision(const Surface<3>* PrimarySurf, const MeshSurface* Seco
 	}
 	return false;
 }
+bool SurfaceNodeCollision(const Surface<3>* PrimarySurf, const MeshSurface* SecondarySurf, Eigen::Matrix4f SecondaryPosition, CollisionInfo<Surface<3>, MeshSurface>* collision_info) {
+	//not fully implemented!
+	Eigen::Matrix3f R = SecondaryPosition(seq(0, 2), seq(0, 2));
+	Eigen::Vector3f p = SecondaryPosition(seq(0, 2), 3);
+	for (auto& e : SecondarySurf->getEdges()) {
+		//if (PrimarySurf->crossesSurface(R*SecondarySurf->getVerts()[e.first]+p, R*SecondarySurf->getVerts()[e.second]+p)) {
+		//should at least let the user choose is the mesh is irrotational?
+		if (PrimarySurf->crossesSurface(R * SecondarySurf->getVerts()[e.first] + p, R * SecondarySurf->getVerts()[e.second] + p)) {
+			return true;
+		}
+	}
+	return false;
+}
 
 bool SurfaceNodeCollision(const MeshSurface* PrimarySurf, const MeshSurface* SecondarySurf, Eigen::Matrix4f SecondaryPosition) {
 	Eigen::Matrix3f R = SecondaryPosition(seq(0, 2), seq(0, 2));
@@ -75,6 +88,12 @@ template<>
 void getFullCollision<MeshSurface, MeshSurface>(const MeshSurface* PrimarySurf, const MeshSurface* SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition, CollisionInfo<MeshSurface, MeshSurface>* collision_info){
 	SurfaceNodeCollision(PrimarySurf, SecondarySurf, PrimaryPosition.inverse() * SecondaryPosition, collision_info);
 }
+
+template<>
+void getFullCollision<Surface<3>, MeshSurface>(const Surface<3>* PrimarySurf, const MeshSurface* SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition, CollisionInfo<Surface<3>, MeshSurface>* collision_info) {
+	SurfaceNodeCollision(PrimarySurf, SecondarySurf, PrimaryPosition.inverse() * SecondaryPosition, collision_info);
+}
+
 /*bool triIntersection(Eigen::Vector3f l1, Eigen::Vector3f l2, Eigen::Vector3f t1, Eigen::Vector3f t2, Eigen::Vector3f t3) {
 	Eigen::Vector3f tri_norm = (t1-t2).cross(t3 - t1).normalized();
 	//(k(l2-l1)+l1)*tri_norm = 0

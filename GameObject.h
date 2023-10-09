@@ -68,8 +68,10 @@ private:
 
 	static float global_game_speed_;
 
+	
 protected:
 	
+
 	void addAnimation(AnimationBase* animation) {
 		animations_.insert(animation);
 		//animation->load();
@@ -117,6 +119,17 @@ protected:
 
 	inline virtual void whileCollision(const GameObject* other, const CollisionPairBase* collision) {};
 
+
+	inline virtual void onDestruction() {
+
+	}
+
+	void destroyChild(GameObject* child) {
+		removeDependent(child);
+		child->onDestruction();
+		delete child;
+	}
+
 	//inline virtual void onAnimationEnd(const AnimationBase* animation) {}
 
 	const std::unordered_set<GameObject*>& getDependents() const {
@@ -138,6 +151,10 @@ protected:
 		setPosition(initial_position_);
 		std::getline(ss, *remainder_string, '\0');//rest of string
 
+	}
+
+	void setParent(const GameObject* parent) {
+		parent_ = parent;
 	}
 
 public:
@@ -163,6 +180,16 @@ public:
 		active_hitbox_(true){
 	}
 
+	~GameObject() {
+		const auto dependents = dependents_;
+		for (auto& dependent : dependents) {
+			delete dependent;
+		}
+		//if (parent_ != nullptr) {
+		//	//EVIL EVIL CODE!
+		//	const_cast<GameObject*>(parent_)->removeDependent(this);
+		//}
+	}
 	/*GameObject(std::string name) :
 		position_(Eigen::Matrix4f::Identity()),
 		InternalObject(name),
@@ -265,9 +292,7 @@ public:
 	const GameObject* getParent() const {
 		return parent_;
 	}
-	void setParent(const GameObject* parent) {
-		parent_ = parent;
-	}
+	
 
 	const std::unordered_set<AnimationBase*>& getAnimations() const {
 		return animations_;
@@ -279,12 +304,6 @@ public:
 
 	const Matrix4f& getPosition() const {
 		return this->position_;
-	}
-
-	const Matrix4f getRelativePosition(GameObject& other) const {
-		//this is almost certainly wrong
-		return inverseTform(parent_->getPosition()) * other.getPosition() * inverseTform(position_);
-		//so globalPosition = parent.gloabl*getRelativePosition(other)*position_ = other.globalPosition
 	}
 
 	void setPosition(Eigen::Matrix4f new_position) {
@@ -371,14 +390,8 @@ public:
 		return motion_constraints_;
 	}
 
-	virtual void clampTo(const GameObject* parent) {// this has unintuitive behavior
-		this->parent_ = parent;
-		connector_ = new OffsetConnector(parent_->getPosition(), position_);
-		if (parent != nullptr) {
-			connector_->setRootTransform(&parent->getPosition());
-		}
-	}
 
+	/*
 	void connectTo(const GameObject* parent, PositionConstraint* connector) {
 		this->parent_ = parent;
 		connector_ = connector;
@@ -393,7 +406,8 @@ public:
 			connector_->setRootTransform(&parent_->getPosition());
 		}
 	}
-
+	*/
+	
 	void setConnector(PositionConstraint* connector) {
 		this->connector_ = connector;
 	}
@@ -401,10 +415,37 @@ public:
 		connector_->setRootTransform(base);
 	}
 
-	void disconnect() {
-		this->parent_ = nullptr;
-		this->connector_ = nullptr;
+	void clampTo(const GameObject* base) {// this has unintuitive behavior
+		if (parent_ != nullptr) {
+			connector_ = new OffsetConnector(base->getPosition(), position_);
+			connector_->setRootTransform(&base->getPosition());
+		}
 	}
+
+	void clampToParent() {// this has unintuitive behavior
+		if (parent_ != nullptr) {
+			connector_ = new OffsetConnector(parent_->getPosition(), position_);
+			connector_->setRootTransform(&parent_->getPosition());
+		}
+	}
+
+	void connectToParent() {
+		if (parent_ != nullptr && getConnector() != nullptr) {
+			setConnectorBase(&getParent()->getPosition());
+		}
+	}
+	void connectToParent(PositionConstraint* connector) {
+		if (parent_ != nullptr) {
+			setConnector(connector);
+			setConnectorBase(&getParent()->getPosition());
+		}
+	}
+
+	/*
+	void disconnect() {
+		//this->parent_ = nullptr;
+		this->connector_ = nullptr;
+	}*/
 
 	const PositionConstraint* getConnector() const {
 		return connector_;
@@ -487,14 +528,16 @@ public:
 	}
 	//this is a terrible way of doing this since there is just total boilerplate code where you have to add all new objects to UI_container
 	//also if the object is deleted, the UI elements associated with it would also be deleted???
-	virtual void openDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics);
-	virtual void closeDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics);
+	virtual void openDebugUI(GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics);
+	virtual void closeDebugUI(GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics);
 	
 
 	void addDependent(GameObject* child) {
 		dependents_.insert(child);
+		child->setParent(this);
 	}
 	void removeDependent(GameObject* child) {
+		child->setParent(nullptr);
 		dependents_.erase(child);
 	}
 

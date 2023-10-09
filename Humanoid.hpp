@@ -409,15 +409,14 @@ public:
 		setTexture(new Texture("rocky.jpg"));
 	}*/
 
-	void openDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) override {
+	void openDebugUI(GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) override {
 		GameObject::openDebugUI(UI_container, window, graphics_2d, text_graphics);
 		float slider_height = .6 / n_dofs;
 		int n_sections = 7;
 		for (int i = 0; i < n_dofs; i++) {
 			debug_sliders_[i] = new Slider(slider_height, .5, -M_PI, M_PI);
-			addDependent(debug_sliders_[i]);
+			UI_container->addDependent(debug_sliders_[i]);
 			debug_sliders_[i]->load(window, graphics_2d, text_graphics);
-			debug_sliders_[i]->setParent(UI_container);
 		}
 		for (int i = 0; i < 4; i++) {
 			debug_sliders_[i]->moveTo(-.5, -static_cast<float>(i) / (n_dofs+n_sections), 0);
@@ -482,29 +481,25 @@ public:
 		std::vector<Button*> anim_buttons{ prev_frame,next_frame,save_animation,insert_new_frame,toggle_edit_mode,set_animation_start,interpolate_frame };
 		anim_buttons_ = anim_buttons;
 		for (Button* button : anim_buttons_) {
-			addDependent(button);
-			button->setParent(UI_container);
+			UI_container->addDependent(button);
 			button->load(window, graphics_2d, text_graphics);
 			button->activateMouseInput(window);//should be in button->load() call
 		}
-		addDependent(&animation_iterator_);
-		animation_iterator_.setParent(UI_container);
+		UI_container->addDependent(&animation_iterator_);
 		animation_iterator_.load(window, graphics_2d, text_graphics);
 		animation_iterator_.setChangeCallback(setAnimation_static, this);
 		animation_iterator_.setIterable(&getAnimations());
 
 		//edit_animation_mode_ = true;
 	}
-	void closeDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) override {
+	void closeDebugUI(GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) override {
 		for (int i = 0; i < n_dofs; i++) {
-			removeDependent(debug_sliders_[i]);
 			debug_sliders_[i]->unload(window, graphics_2d, text_graphics);
 			delete debug_sliders_[i];
 			debug_sliders_[i] = nullptr;
 		}
 		for (Button* button : anim_buttons_) {
-			removeDependent(button);
-			button->setParent(nullptr);
+			UI_container->removeDependent(button);
 			button->unload(window, graphics_2d, text_graphics);
 		}
 		animation_iterator_.unload(window, graphics_2d, text_graphics);

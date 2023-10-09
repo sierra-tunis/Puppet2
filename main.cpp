@@ -72,14 +72,14 @@ int main(void)
     Default3d default3d;
     default3d.setCamera(&camera);
     Eigen::Vector3f atmosphere_color = Eigen::Vector3f(0.7f, 0.7f, 0.7f);
-    default3d.setAtmosphere(atmosphere_color,.02);
+    default3d.setAtmosphere(atmosphere_color,.2);
     Dynamic3d dynamic3d;
     dynamic3d.setCamera(&camera);
     Default2d default2d;
     HboxGraphics hbox_graphics(camera, .1, 100, 90);
     Font test_glyph("test_glyph.png");
     TextGraphics text_graphics(test_glyph);
-    DebugMenu debugMenu(window, default2d, text_graphics, center);
+    DebugMenu debugMenu(window, default2d, text_graphics);
 
 
     layout.push_back(&center);
@@ -164,8 +164,8 @@ int main(void)
     debugMenu.activateKeyInput(window);
     //debugMenu.setDebugTarget(&center);
 
-    Debugger dbg1(Eigen::Matrix4f::Identity(), "tester1", cult_spiral_stairs);
-    cult_impluvium.addDependent(&dbg1);
+    //Debugger dbg1(Eigen::Matrix4f::Identity(), "tester1", cult_spiral_stairs);
+    //cult_impluvium.addDependent(&dbg1);
     //default3d.add(dbg1);
 
     dynamic3d.add(center);
@@ -173,8 +173,8 @@ int main(void)
 
     glfwSetWindowSize(window, 1600, 1200);
 
-    camera.setParent(&center);
-    camera.connectTo(&center);
+    //camera.setParent(&center);
+    //camera.connectTo(&center);
     camera.enableMouseControl(window);
     //need to add objects to the shaders manually
 

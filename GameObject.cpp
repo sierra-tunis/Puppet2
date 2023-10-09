@@ -5,7 +5,7 @@
 float GameObject::global_game_speed_ = 1.0f;
 std::unordered_set<GameObject*> GameObject::global_game_objects;
 
-void GameObject::openDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {
+void GameObject::openDebugUI(GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {
 	/*
 	TextboxObject* position_display = new TextboxObject();
 	position_display->box_width = 1;
@@ -24,7 +24,7 @@ void GameObject::openDebugUI(const GameObject* UI_container, GLFWwindow* window,
 	*/
 }
 
-void GameObject::closeDebugUI(const GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {
+void GameObject::closeDebugUI(GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {
 	/*
 	TextboxObject* position_display = static_cast<TextboxObject*>(position_display_);
 	removeDependent(position_display);

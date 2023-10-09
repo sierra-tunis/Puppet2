@@ -9,7 +9,7 @@
 #include "GameObject.h"
 #include <GLFW/glfw3.h>
 
-
+/*
 class Debugger : public InterfaceObject<GLFW_KEY_UP, GLFW_KEY_DOWN, GLFW_KEY_LEFT, GLFW_KEY_RIGHT> {
 	OffsetConnector clamp_;
 	RotationJoint r1_;
@@ -29,10 +29,10 @@ public:
 
 	}
 
-	/*
+	
 	const HboxGrobj& getHboxDbgGrobj() const {
 		return HboxGrobj(this->getPosition(), &this->getHbox(), &this->getCollisionFlag());
-	}*/
+	}
 
 private:
 
@@ -91,6 +91,6 @@ private:
 	}
 
 };
-
+*/
 
 #endif
