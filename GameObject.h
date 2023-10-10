@@ -124,11 +124,7 @@ protected:
 
 	}
 
-	void destroyChild(GameObject* child) {
-		removeDependent(child);
-		child->onDestruction();
-		delete child;
-	}
+	
 
 	//inline virtual void onAnimationEnd(const AnimationBase* animation) {}
 
@@ -181,14 +177,17 @@ public:
 	}
 
 	~GameObject() {
-		const auto dependents = dependents_;
-		for (auto& dependent : dependents) {
-			delete dependent;
-		}
+		dependents_.clear();
 		//if (parent_ != nullptr) {
 		//	//EVIL EVIL CODE!
 		//	const_cast<GameObject*>(parent_)->removeDependent(this);
 		//}
+	}
+
+	void destroyChild(GameObject* child) {
+		removeDependent(child);
+		child->onDestruction();
+		delete child;
 	}
 	/*GameObject(std::string name) :
 		position_(Eigen::Matrix4f::Identity()),

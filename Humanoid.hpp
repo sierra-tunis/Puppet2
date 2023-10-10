@@ -495,7 +495,7 @@ public:
 	void closeDebugUI(GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) override {
 		for (int i = 0; i < n_dofs; i++) {
 			debug_sliders_[i]->unload(window, graphics_2d, text_graphics);
-			delete debug_sliders_[i];
+			UI_container->destroyChild(debug_sliders_[i]);
 			debug_sliders_[i] = nullptr;
 		}
 		for (Button* button : anim_buttons_) {
