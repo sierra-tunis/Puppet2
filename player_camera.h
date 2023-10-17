@@ -27,6 +27,8 @@ private:
 	MeshSurface cam_box_;
 
 	bool look_mode_;
+	static constexpr float joystick_x_sensitivity = 5;
+	static constexpr float joystick_y_sensitivity = 5;
 
 	GLFWwindow* window_;
 
@@ -106,8 +108,16 @@ public:
 
 	}
 
-	//void update(GLFWwindow* window) override {
+	void update(GLFWwindow* window) override {
+		Eigen::Vector3f joystick_command = Eigen::Vector3f(InternalObject::getRightStickPosition(window).first, 0, InternalObject::getRightStickPosition(window).second);
+		if (joystick_command.norm() > .1) {
+			onMouseMove(0, 0, joystick_x_sensitivity * joystick_command(0), joystick_y_sensitivity * joystick_command(2));
+		}
+		Camera::update(window);
+	}
+
 	void onStep() override {
+
 		//Camera::update(window);
 		float current_extension_ = tether_.getState()(2);
 		dist_.setState(Eigen::Vector<float, 1>(0));
