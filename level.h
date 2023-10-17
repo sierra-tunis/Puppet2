@@ -388,6 +388,13 @@ public:
 		return scene_;
 	}
 
+	static void resetGame(GLFWwindow* window) {
+		for (auto& level : Level::AllLevels()) {
+			//level->saveLayoutFile();
+			level->reset();
+			level->update(window);
+		}
+	}
 	/*
 	void activate() {
 		this->load_value_ = active;

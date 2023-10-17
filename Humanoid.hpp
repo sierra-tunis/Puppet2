@@ -228,8 +228,8 @@ protected:
 
 public:
 
-	Humanoid(std::string name, const KeyStateCallback_base& key_state_callback_caller):
-		GameObject(name,key_state_callback_caller),
+	Humanoid(std::string name, const KeyStateCallback_base& key_state_callback_caller=InternalObject::no_key_state_callback, const ControllerStateCallback_base& controller_state_callback_caller=InternalObject::no_controller_state_callback) :
+		GameObject(name,key_state_callback_caller,controller_state_callback_caller),
 		origin_(0, .15, 0),
 		chest_rotation_(BallJoint::YXY),
 		waist_rotation_(Eigen::Vector3f(0, 1, 0)),

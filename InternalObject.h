@@ -27,6 +27,12 @@ public:
 	inline virtual void pollInputs(GLFWwindow* window,InternalObject& this_) const {}
 };
 
+class ControllerStateCallback_base {
+public:
+	inline virtual void pollInputs(GLFWwindow* window, InternalObject& this_) const {}
+};
+
+
 
 class InternalObject { //class for non-template dependent values, internal use only functionality (i.e. debug stuff). No update function
 private:
@@ -43,6 +49,11 @@ private:
 	//std::vector<InternalObject*> children_; //children should be created and managed by parent. in this way each game object is a sub world object
 	//this might be a terrible idea:
 	const KeyStateCallback_base& key_state_callback_;
+	const ControllerStateCallback_base& controller_state_callback_;
+	static GLFWgamepadstate last_gamepad_state_;
+	static constexpr std::array<int, 15> all_controller_buttons_{GLFW_GAMEPAD_BUTTON_A, GLFW_GAMEPAD_BUTTON_B, GLFW_GAMEPAD_BUTTON_X, GLFW_GAMEPAD_BUTTON_Y, GLFW_GAMEPAD_BUTTON_LEFT_BUMPER, GLFW_GAMEPAD_BUTTON_RIGHT_BUMPER, GLFW_GAMEPAD_BUTTON_BACK, GLFW_GAMEPAD_BUTTON_START, GLFW_GAMEPAD_BUTTON_GUIDE, GLFW_GAMEPAD_BUTTON_LEFT_THUMB, GLFW_GAMEPAD_BUTTON_RIGHT_THUMB, GLFW_GAMEPAD_BUTTON_DPAD_UP, GLFW_GAMEPAD_BUTTON_DPAD_RIGHT, GLFW_GAMEPAD_BUTTON_DPAD_DOWN, GLFW_GAMEPAD_BUTTON_DPAD_LEFT};
+	static int controller_id_;
+
 
 	struct callbackInput {
 		std::unordered_set<InternalObject*> key_;
@@ -124,6 +135,19 @@ private:
 		}
 	}
 
+
+	static void connectControllerCallback(int jid, int event) {
+		if (event == GLFW_CONNECTED){
+			if (glfwJoystickIsGamepad(jid)) {
+				controller_id_ = jid;
+			}
+		}
+		else if (event == GLFW_DISCONNECTED){
+			controller_id_ = -1;
+		}
+
+	}
+
 public://needs to be changed later, only did this for debugging xzmapper
 	
 
@@ -152,6 +176,10 @@ protected:
 
 	};
 
+	inline virtual void onControllerButtonPress(int key) {}; //triggers once //not virtual so it can be inlined as {} if it's not overridden
+
+	inline virtual void onControllerButtonRelease(int key) {}; //triggers once //not virtual so it can be inlined as {} if it's not overridden
+
 	inline virtual void onCreation() {};
 
 	inline virtual void onStep() {};
@@ -171,14 +199,21 @@ public:
 
 	inline virtual void onKeyUp(int key) {}; //triggers repeatedly, probably not useful
 
+	inline virtual void onControllerButtonDown(int button) {}; //triggers repeatedly
+
+	inline virtual void onControllerButtonUp(int button) {}; //triggers repeatedly, probably not useful
+
+
 
 	constexpr static char no_name[] = "";
 	const static KeyStateCallback_base no_key_state_callback;
+	const static ControllerStateCallback_base no_controller_state_callback;
 
-	InternalObject(std::string name=no_name, const KeyStateCallback_base& key_state_callback_ = no_key_state_callback) :
+	InternalObject(std::string name=no_name, const KeyStateCallback_base& key_state_callback = no_key_state_callback, const ControllerStateCallback_base& controller_state_callback = no_controller_state_callback) :
 		id_(last_id_++),//this is only to avoid not wanting to generate random strings
 		name_(name),
-		key_state_callback_(key_state_callback_){
+		key_state_callback_(key_state_callback),
+		controller_state_callback_(controller_state_callback){
 
 		if (name_ != no_name) {
 			if (InternalObject::named_internal_objects_.contains(name_)) {
@@ -204,6 +239,7 @@ public:
 	inline virtual void update(GLFWwindow* window) {
 		//this should be rewritten to be consteval eventually
 		key_state_callback_.pollInputs(window,*this);
+		controller_state_callback_.pollInputs(window, *this);
 	}
 
 	int getID() const {
@@ -237,6 +273,17 @@ public:
 	void deactivateMouseInput(GLFWwindow* window) {
 		input_members_.mouse_.erase(this);
 	}
+	void activateControllerInput(GLFWwindow* window) {
+		input_members_.controller_callback_members_.insert(this);
+		glfwSetWindowUserPointer(window, &input_members_);
+		glfwSetJoystickCallback(connectControllerCallback);
+
+	}
+	void deactivateControllerInput(GLFWwindow* window) {
+		input_members_.controller_callback_members_.erase(this);
+		glfwSetWindowUserPointer(window, &input_members_);
+
+	}
 
 	static std::pair<float, float> getCursorPosition(GLFWwindow* window) {
 		int window_width, window_height;
@@ -244,6 +291,48 @@ public:
 		return std::pair<float, float>{input_members_.mouse_xpos_last_/window_width*2.-1., -input_members_.mouse_ypos_last_/window_height*2.+1.};
 	}
 
+	static std::pair<float, float> getLeftStickPosition(GLFWwindow* window) {
+		return { last_gamepad_state_.axes[GLFW_GAMEPAD_AXIS_LEFT_X],last_gamepad_state_.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] };
+	}
+
+	static std::pair<float, float> getRightStickPosition(GLFWwindow* window) {
+		return { last_gamepad_state_.axes[GLFW_GAMEPAD_AXIS_RIGHT_X],last_gamepad_state_.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] };
+
+	}
+	static float getLeftTriggerPosition(GLFWwindow* window) {
+		return last_gamepad_state_.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER];
+
+	}
+	static float getRightTriggerPosition(GLFWwindow* window) {
+		return last_gamepad_state_.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER];
+	}
+
+	static GLFWgamepadstate& getGamepadState() {
+		return last_gamepad_state_;
+	}
+
+	static void pollControllerInputs() {
+		if (InternalObject::controller_id_ != -1) {
+			GLFWgamepadstate gamepad_state;
+			glfwGetGamepadState(InternalObject::controller_id_, &gamepad_state);
+			for (int button : all_controller_buttons_) { //calls in button major order
+				if (gamepad_state.buttons[button] && !last_gamepad_state_.buttons[button]) {
+					//rising press
+					for (InternalObject* obj : input_members_.controller_callback_members_) {
+						obj->onControllerButtonPress(button);
+					}
+
+				}
+				else if (!gamepad_state.buttons[button] && last_gamepad_state_.buttons[button]) {
+					for (InternalObject* obj : input_members_.controller_callback_members_) {
+						obj->onControllerButtonRelease(button);
+					}
+				}
+			}
+			last_gamepad_state_ = gamepad_state;
+		}
+
+	}
 
 	//virtual InternalObject(std::string filename) = 0;
 
@@ -274,5 +363,25 @@ public:
 	}
 	
 };
+
+
+template<int... ControllerButtons>
+class ControllerStateCallback : public ControllerStateCallback_base {
+private:
+	static constexpr std::array<int, sizeof...(ControllerButtons)> buttons{ { ControllerButtons... } };
+
+public:
+	inline void pollInputs(GLFWwindow* window, InternalObject& this_) const override {//object major order
+		for (int b : buttons) { 
+			if (InternalObject::getGamepadState().buttons[b]) {
+				this_.onControllerButtonDown(b);
+			}
+			else {
+				this_.onControllerButtonUp(b);
+			}
+		}
+	}
+};
+
 
 #endif

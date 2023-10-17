@@ -167,9 +167,9 @@ public:
 			this->position_ = connector_->getEndTransform();
 		}
 	}
-	GameObject(std::string name=InternalObject::no_name, const KeyStateCallback_base& key_state_callback_caller=InternalObject::no_key_state_callback) :
+	GameObject(std::string name=InternalObject::no_name, const KeyStateCallback_base& key_state_callback_caller=InternalObject::no_key_state_callback, const ControllerStateCallback_base& controller_state_callback_caller = InternalObject::no_controller_state_callback) :
 		position_(Eigen::Matrix4f::Identity()),
-		InternalObject(name, key_state_callback_caller),
+		InternalObject(name, key_state_callback_caller, controller_state_callback_caller),
 		t_ref_(system_clock::now()),
 		parent_(nullptr),
 		connector_(nullptr),
