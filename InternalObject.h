@@ -148,6 +148,7 @@ private:
 
 	}
 
+
 public://needs to be changed later, only did this for debugging xzmapper
 	
 
@@ -309,6 +310,14 @@ public:
 
 	static GLFWgamepadstate& getGamepadState() {
 		return last_gamepad_state_;
+	}
+
+	static void checkForControllers() {
+		for (int controller_id : {GLFW_JOYSTICK_1, GLFW_JOYSTICK_2, GLFW_JOYSTICK_3, GLFW_JOYSTICK_4, GLFW_JOYSTICK_5, GLFW_JOYSTICK_6, GLFW_JOYSTICK_7, GLFW_JOYSTICK_8, GLFW_JOYSTICK_9, GLFW_JOYSTICK_10, GLFW_JOYSTICK_11, GLFW_JOYSTICK_12, GLFW_JOYSTICK_13, GLFW_JOYSTICK_14, GLFW_JOYSTICK_15, GLFW_JOYSTICK_16}) {
+			if (glfwJoystickIsGamepad(controller_id)) {
+				InternalObject::connectControllerCallback(controller_id, GLFW_CONNECTED);
+			}
+		}
 	}
 
 	static void pollControllerInputs() {
