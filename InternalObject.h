@@ -177,6 +177,19 @@ protected:
 
 	};
 
+	inline virtual void onControllerLeftStickMove(float x, float y, float dx, float dy){
+
+	}
+	inline virtual void onControllerRightStickMove(float x, float y, float dx, float dy) {
+
+	}
+	inline virtual void onControllerLeftTriggerMove(float z, float dz) {
+
+	}
+	inline virtual void onControllerRightTriggerMove(float z, float dz) {
+
+	}
+
 	inline virtual void onControllerButtonPress(int key) {}; //triggers once //not virtual so it can be inlined as {} if it's not overridden
 
 	inline virtual void onControllerButtonRelease(int key) {}; //triggers once //not virtual so it can be inlined as {} if it's not overridden
@@ -337,6 +350,44 @@ public:
 						obj->onControllerButtonRelease(button);
 					}
 				}
+			}
+			if (gamepad_state.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER] != last_gamepad_state_.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER]) {//change detected
+				float z = gamepad_state.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER];
+				float dz = gamepad_state.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER] - last_gamepad_state_.axes[GLFW_GAMEPAD_AXIS_LEFT_TRIGGER];
+				for (InternalObject* obj : input_members_.controller_callback_members_) {
+					obj->onControllerLeftTriggerMove(z,dz);
+				}
+
+			}
+			if (gamepad_state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] != last_gamepad_state_.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER]) {//change detected
+				float z = gamepad_state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER];
+				float dz = gamepad_state.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER] - last_gamepad_state_.axes[GLFW_GAMEPAD_AXIS_RIGHT_TRIGGER];
+				for (InternalObject* obj : input_members_.controller_callback_members_) {
+					obj->onControllerRightTriggerMove(z, dz);
+				}
+
+			}
+			if (gamepad_state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] != last_gamepad_state_.axes[GLFW_GAMEPAD_AXIS_LEFT_X]
+				|| gamepad_state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] != last_gamepad_state_.axes[GLFW_GAMEPAD_AXIS_LEFT_Y]) {//change detected
+				float x = gamepad_state.axes[GLFW_GAMEPAD_AXIS_LEFT_X];
+				float dx = gamepad_state.axes[GLFW_GAMEPAD_AXIS_LEFT_X] - last_gamepad_state_.axes[GLFW_GAMEPAD_AXIS_LEFT_X];
+				float y = gamepad_state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y];
+				float dy = gamepad_state.axes[GLFW_GAMEPAD_AXIS_LEFT_Y] - last_gamepad_state_.axes[GLFW_GAMEPAD_AXIS_LEFT_Y];
+				for (InternalObject* obj : input_members_.controller_callback_members_) {
+					obj->onControllerLeftStickMove(x,y,dx,dy);
+				}
+
+			}
+			if (gamepad_state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] != last_gamepad_state_.axes[GLFW_GAMEPAD_AXIS_RIGHT_X]
+				|| gamepad_state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] != last_gamepad_state_.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y]) {//change detected
+				float x = gamepad_state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X];
+				float dx = gamepad_state.axes[GLFW_GAMEPAD_AXIS_RIGHT_X] - last_gamepad_state_.axes[GLFW_GAMEPAD_AXIS_RIGHT_X];
+				float y = gamepad_state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y];
+				float dy = gamepad_state.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y] - last_gamepad_state_.axes[GLFW_GAMEPAD_AXIS_RIGHT_Y];
+				for (InternalObject* obj : input_members_.controller_callback_members_) {
+					obj->onControllerRightStickMove(x, y, dx, dy);
+				}
+
 			}
 			last_gamepad_state_ = gamepad_state;
 		}

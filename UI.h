@@ -531,6 +531,12 @@ public:
 		}
 	}
 
+	void goToNext() {
+		nextTargetCallback(this);
+	}
+	void goToPrev() {
+		prevTargetCallback(this);
+	}
 
 };
 

@@ -85,6 +85,8 @@ private:
 
 	MeshSurface hitbox_;
 	MeshSurface exact_hitbox_;
+	MeshSurface enlarged_hitbox_;
+
 
 	void refreshDebugSliders() {
 		if (debug_sliders_.size() != 0) {
@@ -269,7 +271,8 @@ public:
 		head_chain_(neck_offset_,neck_,head_offset_,head_tilt_),
 		animation_iterator_(.3,.6),
 		hitbox_("human_static_hitbox.obj", AnimationBase::debug_path),
-		exact_hitbox_("human.obj",AnimationBase::debug_path){
+		exact_hitbox_("human.obj",AnimationBase::debug_path),
+		enlarged_hitbox_("human_combat_hitbox.obj", AnimationBase::debug_path){
 
 		arm_L_.setRootTransform(&chest_rotation_.getEndTransform());
 		arm_R_.setRootTransform(&chest_rotation_.getEndTransform());
@@ -505,6 +508,10 @@ public:
 		animation_iterator_.unload(window, graphics_2d, text_graphics);
 
 		edit_animation_mode_ = false;
+	}
+
+	const MeshSurface& getEnlargedHitbox() const {
+		return enlarged_hitbox_;
 	}
 
 	const MeshSurface& getHitbox() const {

@@ -248,5 +248,14 @@
     <ClInclude Include="solid_tex.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ParametricObject.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Parametric3d.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="parametric_model.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
