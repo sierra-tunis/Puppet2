@@ -257,5 +257,8 @@
     <ClInclude Include="parametric_model.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="interaction_pair.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

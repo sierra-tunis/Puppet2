@@ -53,6 +53,7 @@ private:
 	time_point<system_clock> t_ref_;
 	std::chrono::duration<float> dt_;
 	Eigen::Matrix4f last_position_;
+	Eigen::Matrix4f dG_;
 
 	Surface<3>* hitbox;
 	std::unordered_map<const GameObject*,CollisionPairBase*> collidors_; //should be a safe pointer
@@ -169,6 +170,7 @@ public:
 	}
 	GameObject(std::string name=InternalObject::no_name, const KeyStateCallback_base& key_state_callback_caller=InternalObject::no_key_state_callback, const ControllerStateCallback_base& controller_state_callback_caller = InternalObject::no_controller_state_callback) :
 		position_(Eigen::Matrix4f::Identity()),
+		last_position_(position_),
 		InternalObject(name, key_state_callback_caller, controller_state_callback_caller),
 		t_ref_(system_clock::now()),
 		parent_(nullptr),
@@ -205,24 +207,29 @@ public:
 		time_point<system_clock> t = system_clock::now();
 		dt_ = (t - t_ref_);
 		t_ref_ = t;
+		//in time dt, position (G) went from prev_position to position
+		dG_ = last_position_.inverse() * getPosition();
+		last_position_ = getPosition();
 		
 		//check collisions
 		for (auto& collidor : collidors_) {
-			if (active_hitbox_ && collidor.first->active_hitbox_ && collidor.second->isCollision(getPosition(),collidor.first->getPosition())) {
-				collidor.second->fullCollisionInfo(getPosition(), collidor.first->getPosition());
-				if (collision_flags_.at(collidor.first) == false) {
+			auto& other = collidor.first;
+			auto& collision_pair = collidor.second;
+			if (active_hitbox_ && collidor.first->active_hitbox_ && collision_pair->isCollision(getPosition(),other->getPosition(),other->getdG())) {
+				collidor.second->fullCollisionInfo(getPosition(), other->getPosition(),other->getdG());
+				if (collision_flags_.at(other) == false) {
 					//is colliding, hasnt called onCollision
-					onCollision(collidor.first, collidor.second);
-					collision_flags_.at(collidor.first) = true;
+					onCollision(other, collision_pair);
+					collision_flags_.at(other) = true;
 				} else {
 					//is collidiing, has called onCollision
-					whileCollision(collidor.first, collidor.second);
+					whileCollision(other, collision_pair);
 				}
 			} else {
-				if (collision_flags_.at(collidor.first) == true) {
+				if (collision_flags_.at(other) == true) {
 					//isnt colliding, has called onCllision
-					onDecollision(collidor.first, collidor.second);
-					collision_flags_.at(collidor.first) = false;
+					onDecollision(other, collision_pair);
+					collision_flags_.at(other) = false;
 				} else {
 					//isnt colliding hasn't called onCollision
 				}
@@ -272,6 +279,14 @@ public:
 		//below 100 fps, game will just slow down
 		return std::min(.01f, dt_.count()*global_game_speed_);
 	}//note this is a copy, not a ref
+
+	Eigen::Matrix4f getdG() const {
+		return dG_;
+	}
+
+	Eigen::Vector3f getdx() const {
+		return getdG()(seq(0, 2), 3);
+	}
 
 	/*
 	void boundedTranslate(const Eigen::Vector3f& vec, const Zmap& bounds, float max_step) {

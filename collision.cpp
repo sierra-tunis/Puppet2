@@ -1,7 +1,7 @@
 #include "collision.hpp"
 
 template<class A, class B>
-bool checkCollision(const A* PrimarySurf, const B* SecondarySurf, Eigen::Matrix4f PrimaryPosition, Eigen::Matrix4f SecondaryPosition) {
+bool checkCollision(const A* PrimarySurf, const B* SecondarySurf, Eigen::Matrix4f PrimaryPosition, Eigen::Matrix4f SecondaryPosition,Eigen::Matrix4f secondary_motion) {
 	//static_assert(false, "Not A Function");
 	std::cerr << "cannot call generic collision function!" << "\n";
 	return true;
@@ -69,28 +69,66 @@ bool SurfaceNodeCollision(const MeshSurface* PrimarySurf, const MeshSurface* Sec
 }
 
 template<>
-bool checkCollision<Surface<3>, MeshSurface>(const Surface<3>* PrimarySurf, const MeshSurface* SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition) {
-	return SurfaceNodeCollision(PrimarySurf, SecondarySurf, PrimaryPosition.inverse() * SecondaryPosition);
+bool checkCollision<Surface<3>, MeshSurface>(const Surface<3>* PrimarySurf, const MeshSurface* SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition, const Eigen::Matrix4f secondary_motion) {
+	Eigen::Matrix4f secondary_last_position = secondary_motion.inverse() * SecondaryPosition;
+	Eigen::Matrix4f secondary_relative_position = PrimaryPosition.inverse() * SecondaryPosition;
+	Eigen::Matrix4f secondary_relative_last_position = PrimaryPosition.inverse() * secondary_last_position;
+	Eigen::Matrix3f R_f = secondary_relative_position(seq(0, 2), seq(0, 2));
+	Eigen::Vector3f p_f = secondary_relative_position(seq(0, 2), 3);
+	Eigen::Matrix3f R_i = secondary_relative_last_position(seq(0, 2), seq(0, 2));
+	Eigen::Vector3f p_i = secondary_relative_last_position(seq(0, 2), 3);
+	for (auto& e : SecondarySurf->getEdges()) {
+		//if (PrimarySurf->crossesSurface(R*SecondarySurf->getVerts()[e.first]+p, R*SecondarySurf->getVerts()[e.second]+p)) {
+		//should at least let the user choose is the mesh is irrotational?
+		if (PrimarySurf->crossesSurface(R_f * SecondarySurf->getVerts()[e.first] + p_f, R_f * SecondarySurf->getVerts()[e.second] + p_f)) {
+			return true;
+		}
+	}
+	for (const Eigen::Vector3f& v : SecondarySurf->getVerts()) {
+		if (PrimarySurf->crossesSurface(R_f * v + p_f, R_i * v + p_i)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 template<>
-bool checkCollision<MeshSurface, MeshSurface>(const MeshSurface* PrimarySurf, const MeshSurface* SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition) {
-	return SurfaceNodeCollision(PrimarySurf, SecondarySurf, PrimaryPosition.inverse() * SecondaryPosition);
+bool checkCollision<MeshSurface, MeshSurface>(const MeshSurface* PrimarySurf, const MeshSurface* SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition, const Eigen::Matrix4f secondary_motion) {
+	Eigen::Matrix4f secondary_last_position = secondary_motion.inverse() * SecondaryPosition;
+	Eigen::Matrix4f secondary_relative_position = PrimaryPosition.inverse() * SecondaryPosition;
+	Eigen::Matrix4f secondary_relative_last_position = PrimaryPosition.inverse() * secondary_last_position;
+	Eigen::Matrix3f R_f = secondary_relative_position(seq(0, 2), seq(0, 2));
+	Eigen::Vector3f p_f = secondary_relative_position(seq(0, 2), 3);
+	Eigen::Matrix3f R_i = secondary_relative_last_position(seq(0, 2), seq(0, 2));
+	Eigen::Vector3f p_i = secondary_relative_last_position(seq(0, 2), 3);
+	for (auto& e : SecondarySurf->getEdges()) {
+		//if (PrimarySurf->crossesSurface(R*SecondarySurf->getVerts()[e.first]+p, R*SecondarySurf->getVerts()[e.second]+p)) {
+		//should at least let the user choose is the mesh is irrotational?
+		if (PrimarySurf->crossesSurface(R_f * SecondarySurf->getVerts()[e.first] + p_f, R_f * SecondarySurf->getVerts()[e.second] + p_f)) {
+			return true;
+		}
+	}
+	for (const Eigen::Vector3f& v : SecondarySurf->getVerts()) {
+		if (PrimarySurf->crossesSurface(R_f * v + p_f, R_i * v + p_i)) {
+			return true;
+		}
+	}
+	return false;
 }
 
 template<>
-bool checkCollision<Ellipse, Ellipse>(const Ellipse* PrimarySurf, const Ellipse* SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition) {
+bool checkCollision<Ellipse, Ellipse>(const Ellipse* PrimarySurf, const Ellipse* SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition, const Eigen::Matrix4f secondary_motion) {
 	return true;
 }
 
 
 template<>
-void getFullCollision<MeshSurface, MeshSurface>(const MeshSurface* PrimarySurf, const MeshSurface* SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition, CollisionInfo<MeshSurface, MeshSurface>* collision_info){
+void getFullCollision<MeshSurface, MeshSurface>(const MeshSurface* PrimarySurf, const MeshSurface* SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition, Eigen::Matrix4f secondary_motion, CollisionInfo<MeshSurface, MeshSurface>* collision_info){
 	SurfaceNodeCollision(PrimarySurf, SecondarySurf, PrimaryPosition.inverse() * SecondaryPosition, collision_info);
 }
 
 template<>
-void getFullCollision<Surface<3>, MeshSurface>(const Surface<3>* PrimarySurf, const MeshSurface* SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition, CollisionInfo<Surface<3>, MeshSurface>* collision_info) {
+void getFullCollision<Surface<3>, MeshSurface>(const Surface<3>* PrimarySurf, const MeshSurface* SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition, Eigen::Matrix4f secondary_motion, CollisionInfo<Surface<3>, MeshSurface>* collision_info) {
 	SurfaceNodeCollision(PrimarySurf, SecondarySurf, PrimaryPosition.inverse() * SecondaryPosition, collision_info);
 }
 

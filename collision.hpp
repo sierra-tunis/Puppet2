@@ -6,20 +6,25 @@
 #include "surface.hpp"
 
 template<class A, class B>
-bool checkCollision(const A* PrimarySurf, const B* SecondarySurf, Eigen::Matrix4f PrimaryPosition, Eigen::Matrix4f SecondaryPosition);
+bool checkCollision(const A* PrimarySurf, const B* SecondarySurf, Eigen::Matrix4f PrimaryPosition, Eigen::Matrix4f SecondaryPosition, const Eigen::Matrix4f secondary_motion);
+
+template<class A, class B>
+bool checkCollision(const A* PrimarySurf, const B* SecondarySurf, Eigen::Matrix4f PrimaryPosition, Eigen::Matrix4f SecondaryPosition) {
+	return checkCollision(PrimarySurf, SecondarySurf, PrimaryPosition, SecondaryPosition, Eigen::Matrix4f::Identity());
+}
 
 
 bool SurfaceNodeCollision(const Surface<3>* PrimarySurf, const MeshSurface* SecondarySurf, Eigen::Matrix4f SecondaryPosition);
 bool SurfaceNodeCollision(const MeshSurface* PrimarySurf, const MeshSurface* SecondarySurf, Eigen::Matrix4f SecondaryPosition);
 
 template<>
-bool checkCollision<Surface<3>, MeshSurface>(const Surface<3>* PrimarySurf, const MeshSurface* SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition);
+bool checkCollision<Surface<3>, MeshSurface>(const Surface<3>* PrimarySurf, const MeshSurface* SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition, const Eigen::Matrix4f secondary_motion);
 
 template<>
-bool checkCollision<MeshSurface, MeshSurface>(const MeshSurface* PrimarySurf, const MeshSurface* SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition);
+bool checkCollision<MeshSurface, MeshSurface>(const MeshSurface* PrimarySurf, const MeshSurface* SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition, const Eigen::Matrix4f secondary_motion);
 
 template<>
-bool checkCollision<Ellipse, Ellipse>(const Ellipse* PrimarySurf, const Ellipse* SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition);
+bool checkCollision<Ellipse, Ellipse>(const Ellipse* PrimarySurf, const Ellipse* SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition, const Eigen::Matrix4f secondary_motion);
 
 //theres probably a very cool solution to mesh-mesh collision using probablistic methods
 //also you could us ML to precompute a probabalistic function between two known meshes
@@ -29,14 +34,14 @@ concept PrimaryHitbox = std::derived_from<primary, Surface<3>>;
 
 
 template<class secondary, class primary>
-concept SecondaryHitbox = requires(const primary & first, const secondary & second, Eigen::Matrix4f G1, Eigen::Matrix4f G2) {
-	checkCollision<primary, secondary>(&first, &second, G1, G2);
+concept SecondaryHitbox = requires(const primary & first, const secondary & second, Eigen::Matrix4f G1, Eigen::Matrix4f G2,Eigen::Matrix4f dG2) {
+	checkCollision<primary, secondary>(&first, &second, G1, G2, dG2);
 };
 
 class CollisionPairBase {
 public:
-	virtual bool isCollision(Eigen::Matrix4f primary_position, Eigen::Matrix4f secondary_position) const = 0;
-	virtual void fullCollisionInfo(Eigen::Matrix4f primary_position, Eigen::Matrix4f secondary_position) = 0;
+	virtual bool isCollision(Eigen::Matrix4f primary_position, Eigen::Matrix4f secondary_position,Eigen::Matrix4f secondary_motion) const = 0;
+	virtual void fullCollisionInfo(Eigen::Matrix4f primary_position, Eigen::Matrix4f secondary_position,Eigen::Matrix4f secondary_motion) = 0;
 };
 
 template<PrimaryHitbox Prim_T, SecondaryHitbox<Prim_T> Sec_T>
@@ -92,13 +97,20 @@ public:
 bool SurfaceNodeCollision(const Surface<3>* PrimarySurf, const MeshSurface* SecondarySurf, Eigen::Matrix4f SecondaryPosition, CollisionInfo<Surface<3>, MeshSurface>* collision_info);
 
 template<class A, class B>
-void getFullCollision(const A* PrimarySurf, const B* SecondarySurf, Eigen::Matrix4f PrimaryPosition, Eigen::Matrix4f SecondaryPosition, CollisionInfo<A,B>* collision_info);
+void getFullCollision(const A* PrimarySurf, const B* SecondarySurf, Eigen::Matrix4f PrimaryPosition, Eigen::Matrix4f SecondaryPosition, const Eigen::Matrix4f secondary_motion, CollisionInfo<A,B>* collision_info);
+
+
+template<class A, class B>
+void getFullCollision(const A* PrimarySurf, const B* SecondarySurf, Eigen::Matrix4f PrimaryPosition, Eigen::Matrix4f SecondaryPosition, CollisionInfo<A, B>* collision_info) {
+	getFullCollision(PrimarySurf, PrimaryPosition, SecondarySurf, SecondaryPosition, Eigen::Matrix4f::Identity(), collision_info);
+}
+
 
 template<>
-void getFullCollision<Surface<3>, MeshSurface>(const Surface<3>* PrimarySurf, const MeshSurface* SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition, CollisionInfo<Surface<3>, MeshSurface>* collision_info);
+void getFullCollision<Surface<3>, MeshSurface>(const Surface<3>* PrimarySurf, const MeshSurface* SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition, const Eigen::Matrix4f secondary_motion, CollisionInfo<Surface<3>, MeshSurface>* collision_info);
 
 template<>
-void getFullCollision<MeshSurface, MeshSurface>(const MeshSurface* PrimarySurf, const MeshSurface* SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition, CollisionInfo<MeshSurface, MeshSurface>* collision_info);
+void getFullCollision<MeshSurface, MeshSurface>(const MeshSurface* PrimarySurf, const MeshSurface* SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition, const Eigen::Matrix4f secondary_motion, CollisionInfo<MeshSurface, MeshSurface>* collision_info);
 
 
 template<PrimaryHitbox PrimaryHitbox_T, SecondaryHitbox<PrimaryHitbox_T> SecondaryHitbox_T>
@@ -110,12 +122,12 @@ public:
 	const PrimaryHitbox_T& first;
 	const SecondaryHitbox_T& second;
 
-	bool isCollision(Eigen::Matrix4f primary_position, Eigen::Matrix4f secondary_position) const final override {
-		return checkCollision<PrimaryHitbox_T, SecondaryHitbox_T>(&first, &second, primary_position,secondary_position);
+	bool isCollision(Eigen::Matrix4f primary_position, Eigen::Matrix4f secondary_position, Eigen::Matrix4f secondary_motion) const final override {
+		return checkCollision<PrimaryHitbox_T, SecondaryHitbox_T>(&first, &second, primary_position,secondary_position,secondary_motion);
 	}
 
-	void fullCollisionInfo(Eigen::Matrix4f primary_position, Eigen::Matrix4f secondary_position) final override {
-		return getFullCollision<PrimaryHitbox_T, SecondaryHitbox_T>(&first, &second, primary_position, secondary_position, &collision_info_);
+	void fullCollisionInfo(Eigen::Matrix4f primary_position, Eigen::Matrix4f secondary_position, Eigen::Matrix4f secondary_motion) final override {
+		return getFullCollision<PrimaryHitbox_T, SecondaryHitbox_T>(&first, &second, primary_position, secondary_position,secondary_motion, &collision_info_);
 
 	}
 
