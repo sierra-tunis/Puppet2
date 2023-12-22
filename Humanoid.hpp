@@ -271,7 +271,7 @@ public:
 		head_chain_(neck_offset_,neck_,head_offset_,head_tilt_),
 		animation_iterator_(.3,.6),
 		hitbox_("human_static_hitbox.obj", AnimationBase::debug_path),
-		exact_hitbox_("human.obj",AnimationBase::debug_path),
+		exact_hitbox_("human_B.obj",AnimationBase::debug_path),
 		enlarged_hitbox_("human_combat_hitbox.obj", AnimationBase::debug_path){
 
 		arm_L_.setRootTransform(&chest_rotation_.getEndTransform());
@@ -287,7 +287,7 @@ public:
 
 		refresh();
 
-		DynamicModel* model = new DynamicModel("human.obj", "human.txt");
+		DynamicModel* model = new DynamicModel("human_B.obj", "human_B.txt");
 		
 		model->getGroup("fingers_L")->setTform(&wrist_L_.getEndTransform());
 		model->getGroup("fingers_L")->setTform(&wrist_L_.getEndTransform());

@@ -20,6 +20,7 @@
 #include "text.hpp"
 #include "interface.hpp"
 #include "animation.hpp"
+#include "timer.hpp"
 
 
 using Eigen::Matrix4f;
@@ -54,6 +55,7 @@ private:
 	std::chrono::duration<float> dt_;
 	Eigen::Matrix4f last_position_;
 	Eigen::Matrix4f dG_;
+	std::unordered_set<Timer*> timers_;
 
 	Surface<3>* hitbox;
 	std::unordered_map<const GameObject*,CollisionPairBase*> collidors_; //should be a safe pointer
@@ -119,6 +121,11 @@ protected:
 	inline virtual void onDecollision(const GameObject* other, const CollisionPairBase* collision) {};
 
 	inline virtual void whileCollision(const GameObject* other, const CollisionPairBase* collision) {};
+
+
+	inline virtual void onTimer(Timer* timer) {};
+
+	inline virtual void whileTimer(Timer* timer) {};
 
 
 	inline virtual void onDestruction() {
@@ -210,6 +217,15 @@ public:
 		//in time dt, position (G) went from prev_position to position
 		dG_ = last_position_.inverse() * getPosition();
 		last_position_ = getPosition();
+
+		//advance timers
+		for (Timer* T : timers_) {
+			if (T->advance(getdt())) {
+				onTimer(T);
+			} else if(T->isRunning()){
+				whileTimer(T);
+			}
+		}
 		
 		//check collisions
 		for (auto& collidor : collidors_) {
@@ -273,6 +289,14 @@ public:
 	template<PrimaryHitbox PrimaryHitbox_T, SecondaryHitbox<PrimaryHitbox_T> SecondaryHitbox_T>
 	void addCollidor(const PrimaryHitbox_T& primary_hbox, const SecondaryHitbox_T& secondary_hbox, GameObject* other) {
 		addCollisionPair(new CollisionPair<PrimaryHitbox_T, SecondaryHitbox_T>(primary_hbox, secondary_hbox, this, other));
+	}
+
+	void addTimer(Timer* timer) {
+		timers_.insert(timer);
+	}
+
+	void removeTimer(Timer* timer) {
+		timers_.erase(timer);
 	}
 
 	float getdt() const {

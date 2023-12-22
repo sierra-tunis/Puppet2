@@ -319,6 +319,7 @@
     <ClInclude Include="text.hpp" />
     <ClInclude Include="textbox_object.hpp" />
     <ClInclude Include="text_graphics.hpp" />
+    <ClInclude Include="timer.hpp" />
     <ClInclude Include="UI.h" />
     <ClInclude Include="vertex_group.hpp" />
     <ClInclude Include="zdata.hpp" />

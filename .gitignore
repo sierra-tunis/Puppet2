@@ -6,3 +6,4 @@ Descender.h
 *.pdb
 *.tlog
 /x64/Debug/*.obj
+*.tmp.*

@@ -23,7 +23,6 @@ private:
 
 	std::array<Slider*, n_dofs> debug_sliders_;
 
-
 	std::vector<Button*> anim_buttons_;
 	UIIterator<AnimationBase> animation_iterator_;
 	bool edit_animation_mode_;
@@ -126,6 +125,8 @@ private:
 
 protected:
 
+	static constexpr int n_dofs = n_dofs;
+
 	const Eigen::Vector<float, n_dofs>& getState() const {
 		return state_;
 	}
@@ -140,7 +141,7 @@ protected:
 			new_state = dynamic_cast<const Animation<n_dofs>*>(getActiveAnimation())->getState();
 		}
 		else {
-			new_state = Eigen::Vector<float, n_dofs>::Constant(0);
+			new_state = Eigen::Vector<float, n_dofs>::Zero();
 		}
 		setState(new_state);
 		updateParameters();
@@ -165,7 +166,8 @@ public:
 
 	ParametricObject(std::string name, const KeyStateCallback_base& key_state_callback_caller = InternalObject::no_key_state_callback, const ControllerStateCallback_base& controller_state_callback_caller = InternalObject::no_controller_state_callback) :
 		GameObject(name, key_state_callback_caller, controller_state_callback_caller),
-		animation_iterator_(.3, .6){
+		animation_iterator_(.3, .6),
+		state_(Eigen::Vector<float,n_dofs>::Zero()){
 
 		edit_animation_mode_ = false;
 	}
