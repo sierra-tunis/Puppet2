@@ -59,6 +59,7 @@ private:
 
 	void setState(Eigen::Vector<float, n_dofs> new_state) {
 		state_ = new_state;
+		updateParameters();
 	}
 
 	virtual void updateParameters() {
@@ -333,6 +334,7 @@ public:
 	}
 
 	void setDynamicModel(DynamicModel* dyn_model) {
+		setModel(dyn_model);
 		dyn_model_ = dyn_model;
 	}
 	/*

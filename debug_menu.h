@@ -262,21 +262,21 @@ public:
 
 		addDependent(&reposition_target_);
 		reposition_target_.moveTo(.6, -.2, 0);
-		reposition_target_.clampTo(&reposition_pane_);
+		reposition_pane_.addDependent(&reposition_target_);
 		reposition_target_.setLabel("reposition target");
 		reposition_target_.load(window, graphics_2d_, text_graphics_);
 		reposition_target_.setCallback(&repositionTarget, this);
 
 		addDependent(&set_init_position_);
 		set_init_position_.moveTo(.6, -.35, 0);
-		set_init_position_.clampTo(&reposition_pane_);
+		reposition_pane_.addDependent(&set_init_position_);
 		set_init_position_.setLabel("set init position");
 		set_init_position_.load(window, graphics_2d_, text_graphics_);
 		set_init_position_.setCallback(&setInitialPosition, this);
 
 		addDependent(&reset_level_);
 		reset_level_.moveTo(.6, -.5, 0);
-		reset_level_.clampTo(&reposition_pane_);
+		reposition_pane_.addDependent(&reset_level_);
 		reset_level_.setLabel("reset level");
 		reset_level_.load(window, graphics_2d_, text_graphics_);
 		reset_level_.setCallback(&resetLevel, this);

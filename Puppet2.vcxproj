@@ -280,6 +280,7 @@
     <ClInclude Include="animation_menu.hpp" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="collision.hpp" />
+    <ClInclude Include="CollisionProbe.hpp" />
     <ClInclude Include="collision_info.hpp" />
     <ClInclude Include="debug_camera.h" />
     <ClInclude Include="DebugGraphics.h" />
