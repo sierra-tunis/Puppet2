@@ -138,10 +138,15 @@ public:
 		else {
 			glUniform1f(glGetUniformLocation(gl_id, "light_strength"), 0);
 		}
-		for (int i = 0; i < max_lights && i < scene_->secondary_lights_.size(); i++) {
-			glUniform3fv(glGetUniformLocation(gl_id, ("light_position_" + std::to_string(i+1)).c_str()), 1, scene_->secondary_lights_[i]->position.data());
-			glUniform3fv(glGetUniformLocation(gl_id, ("light_color_" + std::to_string(i+1)).c_str()), 1, scene_->secondary_lights_[i]->color.data());
-			glUniform1f(glGetUniformLocation(gl_id, ("light_strength_" + std::to_string(i+1)).c_str()), scene_->secondary_lights_[i]->brightness);
+		for (int i = 0; i < max_lights; i++) {
+			if (i < scene_->secondary_lights_.size()) {
+				glUniform3fv(glGetUniformLocation(gl_id, ("light_position_" + std::to_string(i + 1)).c_str()), 1, scene_->secondary_lights_[i]->position.data());
+				glUniform3fv(glGetUniformLocation(gl_id, ("light_color_" + std::to_string(i + 1)).c_str()), 1, scene_->secondary_lights_[i]->color.data());
+				glUniform1f(glGetUniformLocation(gl_id, ("light_strength_" + std::to_string(i + 1)).c_str()), scene_->secondary_lights_[i]->brightness);
+			}
+			else {
+				glUniform1f(glGetUniformLocation(gl_id, "light_strength"), 0);
+			}
 		}
 
 		glEnable(GL_BLEND);
