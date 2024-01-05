@@ -34,15 +34,32 @@ const char* Default3d::fragment_code = "#version 330 core\n"
 "uniform vec3 light_position;\n"
 "uniform float light_strength;\n"
 
+"uniform vec4 light_color_1;\n"
+"uniform vec3 light_position_1;\n"
+"uniform float light_strength_1;\n"
+"uniform vec4 light_color_2;\n"
+"uniform vec3 light_position_2;\n"
+"uniform float light_strength_2;\n"
+"uniform vec4 light_color_3;\n"
+"uniform vec3 light_position_3;\n"
+"uniform float light_strength_3;\n"
+
 "out vec4 FragColor;\n"
 
 "void main()\n"
 "{\n"
 "   float a = atmosphere_color.w * (length(position));"
-
+"	float diff = 0;"
 "   vec3 light_dir = (light_position - position);\n"
-"	float diff = max(dot(normal, normalize(light_dir)), 0.0);\n"
-"	diff = (diff*light_strength*light_strength)/(light_strength*light_strength+dot(light_dir, light_dir));\n"//strength scaling
+"	diff += (max(dot(normal, normalize(light_dir)), 0.0)*light_strength*light_strength)/(light_strength*light_strength+dot(light_dir, light_dir));\n"//strength scaling
+
+"   light_dir = (light_position_1 - position);\n"
+"	diff += (max(dot(normal, normalize(light_dir)), 0.0)*light_strength_1*light_strength_1)/(light_strength_1*light_strength_1+dot(light_dir, light_dir));\n"
+"   light_dir = (light_position_2 - position); \n"
+"	diff += (max(dot(normal, normalize(light_dir)), 0.0)*light_strength_2*light_strength_2)/(light_strength_2*light_strength_2+dot(light_dir, light_dir));\n"
+"   light_dir = (light_position_3 - position); \n"
+"	diff += (max(dot(normal, normalize(light_dir)), 0.0)*light_strength_3*light_strength_3)/(light_strength_3*light_strength_3+dot(light_dir, light_dir));\n"
+
 "	vec3 tex_color = (diff + .3) * texture(tex,texCoord).xyz;\n"
 //apply atmospheric perspective
 "	FragColor.xyz = (tex_color + atmosphere_color.xyz * a)/(1 + a);\n"

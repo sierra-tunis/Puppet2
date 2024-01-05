@@ -22,6 +22,8 @@ private:
 
 	Scene* scene_;
 
+	static constexpr int max_lights = 3;
+
 
 	constexpr int& getVAO(Cache cache) const {
 		return std::get<0>(cache);
@@ -140,12 +142,16 @@ public:
 		glUniformMatrix4fv(camera_location_, 1, GL_FALSE, scene_->camera->getCameraMatrix().data());
 
 		glUniform4f(glGetUniformLocation(gl_id, "atmosphere_color"), scene_->atmosphere_color(0), scene_->atmosphere_color(1), scene_->atmosphere_color(2), scene_->atmosphere_strength);
-		if (scene_->lights.size() > 0) {
-			glUniform3fv(glGetUniformLocation(gl_id, "light_position"), 1, scene_->lights[0]->position.data());
-			glUniform3fv(glGetUniformLocation(gl_id, "light_color"), 1, scene_->lights[0]->color.data());
-			glUniform1f(glGetUniformLocation(gl_id, "light_strength"), scene_->lights[0]->brightness);
+		if (scene_->primary_light_ != nullptr) {
+			glUniform3fv(glGetUniformLocation(gl_id, "light_position"), 1, scene_->primary_light_->position.data());
+			glUniform3fv(glGetUniformLocation(gl_id, "light_color"), 1, scene_->primary_light_->color.data());
+			glUniform1f(glGetUniformLocation(gl_id, "light_strength"), scene_->primary_light_->brightness);
 		}
-
+		for (int i = 0; i < max_lights && i < scene_->secondary_lights_.size(); i++) {
+			glUniform3fv(glGetUniformLocation(gl_id, ("light_position_" + std::to_string(i+1)).c_str()), 1, scene_->secondary_lights_[i]->position.data());
+			glUniform3fv(glGetUniformLocation(gl_id, ("light_color_" + std::to_string(i+1)).c_str()), 1, scene_->secondary_lights_[i]->color.data());
+			glUniform1f(glGetUniformLocation(gl_id, ("light_strength_" + std::to_string(i+1)).c_str()), scene_->secondary_lights_[i]->brightness);
+		}
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

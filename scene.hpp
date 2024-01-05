@@ -20,7 +20,8 @@ struct Scene {
 
 	};
 
-	std::vector<const light*> lights;
+	const light* primary_light_;
+	std::vector<const light*> secondary_lights_;
 	const orthogonalLight* shadow_light;
 	const Camera* camera;
 	Eigen::Vector3f atmosphere_color;
