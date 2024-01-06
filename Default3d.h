@@ -145,7 +145,7 @@ public:
 				glUniform1f(glGetUniformLocation(gl_id, ("light_strength_" + std::to_string(i + 1)).c_str()), scene_->secondary_lights_[i]->brightness);
 			}
 			else {
-				glUniform1f(glGetUniformLocation(gl_id, "light_strength"), 0);
+				glUniform1f(glGetUniformLocation(gl_id, ("light_strength_" + std::to_string(i + 1)).c_str()), 0);
 			}
 		}
 
