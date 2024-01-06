@@ -27,6 +27,7 @@ private:
 	MeshSurface cam_box_;
 
 	bool look_mode_;
+	const bool control_mode_; //i.e. CAD mode
 	static constexpr float joystick_x_sensitivity = 5;
 	static constexpr float joystick_y_sensitivity = 5;
 
@@ -51,7 +52,9 @@ private:
 
 	void onMouseDown(int key, float x, float y) override {
 		if (key == GLFW_MOUSE_BUTTON_MIDDLE) {
-			look_mode_ = true;
+			if (control_mode_) {
+				look_mode_ = true;
+			}
 		}
 		/*if (abs(x) <= 1 && abs(y) <= 1) {
 			glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -63,7 +66,9 @@ private:
 	}
 	void onMouseUp(int key, float x, float y) override {
 		if (key == GLFW_MOUSE_BUTTON_MIDDLE) {
-			look_mode_ = false;
+			if (control_mode_) {
+				look_mode_ = false;
+			}
 		}
 	}
 
@@ -91,7 +96,7 @@ private:
 	
 
 public:
-	PlayerCamera(float near_clip, float far_clip, float fov, float pixels_width, float pixels_height, float equilibrium_length, std::string name=InternalObject::no_name) :
+	PlayerCamera(float near_clip, float far_clip, float fov, float pixels_width, float pixels_height, float equilibrium_length, bool CAD_mode=false, std::string name=InternalObject::no_name) :
 		Camera(near_clip,far_clip,fov,pixels_width,pixels_height,"PlayerCamera"),
 		equilibrium_length_(equilibrium_length),
 		anchor_(OffsetConnector((Eigen::Matrix4f()<<1.,0.,0.,0.,  0.,1.,0.,.70,  0.,0.,1.,0.,  0., 0., 0., 1.).finished())),
@@ -100,7 +105,8 @@ public:
 		dist_(PrismaticJoint(Eigen::Vector3f(0., .0, 2))),
 		tether_(ConnectorChain<OffsetConnector, RotationJoint, RotationJoint, PrismaticJoint>(anchor_,pan_,tilt_,dist_)),
 		cam_box_("cam_box.obj", Model::debug_path),
-		look_mode_(true){
+		look_mode_(true),
+		control_mode_(CAD_mode){
 
 		setConnector(&tether_);
 		tether_.setRootTransform(nullptr);

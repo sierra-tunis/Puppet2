@@ -249,7 +249,7 @@ public:
 		debug_target_(nullptr),
 		target_iterator_(.3,.6),
 		level_iterator_(.3,.6),
-		debug_camera_(.1, 5000, 120, 1600, 800, 1.0),
+		debug_camera_(.1, 5000, 120, 1600, 800, 1.0,true),
 		edit_pane_(1.,1.,.1){
 		
 		/*
@@ -327,7 +327,7 @@ public:
 		edit_pane_.clampTo(this);
 
 		addDependent(&debug_camera_);
-		debug_camera_.setConnector(&cam_clamp_);
+		//debug_camera_.setConnector(&cam_clamp_);
 		debug_camera_.activateMouseInput(window);
 
 		/*target_dbg_info_.box_width = 2;
