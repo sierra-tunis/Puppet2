@@ -153,6 +153,7 @@ protected:
 	}
 
 	void onKeyPress(int key) override {
+		//controls not activated! (they shouldnt need to be to edit animations)
 		if (key == GLFW_KEY_C) {
 			clipboard_ = getState();
 		}
@@ -312,7 +313,9 @@ public:
 		animation_iterator_.setChangeCallback(setAnimation_static, this);
 		animation_iterator_.setIterable(&getAnimations());
 
-		//edit_animation_mode_ = true;
+		activateKeyInput(window);
+
+		edit_animation_mode_ = true;
 	}
 	void closeDebugUI(GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) override {
 		for (int i = 0; i < n_dofs; i++) {
@@ -326,6 +329,8 @@ public:
 		}
 		animation_iterator_.unload(window, graphics_2d, text_graphics);
 
+		deactivateKeyInput(window);
+
 		edit_animation_mode_ = false;
 	}
 
@@ -337,6 +342,7 @@ public:
 		setModel(dyn_model);
 		dyn_model_ = dyn_model;
 	}
+
 	/*
 	void setDynamicModelGroupTransform(std::string group_name, const Eigen::Matrix4f* tform) {
 		dyn_model_->getGroup(group_name)->setTform(tform);
