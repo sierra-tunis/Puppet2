@@ -255,6 +255,7 @@
   <ItemGroup>
     <ClCompile Include="animation.cpp" />
     <ClCompile Include="collision.cpp" />
+    <ClCompile Include="CollisionVisualizer.cpp" />
     <ClCompile Include="debug_camera.cpp" />
     <ClCompile Include="DebugGraphics.cpp" />
     <ClCompile Include="Default2d.cpp" />
@@ -281,6 +282,7 @@
     <ClInclude Include="camera.h" />
     <ClInclude Include="collision.hpp" />
     <ClInclude Include="CollisionProbe.hpp" />
+    <ClInclude Include="CollisionVisualizer.hpp" />
     <ClInclude Include="collision_info.hpp" />
     <ClInclude Include="debug_camera.h" />
     <ClInclude Include="DebugGraphics.h" />

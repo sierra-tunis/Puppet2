@@ -40,13 +40,14 @@ concept SecondaryHitbox = requires(const primary & first, const secondary & seco
 
 class CollisionPairBase {
 public:
-	virtual bool isCollision(Eigen::Matrix4f primary_position, Eigen::Matrix4f secondary_position,Eigen::Matrix4f secondary_motion) const = 0;
-	virtual void fullCollisionInfo(Eigen::Matrix4f primary_position, Eigen::Matrix4f secondary_position,Eigen::Matrix4f secondary_motion) = 0;
+	virtual bool isCollision() const = 0;
+	virtual void fullCollisionInfo() = 0;
 };
 
 template<PrimaryHitbox Prim_T, SecondaryHitbox<Prim_T> Sec_T>
-class CollisionInfo {
-
+class CollisionInfo { //this should really be a struct
+public:
+	bool is_colliding;
 };
 
 
@@ -80,6 +81,8 @@ class CollisionInfo<MeshSurface, MeshSurface> {
 	std::vector<EdgeCollisionInfo> edge_info_;//must be same length as meshbox edges
 
 public:
+	bool is_colliding;
+
 	std::vector<EdgeCollisionInfo>& getEdgeInfo() {
 		return edge_info_;
 	}
@@ -118,16 +121,22 @@ class CollisionPair : public CollisionPairBase {
 
 	CollisionInfo<PrimaryHitbox_T, SecondaryHitbox_T> collision_info_;
 
+	const Eigen::Matrix4f& primary_base_transform_;
+	//const Eigen::Matrix4f* primary_dG_twist_;
+	const Eigen::Matrix4f& secondary_base_transform_;
+	const Eigen::Matrix4f& secondary_dG_twist_;
+
 public:
+
 	const PrimaryHitbox_T& first;
 	const SecondaryHitbox_T& second;
 
-	bool isCollision(Eigen::Matrix4f primary_position, Eigen::Matrix4f secondary_position, Eigen::Matrix4f secondary_motion) const final override {
-		return checkCollision<PrimaryHitbox_T, SecondaryHitbox_T>(&first, &second, primary_position,secondary_position,secondary_motion);
+	bool isCollision() const final override {
+		return checkCollision<PrimaryHitbox_T, SecondaryHitbox_T>(&first, &second, primary_base_transform_, secondary_base_transform_, secondary_dG_twist_);
 	}
 
-	void fullCollisionInfo(Eigen::Matrix4f primary_position, Eigen::Matrix4f secondary_position, Eigen::Matrix4f secondary_motion) final override {
-		return getFullCollision<PrimaryHitbox_T, SecondaryHitbox_T>(&first, &second, primary_position, secondary_position,secondary_motion, &collision_info_);
+	void fullCollisionInfo() final override {
+		getFullCollision<PrimaryHitbox_T, SecondaryHitbox_T>(&first, &second, primary_base_transform_, secondary_base_transform_, secondary_dG_twist_, &collision_info_);
 
 	}
 
@@ -137,9 +146,28 @@ public:
 		return collision_info_;
 	}
 
-	CollisionPair(const PrimaryHitbox_T& primary_hitbox, const SecondaryHitbox_T& secondary_hitbox) :
+	size_t getID() const {
+		return static_cast<size_t>(reinterpret_cast<std::uintptr_t>((void*)this));
+	}
+
+	bool isHidden() const {
+		return false;
+	}
+
+	const Eigen::Matrix4f& getPrimaryPosition() const {
+		return primary_base_transform_;
+	}
+	const Eigen::Matrix4f& getSecondaryPosition() const {
+		return secondary_base_transform_;
+	}
+
+	CollisionPair(const PrimaryHitbox_T& primary_hitbox, const Eigen::Matrix4f& primary_position,const SecondaryHitbox_T& secondary_hitbox,const Eigen::Matrix4f& secondary_position, const Eigen::Matrix4f& secondary_dG) :
 		first(primary_hitbox),
-		second(secondary_hitbox){}	//std::pair<PrimaryHitbox_T, SecondaryHitbox_T> hitboxes;
+		second(secondary_hitbox),
+		primary_base_transform_(primary_position),
+		secondary_base_transform_(secondary_position),
+		secondary_dG_twist_(secondary_dG)
+		{}	//std::pair<PrimaryHitbox_T, SecondaryHitbox_T> hitboxes;
 
 };
 

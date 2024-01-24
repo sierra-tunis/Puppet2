@@ -27,7 +27,7 @@ struct Scene {
 	Eigen::Vector3f atmosphere_color;
 	float atmosphere_strength;
 
-	Scene() : shadow_light(nullptr),camera(nullptr),atmosphere_color(Eigen::Vector3f::Zero()),atmosphere_strength(0){
+	Scene() : primary_light_(nullptr),shadow_light(nullptr),camera(nullptr),atmosphere_color(Eigen::Vector3f::Zero()),atmosphere_strength(0){
 	}
 
 

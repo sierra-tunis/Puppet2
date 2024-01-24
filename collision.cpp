@@ -65,6 +65,7 @@ bool SurfaceNodeCollision(const MeshSurface* PrimarySurf, const MeshSurface* Sec
 		}
 		i++;
 	}
+	collision_info->is_colliding = result;
 	return result;
 }
 

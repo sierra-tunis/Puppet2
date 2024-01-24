@@ -16,6 +16,7 @@
 #include "Debugger.h"
 #include "ZMapper.h"
 #include "sound.hpp"
+#include "CollisionVisualizer.hpp"
 
 #include <GLFW/glfw3.h>
 
@@ -65,7 +66,7 @@ int main(void)
     DebugPlayer dbg_player;
     dbg_player.activateKeyInput(window);
     PlayerCamera camera(.1, 5000, 90, 1600,1200,1.0, "player1cam");
-    CollisionPair<Surface<3>, MeshSurface> tester(center.getHitbox(), dbg_player.getHitbox());
+    CollisionPair<Surface<3>, MeshSurface> tester(center.getHitbox(),center.getPosition(), dbg_player.getHitbox(),dbg_player.getPosition(),dbg_player.getdG());
     center.addCollisionPair(&dbg_player,&tester);
 
     camera.activateKeyInput(window);
@@ -79,7 +80,9 @@ int main(void)
     HboxGraphics hbox_graphics(camera, .1, 100, 90);
     Font test_glyph("test_glyph.png");
     TextGraphics text_graphics(test_glyph);
-    DebugMenu debugMenu(window, default2d, text_graphics);
+    CollisionVisualizer collision_visualizer;
+
+    DebugMenu debugMenu(window, default2d, text_graphics, collision_visualizer);
 
 
     layout.push_back(&center);

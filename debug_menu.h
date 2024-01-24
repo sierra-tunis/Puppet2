@@ -45,6 +45,7 @@ class DebugMenu : public GameObject {
 
 	GLFWwindow* window_;
 	Default2d& graphics_2d_;
+	GraphicsRaw<CollisionPair<MeshSurface, MeshSurface>>& hitbox_visualizer_;
 
 	Pane reposition_pane_;
 	Pane custom_obj_pane_;
@@ -161,9 +162,11 @@ public:
 		this_->debug_target_ = next;
 		if (prev != nullptr) {
 			prev->closeDebugUI(&this_->custom_obj_pane_, this_->window_, this_->graphics_2d_, this_->text_graphics_);
+			prev->hideAllCollidors(&this_->hitbox_visualizer_);
 		}
 		if (next != nullptr) {
 			this_->debug_target_->openDebugUI(&this_->custom_obj_pane_, this_->window_, this_->graphics_2d_, this_->text_graphics_);
+			this_->debug_target_->drawAllCollidors(&this_->hitbox_visualizer_);
 			this_->debug_camera_.setConnectorBase(&this_->debug_target_->getPosition());
 		}
 	}
@@ -230,7 +233,7 @@ public:
 		buttons_.push_back(button);
 	}
 
-	DebugMenu(GLFWwindow* window, Default2d& graphics, TextGraphics& text_graphics) : GameObject("debug_menu",key_state_callback_caller_),
+	DebugMenu(GLFWwindow* window, Default2d& graphics, TextGraphics& text_graphics, GraphicsRaw<CollisionPair<MeshSurface, MeshSurface>>& hitbox_visualizer) : GameObject("debug_menu",key_state_callback_caller_),
 		//test_button_(.1, .2, "test_button"),
 		//test_slider_(.1, .3, 0, 1),
 		reposition_target_(.1,.5),
@@ -244,6 +247,7 @@ public:
 		frame_counter_(0),
 		text_graphics_(text_graphics),
 		graphics_2d_(graphics),
+		hitbox_visualizer_(hitbox_visualizer),
 		cam_clamp_(Eigen::Matrix4f::Identity()),
 		window_(window),
 		debug_target_(nullptr),

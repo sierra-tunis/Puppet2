@@ -211,7 +211,7 @@ public:
 	}
 
 	static void goToLevel(Level* new_level) {
-		if (new_level == current_level_) { 
+		if (new_level == current_level_ || new_level==nullptr) { 
 			return; 
 		}
 		prev_level_ = current_level_;

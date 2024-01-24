@@ -128,6 +128,9 @@ protected:
 	inline virtual void whileTimer(Timer* timer) {};
 
 
+	inline virtual void onGlobalMessage(const GameObject* OP, const std::string message) {};
+	inline virtual void onDirectMessage(const GameObject* OP, const std::string message) {};
+
 	inline virtual void onDestruction() {
 
 	}
@@ -231,8 +234,8 @@ public:
 		for (auto& collidor : collidors_) {
 			auto& other = collidor.first;
 			auto& collision_pair = collidor.second;
-			if (active_hitbox_ && collidor.first->active_hitbox_ && collision_pair->isCollision(getPosition(),other->getPosition(),other->getdG())) {
-				collidor.second->fullCollisionInfo(getPosition(), other->getPosition(),other->getdG());
+			if (active_hitbox_ && collidor.first->active_hitbox_ && collision_pair->isCollision()) {
+				collision_pair->fullCollisionInfo();
 				if (collision_flags_.at(other) == false) {
 					//is colliding, hasnt called onCollision
 					onCollision(other, collision_pair);
@@ -291,6 +294,23 @@ public:
 		addCollisionPair(new CollisionPair<PrimaryHitbox_T, SecondaryHitbox_T>(primary_hbox, secondary_hbox, this, other));
 	}
 
+	void drawAllCollidors(GraphicsRaw<CollisionPair<MeshSurface, MeshSurface>>* visualizer) {
+		for (auto& c : collidors_) {
+			const CollisionPair<MeshSurface, MeshSurface>* collision = dynamic_cast<const CollisionPair<MeshSurface, MeshSurface>*>(c.second);
+			if (collision != nullptr) {
+				visualizer->add(*collision);
+			}
+		}
+	}
+	void hideAllCollidors(GraphicsRaw<CollisionPair<MeshSurface, MeshSurface>>* visualizer) {
+		for (auto& c : collidors_) {
+			const CollisionPair<MeshSurface, MeshSurface>* collision = dynamic_cast<const CollisionPair<MeshSurface, MeshSurface>*>(c.second);
+			if (collision != nullptr) {
+				visualizer->remove(*collision);
+			}
+		}
+	}
+
 	void addTimer(Timer* timer) {
 		timers_.insert(timer);
 	}
@@ -299,12 +319,16 @@ public:
 		timers_.erase(timer);
 	}
 
+	static void postGlobalMessage(const std::string message) {};
+
+	void directMessage(const std::string message) {};
+
 	float getdt() const {
 		//below 100 fps, game will just slow down
 		return std::min(.01f, dt_.count()*global_game_speed_);
 	}//note this is a copy, not a ref
 
-	Eigen::Matrix4f getdG() const {
+	const Eigen::Matrix4f& getdG() const {
 		return dG_;
 	}
 
@@ -626,6 +650,8 @@ public:
 	void deactivateHitbox() {
 		active_hitbox_ = false;
 	}
+
+
 
 
 };
