@@ -12,7 +12,12 @@ class NoCollideConstraint : public BoundaryConstraint {
 
 protected:
 	bool invalidPosition(Eigen::Matrix4f position) const override {
-		return checkCollision<Surface<3>, secondary_type>(getBoundary(), secondary_hitbox_, *getBoundaryPosition(), position);
+		if (getBoundary() != nullptr && secondary_hitbox_ != nullptr) {
+			return CollisionPair<Surface<3>, secondary_type>::checkCollision(*getBoundary(), *secondary_hitbox_, *getBoundaryPosition(), position);
+		}
+		else {
+			return false;
+		}
 	}
 
 public:

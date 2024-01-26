@@ -7,7 +7,7 @@
 #include "GameObject.h"
 #include "scene.hpp"
 
-class CollisionVisualizer : public Graphics<CollisionPair<MeshSurface,MeshSurface>,int,int,int,int> {
+class CollisionVisualizer : public Graphics<CollisionPair<MeshSurface,MeshSurface>,int,int,int,int,int> {
 
 	const unsigned int perspective_location_;
 	const unsigned int camera_location_;
@@ -29,16 +29,35 @@ class CollisionVisualizer : public Graphics<CollisionPair<MeshSurface,MeshSurfac
 				output.addVert(mesh.getVerts()[std::get<0>(edge)]);
 				output.addVert(mesh.getVerts()[std::get<1>(edge)]);
 				output.addVert(mesh.getVerts()[std::get<0>(edge)]);
-				output.addFace(std::get<0>(edge), std::get<1>(edge), std::get<0>(edge));
+				output.addFace(0, 0, 0);
 			}
 		}
 		output.finalize();
 		return output;
 	}
 
+	static Model mesh4d2Model(const MeshSurface& mesh, const Eigen::Matrix4f& dG) {
+		Model output;
+		
+		for (auto& edge : mesh.getEdges()) {
+			Eigen::Matrix4f dG_inv = dG.inverse();
+			output.addVert(mesh.getVerts()[std::get<0>(edge)]);
+			output.addVert(mesh.getVerts()[std::get<1>(edge)]);
+			output.addVert(dG_inv(seq(0, 2), seq(0, 2)) * mesh.getVerts()[std::get<1>(edge)] + dG_inv(seq(0, 2), 3));
+			output.addFace(0, 0, 0);
+			output.addVert(mesh.getVerts()[std::get<0>(edge)]);
+			output.addVert(dG_inv(seq(0, 2), seq(0, 2)) * mesh.getVerts()[std::get<0>(edge)] + dG_inv(seq(0, 2), 3));
+			output.addVert(dG_inv(seq(0, 2), seq(0, 2)) * mesh.getVerts()[std::get<1>(edge)] + dG_inv(seq(0, 2), 3));
+			output.addFace(0, 0, 0);
+		}
+
+		output.finalize();
+		return output;
+	}
+
 	Cache makeDataCache(const CollisionPair<MeshSurface, MeshSurface>& obj) const override {
 		Model primary_model = mesh2Model(obj.first);
-		Model secondary_model = mesh2Model(obj.second);
+		Model secondary_model = mesh4d2Model(obj.second,obj.getSecondarydG());
 
 		unsigned int VAO[2];
 		glGenVertexArrays(2, VAO);
@@ -65,7 +84,7 @@ class CollisionVisualizer : public Graphics<CollisionPair<MeshSurface,MeshSurfac
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 
-		return std::tuple<int, int,int,int>{VAO[0], primary_model.flen(),VAO[1],secondary_model.flen()};
+		return Cache{VAO[0], primary_model.flen(),VAO[1],secondary_model.flen(),VBO[1]};
 	};
 
 	void drawObj(const CollisionPair<MeshSurface, MeshSurface>& obj, Cache cache) const {
@@ -74,11 +93,12 @@ class CollisionVisualizer : public Graphics<CollisionPair<MeshSurface,MeshSurfac
 		Eigen::Vector3f secondary_model_color = Eigen::Vector3f(0.0, 1.0, 1.0);
 		Eigen::Vector3f secondary_model_collision_color = Eigen::Vector3f(1.0, 0.0, 1.0);
 
+		//draw primary
 		glBindVertexArray(std::get<0>(cache));
-		//should remove inverse here
 
 		glUniformMatrix4fv(model_location_, 1, GL_FALSE, obj.getPrimaryPosition().data());
-		if (obj.getCollisionInfo().is_colliding) {
+		//if (obj.getCollisionInfo().is_colliding) {
+		if (obj.isCollision()) {
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 			glUniform3fv(color_location_, 1, primary_model_collision_color.data());
 		}
@@ -89,11 +109,20 @@ class CollisionVisualizer : public Graphics<CollisionPair<MeshSurface,MeshSurfac
 		glDrawArrays(GL_TRIANGLES, 0, 3 * std::get<1>(cache));
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
+
+		//draw secondary
 		glBindVertexArray(std::get<2>(cache));
+		Model secondary_model = mesh4d2Model(obj.second, obj.getSecondarydG());
+
 		//should remove inverse here
+		glBindBuffer(GL_ARRAY_BUFFER, std::get<4>(cache));
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * secondary_model.flen() * 9, secondary_model.getVerts().data(), GL_STATIC_DRAW);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
 
 		glUniformMatrix4fv(model_location_, 1, GL_FALSE, obj.getSecondaryPosition().data());
-		if (obj.getCollisionInfo().is_colliding) {
+		//if (obj.getCollisionInfo().is_colliding) {
+		if (obj.isCollision()) {
 			glUniform3fv(color_location_, 1, secondary_model_collision_color.data());
 			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 		}
