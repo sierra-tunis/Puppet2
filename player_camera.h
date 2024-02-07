@@ -28,6 +28,7 @@ private:
 
 	bool look_mode_;
 	const bool control_mode_; //i.e. CAD mode
+	bool frozen_;
 	static constexpr float joystick_x_sensitivity = 5;
 	static constexpr float joystick_y_sensitivity = 5;
 
@@ -116,7 +117,7 @@ public:
 
 	void update(GLFWwindow* window) override {
 		Eigen::Vector3f joystick_command = Eigen::Vector3f(InternalObject::getRightStickPosition(window).first, 0, InternalObject::getRightStickPosition(window).second);
-		if (joystick_command.norm() > .1) {
+		if (joystick_command.norm() > .1 && !frozen_) {
 			onMouseMove(0, 0, joystick_x_sensitivity * joystick_command(0), joystick_y_sensitivity * joystick_command(2));
 		}
 		Camera::update(window);
@@ -165,6 +166,13 @@ public:
 
 	float getTilt() const {
 		return tilt_.getState()(0);
+	}
+
+	void freeze() {
+		frozen_ = true;
+	}
+	void unfreeze() {
+		frozen_ = false;
 	}
 
 	friend void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);

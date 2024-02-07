@@ -324,8 +324,8 @@ public:
 	void directMessage(const std::string message) {};
 
 	float getdt() const {
-		//below 100 fps, game will just slow down
-		return std::min(.01f, dt_.count()*global_game_speed_);
+		//below 30 fps, game will just slow down
+		return std::min(.03333f, dt_.count()*global_game_speed_);
 	}//note this is a copy, not a ref
 
 	const Eigen::Matrix4f& getdG() const {

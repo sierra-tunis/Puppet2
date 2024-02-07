@@ -12,6 +12,13 @@ struct Scene {
 		Eigen::Vector3f color;
 		Eigen::Vector3f position;
 
+		light():
+		brightness(100),
+		color(Eigen::Vector3f::Ones()),
+		position(Eigen::Vector3f::Zero()){
+
+		}
+
 	};
 
 	struct orthogonalLight : public light {
@@ -27,7 +34,8 @@ struct Scene {
 	Eigen::Vector3f atmosphere_color;
 	float atmosphere_strength;
 
-	Scene() : primary_light_(nullptr),shadow_light(nullptr),camera(nullptr),atmosphere_color(Eigen::Vector3f::Zero()),atmosphere_strength(0){
+	Scene() : 
+		primary_light_(nullptr),shadow_light(nullptr),camera(nullptr),atmosphere_color(Eigen::Vector3f::Zero()),atmosphere_strength(0){
 	}
 
 

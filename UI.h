@@ -9,6 +9,7 @@
 #include "text_graphics.hpp"
 #include "textbox_object.hpp"
 #include "solid_tex.hpp"
+#include "math_constants.hpp"
 
 class Rect2d : public Model {
 private:
@@ -444,7 +445,7 @@ class UIIterator : public GameObject{
 
 public:
 	
-	class UIIterator(float height, float width) :
+	UIIterator(float height, float width) :
 		iterable_(nullptr),
 		iterator_model_(height,width),
 		height_(height),
@@ -673,8 +674,8 @@ class ProgressBar : public GameObject {
 	float bar_min_;
 
 	void onStep() override {
-		bar_.rescale((*read_float_ - bar_min_) / (bar_max_ - bar_min_),1.0, 1.0);
-		graphics_2d_->refresh(*this);
+		//bar_.rescale((*read_float_ - bar_min_) / (bar_max_ - bar_min_),1.0, 1.0);
+		//graphics_2d_->refresh(*this);
 	}
 
 public:
@@ -697,6 +698,121 @@ public:
 		graphics_2d_ = graphics_2d;
 
 	}
+};
+
+template<class obj_T>
+class UIWheel : public GameObject {
+
+	Eigen::Vector2f cursor_;
+	int n_sections_;
+
+	const std::vector<obj_T*>* iterable_;
+	obj_T* target_;
+	TextboxObject target_name_;
+
+	Rect2d iterator_model_;
+	static Texture wheel_tex_;
+	static Texture section_textures_[8]; //i.e. texture for 0 chunks, 1 chunk, 2 chunks etc
+	static Texture highlighted_section_textures_[8];
+
+	std::vector<GameObject*> sections_;
+	std::vector<OffsetConnector*> section_offsets_;
+	OffsetConnector name_offset_;
+
+	GraphicsRaw<GameObject>* graphics_2d_;
+	GraphicsRaw<Textbox>* text_graphics_;
+
+	float radius_;
+
+	GLFWwindow* window_;
+
+	void onStep() override {
+		if (!isHidden() && window_ != nullptr) {
+			Eigen::Vector2f stick_input = Eigen::Vector2f(InternalObject::getRightStickPosition(window_).first, InternalObject::getRightStickPosition(window_).second);
+			if (stick_input.norm() > .3) {
+				cursor_ = stick_input.normalized();
+			}
+			if (getTarget() == nullptr) {
+				target_name_.text = "None";
+			}
+			else {
+				//target_name_.text = getTarget()->getName();
+			}
+			text_graphics_->refresh(target_name_);
+			//change approprate section texture and redraw 
+		}
+	}
+
+public:
+
+	UIWheel(float radius) :
+		iterable_(nullptr),
+		iterator_model_(radius, radius),
+		name_offset_(0, -radius / 2, 0) {
+
+		setTexture(&Rect2d::border_rect_tex);
+		setModel(&iterator_model_);
+
+		target_name_.box_width = radius;
+		target_name_.box_height = radius;
+		target_name_.font_size = 1;
+
+		addDependent(&target_name_);
+
+		target_name_.connectToParent(&name_offset_);
+
+	}
+
+	void load(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {
+		graphics_2d_ = &graphics_2d;
+		text_graphics_ = &text_graphics;
+		window_ = window;
+
+		graphics_2d.add(*this);
+		text_graphics.add(target_name_);
+
+		activateControllerInput(window);
+		activateMouseInput(window);
+
+	}
+
+	void unload(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {
+		graphics_2d.unload(*this);
+		text_graphics.unload(target_name_);
+		
+		deactivateControllerInput(window);
+		deactivateMouseInput(window);
+	}
+
+	int getSection() const {
+		//indexes go counter clockwise
+		float cursor_angle = fmod(atan2(cursor_.x(), -cursor_.y()) + M_PI, 2 * M_PI);
+		float section_width_radians = 2.0 * M_PI / n_sections_;
+		return (int)round(cursor_angle/section_width_radians - 0.5);
+	}
+
+	obj_T* getTarget() const {
+		if (iterable_ == nullptr) {
+			return nullptr;
+		}
+		else {
+			int section = getSection();
+			if (iterable_->size() <= section) {
+				return nullptr;
+			}
+			else {
+				return (*iterable_)[section];
+			}
+		}
+	}
+
+	void setIterable(const std::vector<obj_T*>* iterable) {
+		obj_T* prev_target = getTarget();
+		iterable_ = iterable;
+		n_sections_ = iterable_->size();
+		//do draw calls based on iterable_.size();
+	}
+
 };
 
 #endif

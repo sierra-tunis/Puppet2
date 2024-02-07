@@ -124,7 +124,7 @@ public:
 	}*/
 
 	void updateData() override {
-		for (auto& vg : vert_groups_) {
+		for (const auto& vg : vert_groups_) {
 			if (vg->getTform() != nullptr) {
 				const Eigen::Matrix4f& tform = *vg->getTform();
 				const Eigen::Matrix4f rel_tform = root_tform_ == nullptr ? tform : root_tform_->inverse() * tform;
