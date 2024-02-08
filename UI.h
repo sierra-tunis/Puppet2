@@ -700,7 +700,7 @@ public:
 	}
 };
 
-template<class obj_T>
+template<GameObject_T obj_T>
 class UIWheel : public GameObject {
 
 	Eigen::Vector2f cursor_;
@@ -734,10 +734,11 @@ class UIWheel : public GameObject {
 			}
 			if (getTarget() == nullptr) {
 				target_name_.text = "None";
+			} else {
+				target_name_.text = getTarget()->getName();
 			}
-			else {
-				//target_name_.text = getTarget()->getName();
-			}
+			//setOrientation(Eigen::Matrix3f::Identity());
+			//rotateZ(getCursorAngle());
 			text_graphics_->refresh(target_name_);
 			//change approprate section texture and redraw 
 		}
@@ -784,11 +785,15 @@ public:
 		deactivateMouseInput(window);
 	}
 
+	float getCursorAngle() const {
+		return fmod(atan2(-cursor_.x(), cursor_.y()) + M_PI, 2 * M_PI);
+	}
+
 	int getSection() const {
 		//indexes go counter clockwise
-		float cursor_angle = fmod(atan2(cursor_.x(), -cursor_.y()) + M_PI, 2 * M_PI);
+		float cursor_angle = getCursorAngle();
 		float section_width_radians = 2.0 * M_PI / n_sections_;
-		return (int)round(cursor_angle/section_width_radians - 0.5);
+		return ((int)round(cursor_angle/section_width_radians))%n_sections_;
 	}
 
 	obj_T* getTarget() const {

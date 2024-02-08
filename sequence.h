@@ -85,6 +85,9 @@ public:
 			}
 			return ((sequence_.col(step_above) - sequence_.col(step_below)) * r + sequence_.col(step_below))(seq(1,n_dofs));
 		}
+		else {
+			return Eigen::Vector<float, n_dofs>::Zero();
+		}
 	}
 
 	Eigen::Vector<float, n_dofs+1> getData(int col) const {

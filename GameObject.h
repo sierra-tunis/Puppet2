@@ -58,8 +58,21 @@ private:
 	std::unordered_set<Timer*> timers_;
 
 	Surface<3>* hitbox;
-	std::unordered_map<const GameObject*,CollisionPairBase*> collidors_; //should be a safe pointer
-	std::unordered_map<const GameObject*, bool> collision_flags_;
+	struct collisionPairHasher {
+		size_t operator()(const std::pair<const GameObject*, CollisionPairBase*>& p) const {
+			auto hash1 = std::hash<const GameObject*>{}(p.first);
+			auto hash2 = std::hash<CollisionPairBase*>{}(p.second);
+
+			if (hash1 != hash2) {
+				return hash1 ^ hash2;
+			}
+
+			// If hash1 == hash2, their XOR is zero.
+			return hash1;
+		}
+	};
+	std::unordered_set<std::pair<const GameObject*,CollisionPairBase*>,collisionPairHasher> collidors_; //should be a safe pointer
+	std::unordered_map<CollisionPairBase*, bool> collision_flags_;
 	bool active_hitbox_;
 
 	const GameObject* parent_;
@@ -236,19 +249,19 @@ public:
 			auto& collision_pair = collidor.second;
 			if (active_hitbox_ && collidor.first->active_hitbox_ && collision_pair->isCollision()) {
 				collision_pair->fullCollisionInfo();
-				if (collision_flags_.at(other) == false) {
+				if (collision_flags_.at(collision_pair) == false) {
 					//is colliding, hasnt called onCollision
 					onCollision(other, collision_pair);
-					collision_flags_.at(other) = true;
+					collision_flags_.at(collision_pair) = true;
 				} else {
 					//is collidiing, has called onCollision
 					whileCollision(other, collision_pair);
 				}
 			} else {
-				if (collision_flags_.at(other) == true) {
+				if (collision_flags_.at(collision_pair) == true) {
 					//isnt colliding, has called onCllision
 					onDecollision(other, collision_pair);
-					collision_flags_.at(other) = false;
+					collision_flags_.at(collision_pair) = false;
 				} else {
 					//isnt colliding hasn't called onCollision
 				}
@@ -280,12 +293,12 @@ public:
 
 	void addCollisionPair(const GameObject* other, CollisionPairBase* collision_pair) {
 		this->collidors_.insert({ other,collision_pair });
-		this->collision_flags_.insert({ other,false });
+		this->collision_flags_.insert({ collision_pair,false });
 		//this->collision_flags_.emplace_back(false);
 	}
-	void removeCollisionPair(const GameObject* other) {
-		this->collidors_.erase(other);
-		this->collision_flags_.erase(other);
+	void removeCollisionPair(const GameObject* other, CollisionPairBase* collision_pair) {
+		this->collidors_.erase({other,collision_pair});
+		this->collision_flags_.erase(collision_pair);
 		//this->collision_flags_.emplace_back(false);
 	}
 
@@ -655,6 +668,9 @@ public:
 
 
 };
+
+template<class T>
+concept GameObject_T = std::derived_from<T, GameObject>;
 //template <class G, int ... Keys>
 //const std::array<int, sizeof(Keys)> GameObject<G, Keys...>::keys{ { Keys... } };
 
