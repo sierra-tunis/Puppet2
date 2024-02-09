@@ -10,10 +10,12 @@
 #include "camera.h"
 #include "GameObject.h"
 #include "scene.hpp"
+#include "dynamic_model.hpp"
+#include "tuple"
 
 using Eigen::Matrix4f;
 
-class Dynamic3d : public Graphics<GameObject,int, int, size_t, unsigned int, unsigned int> { //VAO, tex_id, n_elems, pos vbo, norm vbo, pos_vector, norm_vector
+class Dynamic3d : public Graphics<GameObject,int, int, size_t, unsigned int, unsigned int, std::vector<std::tuple<unsigned int, unsigned int, const Eigen::Matrix4f*>>> { //VAO, tex_id, n_elems, pos vbo, norm vbo, static vaos(VAO,n_elems,position)
 
 private:
 	const unsigned int perspective_location_;
@@ -43,6 +45,10 @@ private:
 		return std::get<4>(cache);
 	}
 
+	constexpr const std::vector<std::tuple<unsigned int, unsigned int, const Eigen::Matrix4f*>>& getStaticVAOs(Cache& cache) const {
+		return std::get<5>(cache);
+	}
+
 	virtual Cache makeDataCache(const GameObject& obj) const override {
 		const Model& model = *(obj.getModel());
 		const Texture& tex = *(obj.getTexture());
@@ -51,8 +57,9 @@ private:
 		glGenVertexArrays(1, &(VAO));
 		unsigned int VBO[3];
 		glGenBuffers(3, VBO);
-		unsigned int EBO;
-		glGenBuffers(1, &EBO);
+		
+		//unsigned int EBO;
+		//glGenBuffers(1, &EBO);
 
 		glBindVertexArray(VAO);
 
@@ -72,8 +79,42 @@ private:
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(2);
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * model.flen() * 3, model.getFaces().data(), GL_STATIC_DRAW);
+		//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+		//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * model.flen() * 3, model.getFaces().data(), GL_STATIC_DRAW);
+
+		const DynamicModel* dyn_model = dynamic_cast<const DynamicModel*>(obj.getModel());
+
+		std::vector<std::tuple<unsigned int, unsigned int, const Eigen::Matrix4f*>> static_VAOs;
+		if (dyn_model != nullptr) {
+			for (auto& stat_mod : dyn_model->getStaticModels()) {
+				Model static_model = *stat_mod.second;
+
+				unsigned int sVAO;
+				glGenVertexArrays(1, &sVAO);
+				static_VAOs.push_back({ sVAO,static_model.flen(),stat_mod.first->getTform() });
+				unsigned int sVBO[3];
+				glGenBuffers(3, sVBO);
+
+				glBindVertexArray(sVAO);
+
+				glBindBuffer(GL_ARRAY_BUFFER, sVBO[0]);
+				glBufferData(GL_ARRAY_BUFFER, sizeof(float) * static_model.flen() * 9, static_model.getVerts().data(), GL_STATIC_DRAW);
+				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+				glEnableVertexAttribArray(0);
+
+				glBindBuffer(GL_ARRAY_BUFFER, sVBO[1]); //size is wrong here! need to change it depending on how we implement norm EBO
+				glBufferData(GL_ARRAY_BUFFER, sizeof(float) * static_model.flen() * 9, static_model.getNorms().data(), GL_STATIC_DRAW);
+				glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+				glEnableVertexAttribArray(1);
+
+				glBindBuffer(GL_ARRAY_BUFFER, sVBO[2]);
+				glBufferData(GL_ARRAY_BUFFER, sizeof(float) * static_model.flen() * 6, static_model.getTexCoords().data(), GL_STATIC_DRAW);
+				glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+				glEnableVertexAttribArray(2);
+
+				
+			}
+		}
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
@@ -100,7 +141,7 @@ private:
 		}
 		glGenerateMipmap(GL_TEXTURE_2D);
 
-		return Cache{VAO,tex_id, model.flen(), VBO[0], VBO[1]};
+		return Cache{VAO,tex_id, model.flen(), VBO[0], VBO[1],static_VAOs};
 	}
 
 	virtual void deleteDataCache(Cache cache) const override {
@@ -127,7 +168,21 @@ public:
 			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 			glEnableVertexAttribArray(1);
 
-			glDrawElements(GL_TRIANGLES, 3 * getNElems(cache), GL_UNSIGNED_INT, 0);
+			glDrawArrays(GL_TRIANGLES, 0, 3 * getNElems(cache));
+
+			const DynamicModel* dyn_model = dynamic_cast<const DynamicModel*>(obj.getModel());
+			if (dyn_model != nullptr) {
+				
+				for (int i = 0; i < std::get<5>(cache).size();i++) {
+					const auto& sVAO_pos_pair = std::get<5>(cache)[i];
+					//glBindTexture(GL_TEXTURE_2D, getTexID(cache));
+					glBindVertexArray(std::get<0>(sVAO_pos_pair));
+					
+					glUniformMatrix4fv(model_location_, 1, GL_FALSE, std::get<2>(sVAO_pos_pair)->data());
+					glDrawArrays(GL_TRIANGLES, 0, 3 * std::get<1>(sVAO_pos_pair));
+				}
+			}
+			//glDrawElements(GL_TRIANGLES, 3 * getNElems(cache), GL_UNSIGNED_INT, 0);
 		}
 		//for (auto const& o : obj.getChildren()) {
 		//	draw(*o);

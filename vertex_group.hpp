@@ -44,7 +44,7 @@ public:
 	void setTform(const Eigen::Matrix4f* tform) {
 		tform_ = tform;
 	}
-	const Eigen::Matrix4f* getTform() {
+	const Eigen::Matrix4f* getTform() const {
 		return tform_;
 	}
 

@@ -123,10 +123,12 @@ private:
 	}
 protected:
 
+public:
+
 	void setVert(int index, Eigen::Vector3f data) {
 		vert_data_[3 * index] = data(0);
-		vert_data_[3 * index+1] = data(1);
-		vert_data_[3 * index+2] = data(2);
+		vert_data_[3 * index + 1] = data(1);
+		vert_data_[3 * index + 2] = data(2);
 	}
 
 
@@ -136,10 +138,10 @@ protected:
 		norm_data_[3 * index + 2] = data(2);
 	}
 
-public:
 
 	template<class data_T, unsigned int data_vec_length>
 	bool objVertData2gl(const std::vector<data_T>& OBJ_data, std::vector<data_T>& gl_data) {
+		//reformats data. obj style vertex data (vert data+face data, i.e. EBO) gets written in gl style data(faces are 123,456,...)
 		gl_data = std::vector<data_T>(n_faces_ * data_vec_length * 3);
 		for (size_t i = 0; i < 3 * n_faces_; i++) {
 			for (int j = 0; j < data_vec_length; j++) {
@@ -267,10 +269,17 @@ public:
 
 	}	
 
+	Eigen::Vector3f getVert(int index) const {
+		return Eigen::Vector3f(vert_data_[3 * index], vert_data_[3 * index + 1], vert_data_[3 * index + 2]);
+	}
+
 	const std::vector<float>& getVerts() const {
 		return vert_data_;
 	}
 
+	Eigen::Vector3f getNorm(int index) const {
+		return Eigen::Vector3f(norm_data_[3 * index], norm_data_[3 * index + 1], norm_data_[3 * index + 2]);
+	}
 	const std::vector<float>& getNorms() const {
 		return norm_data_;
 	}
@@ -279,6 +288,9 @@ public:
 		return face_data_;
 	}
 
+	Eigen::Vector2f getTexCoord(int index) const {
+		return Eigen::Vector2f(tex_coord_data_[2 * index], tex_coord_data_[2 * index + 1]);
+	}
 	const std::vector<float>& getTexCoords() const {
 		return tex_coord_data_;
 	}
@@ -308,6 +320,10 @@ public:
 		norm_data_.push_back(dir(0));
 		norm_data_.push_back(dir(1));
 		norm_data_.push_back(dir(2));
+	}
+	void addTexCoord(Eigen::Vector2f coord) {
+		tex_coord_data_.push_back(coord(0));
+		tex_coord_data_.push_back(coord(1));
 	}
 
 	void addTexCoord(float x, float y) {

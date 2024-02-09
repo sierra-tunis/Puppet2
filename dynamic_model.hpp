@@ -14,7 +14,7 @@ using Eigen::seq;
 
 class DynamicModel : public Model {
 	Eigen::Matrix<float, 3, -1> vert_mat_;
-	Eigen::Matrix<float, 3, -1> norm_mat_;
+	Eigen::Matrix<float, 3, -1> norm_mat_; 
 
 	std::vector<VertexGroup*> vert_groups_;
 	const Eigen::Matrix4f* root_tform_;
@@ -24,6 +24,8 @@ class DynamicModel : public Model {
 	std::vector<VertexGroup*> primary_group_by_vert_;
 
 	int n_groups_;
+
+	std::unordered_map<const VertexGroup*, Model*> static_models_;
 
 	void loadMatrices() {
 		vert_mat_.resize(3, vlen());
@@ -50,12 +52,13 @@ public:
 
 
 	DynamicModel(std::string model_fname, std::string vertex_groups_fname, std::string path, bool force_shade_hard=true) :
-	Model(model_fname, path, force_shade_hard){
-		
+	//Model(model_fname, path, force_shade_hard){
+	Model(){
+		Model raw_model(model_fname, path, force_shade_hard);
+
 		if (!shade_smooth_) {
 			//std::cerr << "hard dynamic models not implemented yet!\n";
 		}
-		loadMatrices();
 
 		std::vector<unsigned int> OBJ_groups;
 		std::vector<unsigned int> OBJ_indices;
@@ -94,14 +97,64 @@ public:
 		std::vector<unsigned int> gl_groups;
 		std::vector<unsigned int> gl_indices;
 
-		objVertData2gl<unsigned int,1>(OBJ_indices, gl_indices);
-		objVertData2gl<unsigned int,1>(OBJ_groups, gl_groups);
+		raw_model.objVertData2gl<unsigned int,1>(OBJ_indices, gl_indices);
+		raw_model.objVertData2gl<unsigned int,1>(OBJ_groups, gl_groups);
 
-		for (int i = 0; i < gl_groups.size(); i++) {
+		for (int i = 0; i < gl_groups.size()/3; i++) {
+			if (gl_groups[3 * i] == gl_groups[3 * i + 1] && gl_groups[3 * i + 1] == gl_groups[3 * i + 2]) { //static face
+				if (!static_models_.contains(vert_groups_[gl_groups[3*i]])) {
+					static_models_[vert_groups_[gl_groups[3 * i]]] = new Model();
+				}
+			
+				static_models_[vert_groups_[gl_groups[3 * i]]]->addVert(raw_model.getVert(3 * i));
+				static_models_[vert_groups_[gl_groups[3 * i]]]->addVert(raw_model.getVert(3 * i + 1));
+				static_models_[vert_groups_[gl_groups[3 * i]]]->addVert(raw_model.getVert(3 * i + 2));
+
+				static_models_[vert_groups_[gl_groups[3 * i]]]->addNorm(raw_model.getNorm(3 * i));
+				static_models_[vert_groups_[gl_groups[3 * i]]]->addNorm(raw_model.getNorm(3 * i + 1));
+				static_models_[vert_groups_[gl_groups[3 * i]]]->addNorm(raw_model.getNorm(3 * i + 2));
+
+				static_models_[vert_groups_[gl_groups[3 * i]]]->addTexCoord(raw_model.getTexCoord(3 * i));
+				static_models_[vert_groups_[gl_groups[3 * i]]]->addTexCoord(raw_model.getTexCoord(3 * i + 1));
+				static_models_[vert_groups_[gl_groups[3 * i]]]->addTexCoord(raw_model.getTexCoord(3 * i + 2));
+
+				int model_flen = static_models_[vert_groups_[gl_groups[3 * i]]]->flen();
+				static_models_[vert_groups_[gl_groups[3 * i]]]->addFace(3*model_flen+1,3*model_flen+2,3*model_flen+3);
+
+			} else {
+				addVert(raw_model.getVert(3 * i));
+				addVert(raw_model.getVert(3 * i + 1));
+				addVert(raw_model.getVert(3 * i + 2));
+
+				addNorm(raw_model.getNorm(3 * i));
+				addNorm(raw_model.getNorm(3 * i + 1));
+				addNorm(raw_model.getNorm(3 * i + 2));
+
+				addTexCoord(raw_model.getTexCoord(3 * i));
+				addTexCoord(raw_model.getTexCoord(3 * i + 1));
+				addTexCoord(raw_model.getTexCoord(3 * i + 2));
+
+				addFace(3 * flen() + 1, 3 * flen() + 2, 3 * flen() + 3);
+
+				vert_groups_[gl_groups[3*i]]->addVert(vlen()-3); 
+				vert_groups_[gl_groups[3*i+1]]->addVert(vlen()-2); 
+				vert_groups_[gl_groups[3*i+2]]->addVert(vlen()-1); 
+
+				primary_group_by_vert_.push_back(vert_groups_[gl_groups[3*i]]);//works because verts are ordered in file
+				primary_group_by_vert_.push_back(vert_groups_[gl_groups[3*i+1]]);
+				primary_group_by_vert_.push_back(vert_groups_[gl_groups[3*i+2]]);
+
+
+			}
+		}
+
+		/*for (int i = 0; i < gl_groups.size(); i++) {
 			vert_groups_[gl_groups[i]]->addVert(i); //only get first group
 			primary_group_by_vert_.push_back(vert_groups_[gl_groups[i]]);//works because verts are ordered in file
-		}
-		
+		}*/
+
+		loadMatrices();
+
 		n_groups_ = vert_groups_.size();
 
 	}
@@ -183,6 +236,16 @@ public:
 		for (int i = 0; i < vert_groups_.size(); i++) {
 			vert_groups_[i]->setTform(tmp[i]);
 		}
+		for (auto& static_model : static_models_) {
+			Model* model = static_model.second;
+			Eigen::Matrix4f inv_tform = Eigen::Matrix4f(static_model.first->getTform()->inverse());
+			Eigen::Matrix3f R_inv = inv_tform(seq(0, 2), seq(0, 2));
+			Eigen::Vector3f p_inv = inv_tform(seq(0, 2), 3);
+			for (int i = 0; i < model->vlen(); i++) {
+				model->setVert(i,R_inv * model->getVert(i) + p_inv);
+				model->setNorm(i,R_inv * model->getNorm(i));
+			}
+		}
 	}
 
 
@@ -196,6 +259,10 @@ public:
 	
 	void setRootTransform(const Eigen::Matrix4f* root_transform) {
 		root_tform_ = root_transform;
+	}
+
+	const std::unordered_map<const VertexGroup*, Model*>& getStaticModels() const {
+		return static_models_;
 	}
 
 };
