@@ -15,7 +15,28 @@
 
 using Eigen::Matrix4f;
 
-class Dynamic3d : public Graphics<GameObject,int, int, size_t, unsigned int, unsigned int, std::vector<std::tuple<unsigned int, unsigned int, const Eigen::Matrix4f*>>> { //VAO, tex_id, n_elems, pos vbo, norm vbo, static vaos(VAO,n_elems,position)
+
+struct Dynamic3dCache {
+	int VAO;
+	int tex_id;
+	size_t n_elems;
+	unsigned int pos_vbo;
+	unsigned int norm_vbo;
+
+	std::vector<std::tuple<unsigned int, unsigned int, const Eigen::Matrix4f*>> static_VAOs;
+
+	Eigen::Vector4f overlay_color;
+
+	Dynamic3dCache() : VAO(-1), tex_id(-1), n_elems(0), pos_vbo(0),norm_vbo(0), overlay_color(0, 0, 0, 0) {
+	};
+	Dynamic3dCache(int VAO, int tex_id, size_t n_elems,unsigned int pos_vbo,unsigned int norm_vbo, std::vector<std::tuple<unsigned int, unsigned int, const Eigen::Matrix4f*>> static_VAOs)
+		: VAO(VAO), tex_id(tex_id), n_elems(n_elems),
+			pos_vbo(pos_vbo), norm_vbo(norm_vbo),static_VAOs(static_VAOs),
+			overlay_color(0.0f, 0.0f, 0.0f, 0.0f) {
+	};
+};
+
+class Dynamic3d : public Graphics<GameObject,Dynamic3dCache> { //VAO, tex_id, n_elems, pos vbo, norm vbo, static vaos(VAO,n_elems,position)
 
 private:
 	const unsigned int perspective_location_;
@@ -27,26 +48,26 @@ private:
 	static constexpr int max_lights = 3;
 
 
-	constexpr int& getVAO(Cache cache) const {
-		return std::get<0>(cache);
+	int& getVAO(Cache cache) const {
+		return std::get<0>(cache).VAO;
 	}
 
-	constexpr int& getTexID(Cache cache) const {
-		return std::get<1>(cache);
+	int& getTexID(Cache cache) const {
+		return std::get<0>(cache).tex_id;
 	}
-	constexpr size_t& getNElems(Cache cache) const {
-		return std::get<2>(cache);
+	size_t& getNElems(Cache cache) const {
+		return std::get<0>(cache).n_elems;
 	}
-	constexpr unsigned int& getPosVBO(Cache cache) const {
-		return std::get<3>(cache);
-	}
-
-	constexpr unsigned int& getNormVBO(Cache cache) const {
-		return std::get<4>(cache);
+	unsigned int& getPosVBO(Cache cache) const {
+		return std::get<0>(cache).pos_vbo;
 	}
 
-	constexpr const std::vector<std::tuple<unsigned int, unsigned int, const Eigen::Matrix4f*>>& getStaticVAOs(Cache& cache) const {
-		return std::get<5>(cache);
+	unsigned int& getNormVBO(Cache cache) const {
+		return std::get<0>(cache).norm_vbo;
+	}
+
+	const std::vector<std::tuple<unsigned int, unsigned int, const Eigen::Matrix4f*>>& getStaticVAOs(Cache& cache) const {
+		return std::get<0>(cache).static_VAOs;
 	}
 
 	virtual Cache makeDataCache(const GameObject& obj) const override {
@@ -141,7 +162,7 @@ private:
 		}
 		glGenerateMipmap(GL_TEXTURE_2D);
 
-		return Cache{VAO,tex_id, model.flen(), VBO[0], VBO[1],static_VAOs};
+		return Dynamic3dCache(VAO,tex_id, model.flen(), VBO[0], VBO[1],static_VAOs);
 	}
 
 	virtual void deleteDataCache(Cache cache) const override {
@@ -153,6 +174,8 @@ public:
 	void drawObj(const GameObject& obj, Cache cache) const override {
 		if (!obj.isHidden()) {
 			glUniformMatrix4fv(model_location_, 1, GL_FALSE, obj.getPosition().data());
+			glUniform4fv(glGetUniformLocation(gl_id, "overlay_color"), 1, std::get<0>(cache).overlay_color.data());
+
 
 			glBindTexture(GL_TEXTURE_2D, getTexID(cache));
 			glBindVertexArray(getVAO(cache));
@@ -173,8 +196,8 @@ public:
 			const DynamicModel* dyn_model = dynamic_cast<const DynamicModel*>(obj.getModel());
 			if (dyn_model != nullptr) {
 				
-				for (int i = 0; i < std::get<5>(cache).size();i++) {
-					const auto& sVAO_pos_pair = std::get<5>(cache)[i];
+				for (int i = 0; i < getStaticVAOs(cache).size(); i++) {
+					const auto& sVAO_pos_pair = getStaticVAOs(cache)[i];
 					//glBindTexture(GL_TEXTURE_2D, getTexID(cache));
 					glBindVertexArray(std::get<0>(sVAO_pos_pair));
 					
@@ -182,6 +205,8 @@ public:
 					glDrawArrays(GL_TRIANGLES, 0, 3 * std::get<1>(sVAO_pos_pair));
 				}
 			}
+
+
 			//glDrawElements(GL_TRIANGLES, 3 * getNElems(cache), GL_UNSIGNED_INT, 0);
 		}
 		//for (auto const& o : obj.getChildren()) {
@@ -234,6 +259,10 @@ public:
 
 	void setScene(Scene* scene) {
 		scene_ = scene;
+	}
+
+	void setOverlayColor(const GameObject& obj, Eigen::Vector4f color) {
+		std::get<0>(getCache(obj)).overlay_color = color;
 	}
 
 	Dynamic3d() :

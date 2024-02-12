@@ -116,6 +116,12 @@ protected:
 	static std::unordered_map<int, const Object*> draw_targets_; //needs to be map for removal
 	static std::unordered_map<int, Cache> cached_data_;
 
+protected:
+	
+	Cache& getCache(const Object& obj) {
+		return cached_data_.at(obj.getID());
+	}
+
 public:
 	
 

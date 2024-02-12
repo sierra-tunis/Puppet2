@@ -82,6 +82,8 @@ private:
 
 	GameObject* position_display_;
 
+	GraphicsRaw<GameObject>* graphics_;
+
 	static float global_game_speed_;
 
 	
@@ -550,10 +552,11 @@ public:
 	/*GraphicsRaw<GameObject>::Error draw(GraphicsRaw<GameObject>* shader) const {
 		return shader->add(*this);
 	}*/
-	void draw(GraphicsRaw<GameObject>* shader) const {
+	void draw(GraphicsRaw<GameObject>* shader) {
 		shader->add(*this);
+		graphics_ = shader;
 	}
-	void drawFamily(GraphicsRaw<GameObject>* shader) const {
+	void drawFamily(GraphicsRaw<GameObject>* shader) {
 		draw(shader);
 		for (auto& child : getDependents()) {
 			child->drawFamily(shader);
@@ -655,6 +658,10 @@ public:
 
 	void setTexture(Texture* tex) {
 		texture_ = tex;
+	}
+
+	GraphicsRaw<GameObject>* getShader() {
+		return graphics_;
 	}
 
 	void activateHitbox() {

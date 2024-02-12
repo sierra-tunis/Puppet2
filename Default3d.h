@@ -13,7 +13,21 @@
 
 using Eigen::Matrix4f;
 
-class Default3d : public Graphics<GameObject,int,int,size_t> { //VAO, tex_id, n_elems
+struct Default3dCache {
+	int VAO;
+	int tex_id;
+	size_t n_elems;
+	Eigen::Vector4f overlay_color;
+
+	Default3dCache() : VAO(-1), tex_id(-1), n_elems(0), overlay_color(0, 0, 0, 0) {
+	};
+	Default3dCache(int VAO, int tex_id, size_t n_elems) : VAO(VAO),tex_id(tex_id), n_elems(n_elems),overlay_color(0.0f,0.0f,0.0f,0.0f){
+	};
+
+
+};
+
+class Default3d : public Graphics<GameObject, Default3dCache> { //VAO, tex_id, n_elems
 
 private:
 	const unsigned int perspective_location_;
@@ -28,18 +42,18 @@ private:
 
 	static constexpr int max_lights = 3;
 
-	constexpr int& getVAO(Cache cache) const {
-		return std::get<0>(cache);
+	int& getVAO(Cache cache) const {
+		return std::get<0>(cache).VAO;
 	}
 
-	constexpr int& getTexID(Cache cache) const {
-		return std::get<1>(cache);
+	int& getTexID(Cache cache) const {
+		return std::get<0>(cache).tex_id;
 	}
-	constexpr size_t& getNElems(Cache cache) const {
-		return std::get<2>(cache);
+	size_t& getNElems(Cache cache) const {
+		return std::get<0>(cache).n_elems;
 	}
 
-	virtual std::tuple<int, int, size_t> makeDataCache(const GameObject& obj) const override {
+	virtual Cache makeDataCache(const GameObject& obj) const override {
 		const Model& model = *(obj.getModel());
 		const Texture& tex = *(obj.getTexture());
 
@@ -92,7 +106,7 @@ private:
 		}
 		glGenerateMipmap(GL_TEXTURE_2D);
 
-		return std::tuple<int, int, size_t>{VAO, tex_id, model.flen()};
+		return Default3dCache(VAO, tex_id, model.flen());
 	}
 
 	virtual void deleteDataCache(Cache cache) const override {
@@ -116,6 +130,9 @@ public:
 
 			glUniformMatrix4fv(model_location_, 1, GL_FALSE, obj.getPosition().data());
 			glDrawArrays(GL_TRIANGLES, 0, 3 * getNElems(cache));
+
+			glUniform4fv(glGetUniformLocation(gl_id, "overlay_color"),1, std::get<0>(cache).overlay_color.data());
+
 			//glDrawElements(GL_TRIANGLES, 3 * getNElems(cache), GL_UNSIGNED_INT, 0);
 		//for (auto const& o : obj.getChildren()) {
 		//	draw(*o);
@@ -169,6 +186,10 @@ public:
 
 	void setScene(Scene* scene) {
 		scene_ = scene;
+	}
+
+	void setOverlayColor(const GameObject& obj, Eigen::Vector4f color) {
+		std::get<0>(getCache(obj)).overlay_color = color;
 	}
 
 	Default3d():

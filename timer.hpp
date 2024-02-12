@@ -13,6 +13,7 @@ class Timer {
 protected:
 	void set(std::chrono::duration<float> timer_length) {
 		time_left_ = timer_length;
+		is_running_ = true;
 	}
 
 
@@ -41,6 +42,10 @@ public:
 
 	bool isRunning() const {
 		return is_running_;
+	}
+
+	float getTime() const {
+		return time_left_.count();
 	}
 
 };
