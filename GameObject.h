@@ -102,13 +102,32 @@ protected:
 	void setActiveAnimation(AnimationBase* animation) {
 		active_animation_ = animation;
 	}
+	Eigen::Vector3f onInvalidTranslation(Eigen::Vector3f translation, BoundaryConstraint* broken_constraint, int n_iters) {
+		//motion constraint::bestTranslate/limitTranslate will NEVER return an invalid translation, however if the
+		//user wants to perform some chikanery here and decide to do something else they are allowed
+		//default algorithm is just bounce
+		Eigen::Vector3f normal;
+		Eigen::Vector3f binormal;
+		if (abs(translation.dot(getPosition()(seq(0, 2), 1))) == translation.norm()) {//if translation is purely vertical
+			//normal = getPosition()(seq(0, 2), 2);
+			//binormal = getPosition()(seq(0, 2), 0);
+			return broken_constraint->limitTranslate(getPosition(), translation,n_iters);
+		}
+		else {
+			normal = translation.cross(Eigen::Vector3f(getPosition()(seq(0, 2), 1)));
+			binormal = translation.cross(normal);
+			normal.normalize();
+			binormal.normalize();
+		}
+		return broken_constraint->bestTranslate(getPosition(), translation, normal, binormal,n_iters);
+	}
 
 	virtual Eigen::Vector3f onInvalidTranslation(Eigen::Vector3f translation, BoundaryConstraint* broken_constraint) {
 		//motion constraint::bestTranslate/limitTranslate will NEVER return an invalid translation, however if the
 		//user wants to perform some chikanery here and decide to do something else they are allowed
 		Eigen::Vector3f normal;
 		Eigen::Vector3f binormal;
-		if (abs(translation.dot(getPosition()(seq(0, 2), 1))) == translation.norm()) {
+		if (abs(translation.dot(getPosition()(seq(0, 2), 1))) == translation.norm()) {//if translation is purely vertical
 			//normal = getPosition()(seq(0, 2), 2);
 			//binormal = getPosition()(seq(0, 2), 0);
 			return broken_constraint->limitTranslate(getPosition(), translation);
@@ -591,8 +610,8 @@ public:
 		return vec;
 		//stale_global_position_ = true;
 	};
-	void translate(float dx, float dy, float dz) {
-		translate(Eigen::Vector3f(dx, dy, dz));
+	Eigen::Vector3f translate(float dx, float dy, float dz) {
+		return translate(Eigen::Vector3f(dx, dy, dz));
 		//stale_global_position_ = true;
 	};
 
