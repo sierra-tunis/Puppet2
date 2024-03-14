@@ -58,7 +58,7 @@ bool Sound::unload() {
 }
 
 bool Sound::play() {
-	std::string full_command = std::string("play ") + name_ + std::string("");
+	std::string full_command = std::string("play ") + name_ + std::string(" from 0");
 	return msiSendString(full_command);
 }
 

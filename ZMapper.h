@@ -171,7 +171,7 @@ public:
 		camera_.rotateX(M_PI / 2);
 	}
 
-	bool renderZstep(const GameObject& level, int y_resolution, int x_resolution, float z, float z_step,float xy_padding, std::vector<uint8_t>* data, const std::vector<const GameObject*>& neighbors,std::string fname) {
+	bool renderZstep(const GameObject& level, int y_resolution, int x_resolution, float z, float z_step,float xy_padding, std::vector<uint8_t>* data, const std::vector<const GameObject*>& neighbors,std::string fname, bool save_image=false) {
 		constexpr int n_channels = 4;
 		const Model& model = *level.getModel();
 		//camera centers on model (primary model)
@@ -193,8 +193,11 @@ public:
 		endDraw();
 		//...see https://stackoverflow.com/questions/12157646/how-to-render-offscreen-on-opengl
 		data->reserve(y_resolution * x_resolution * n_channels);
-		//finishScreenshot<uint8_t, GL_UNSIGNED_BYTE>(data,"C:\\Users\\Justin\\source\\repos\\Puppet2\\Puppet2" + fname);
-		finishScreenshot<uint8_t, GL_UNSIGNED_BYTE>(data);
+		if (save_image) {
+			finishScreenshot<uint8_t, GL_UNSIGNED_BYTE>(data, "C:\\Users\\Justin\\source\\repos\\Puppet2\\Puppet2" + fname);
+		} else {
+			finishScreenshot<uint8_t, GL_UNSIGNED_BYTE>(data);
+		}
 
 		unload(level);
 		for (const auto& neig : neighbors) {

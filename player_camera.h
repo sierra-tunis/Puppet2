@@ -43,7 +43,7 @@ private:
 			}
 			if (dy != 0) {
 				float new_state = tilt_.getState()(0) - dy * .004;
-				if (new_state <= M_PI * 1.1 / 2. && new_state >= -M_PI * .667 / 2.) {
+				if (new_state <= M_PI * .667 / 2. && new_state >= -M_PI * .8 / 2.) {
 					tilt_.setState(Eigen::Vector<float, 1>(new_state));
 				}
 			}
@@ -130,7 +130,7 @@ public:
 		dist_.setState(Eigen::Vector<float, 1>(0));
 		Eigen::Vector<float, 3> equilibrium_state(pan_.getState()(0), tilt_.getState()(0), equilibrium_length_);
 		if (getParent() != nullptr) {
-			tether_.boundedMove<10>(equilibrium_state, getParent()->getMotionConstraints());
+			tether_.boundedMove<20>(equilibrium_state, getParent()->getMotionConstraints());
 		}
 		float new_extension_ = tether_.getState()(2);
 		float damped_return_to_equilibrium = (new_extension_ + (19) * current_extension_) / (20);
