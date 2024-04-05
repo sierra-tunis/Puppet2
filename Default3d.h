@@ -126,12 +126,14 @@ public:
 	void drawObj(const GameObject& obj, Cache cache) const override {
 			glBindTexture(GL_TEXTURE_2D, getTexID(cache));
 			glBindVertexArray(getVAO(cache));
+
+			glUniform4fv(glGetUniformLocation(gl_id, "overlay_color"), 1, std::get<0>(cache).overlay_color.data());
+
 			//should remove inverse here
 
 			glUniformMatrix4fv(model_location_, 1, GL_FALSE, obj.getPosition().data());
 			glDrawArrays(GL_TRIANGLES, 0, 3 * getNElems(cache));
 
-			glUniform4fv(glGetUniformLocation(gl_id, "overlay_color"),1, std::get<0>(cache).overlay_color.data());
 
 			//glDrawElements(GL_TRIANGLES, 3 * getNElems(cache), GL_UNSIGNED_INT, 0);
 		//for (auto const& o : obj.getChildren()) {

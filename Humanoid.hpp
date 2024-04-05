@@ -112,32 +112,6 @@ private:
 
 	
 
-	void setState(Eigen::Vector<float, n_dofs> new_state) {
-		//this can all be automatically generated via templates
-		origin_.setState(Eigen::Vector<float, 0>());
-		waist_rotation_.setState(new_state(seq(0, 0)));
-		chest_rotation_.setState(new_state(seq(1, 3)));
-		arm_L_.setState(new_state(seq(4, 10)));
-		arm_R_.setState(new_state(seq(11,17)));
-		leg_L_.setState(new_state(seq(18,24)));
-		leg_R_.setState(new_state(seq(25,31)));
-		head_chain_.setState(new_state(seq(32, 35)));
-		origin_position_.setState(new_state(seq(36, 38)));
-	}
-
-	Eigen::Vector<float, n_dofs> getState() const {
-		Eigen::Vector<float, n_dofs> ret;
-		ret(seq(0, 0)) = waist_rotation_.getState();
-		ret(seq(1, 3)) = chest_rotation_.getState();
-		ret(seq(4, 10)) = arm_L_.getState();
-		ret(seq(11, 17)) = arm_R_.getState();
-		ret(seq(18, 24)) = leg_L_.getState();
-		ret(seq(25, 31)) = leg_R_.getState();
-		ret(seq(32, 35)) = head_chain_.getState();
-		ret(seq(36, 38)) = origin_position_.getState();
-		return ret;
-	}
-
 	void refresh() {
 		setState(getState());
 	}
@@ -205,14 +179,15 @@ protected:
 		Eigen::Vector<float, n_dofs> new_state;
 		if (edit_animation_mode_ && edit_animation_ != nullptr) { //set state using edit_frame cursor
 			new_state = edit_animation_->getFrame()(seq(1, n_dofs));
+			setState(new_state);
 		}
-		else if (!edit_animation_mode_ && getActiveAnimation() != nullptr) {//set state using elapsed time
+		/*else if (!edit_animation_mode_ && getActiveAnimation() != nullptr) {//set state using elapsed time
 			new_state = dynamic_cast<const Animation<n_dofs>*>(getActiveAnimation())->getState();
 		}
 		else {
 			new_state = Eigen::Vector<float, n_dofs>::Constant(0);
 		}
-		setState(new_state);
+		setState(new_state);*/
 		dyn_model_->updateData();
 
 		refreshDebugSliders();
@@ -411,8 +386,11 @@ public:
 		setModel(model);
 		setTexture(new Texture("rocky.jpg"));
 	}*/
+	void openDebugUI(GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics ) override {
+		openDebugUI(getAnimations(), UI_container, window, graphics_2d, text_graphics);
+	}
 
-	void openDebugUI(GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) override {
+	void openDebugUI(const std::unordered_set<AnimationBase*>& animations,GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics)  {
 		GameObject::openDebugUI(UI_container, window, graphics_2d, text_graphics);
 		float slider_height = .6 / n_dofs;
 		int n_sections = 7;
@@ -491,7 +469,7 @@ public:
 		UI_container->addDependent(&animation_iterator_);
 		animation_iterator_.load(window, graphics_2d, text_graphics);
 		animation_iterator_.setChangeCallback(setAnimation_static, this);
-		animation_iterator_.setIterable(&getAnimations());
+		animation_iterator_.setIterable(&animations);
 
 		//edit_animation_mode_ = true;
 	}
@@ -547,6 +525,34 @@ public:
 	const Eigen::Matrix4f& getHeadTform() const {
 		return head_tilt_.getEndTransform();
 	}
+
+
+	void setState(Eigen::Vector<float, n_dofs> new_state) {
+		//this can all be automatically generated via templates
+		origin_.setState(Eigen::Vector<float, 0>());
+		waist_rotation_.setState(new_state(seq(0, 0)));
+		chest_rotation_.setState(new_state(seq(1, 3)));
+		arm_L_.setState(new_state(seq(4, 10)));
+		arm_R_.setState(new_state(seq(11, 17)));
+		leg_L_.setState(new_state(seq(18, 24)));
+		leg_R_.setState(new_state(seq(25, 31)));
+		head_chain_.setState(new_state(seq(32, 35)));
+		origin_position_.setState(new_state(seq(36, 38)));
+	}
+
+	Eigen::Vector<float, n_dofs> getState() const {
+		Eigen::Vector<float, n_dofs> ret;
+		ret(seq(0, 0)) = waist_rotation_.getState();
+		ret(seq(1, 3)) = chest_rotation_.getState();
+		ret(seq(4, 10)) = arm_L_.getState();
+		ret(seq(11, 17)) = arm_R_.getState();
+		ret(seq(18, 24)) = leg_L_.getState();
+		ret(seq(25, 31)) = leg_R_.getState();
+		ret(seq(32, 35)) = head_chain_.getState();
+		ret(seq(36, 38)) = origin_position_.getState();
+		return ret;
+	}
+
 
 };
 

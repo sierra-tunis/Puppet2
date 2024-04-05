@@ -99,9 +99,6 @@ protected:
 	}
 
 
-	void setActiveAnimation(AnimationBase* animation) {
-		active_animation_ = animation;
-	}
 	Eigen::Vector3f onInvalidTranslation(Eigen::Vector3f translation, BoundaryConstraint* broken_constraint, int n_iters) {
 		//motion constraint::bestTranslate/limitTranslate will NEVER return an invalid translation, however if the
 		//user wants to perform some chikanery here and decide to do something else they are allowed
@@ -163,7 +160,7 @@ protected:
 
 
 	inline virtual void onGlobalMessage(const GameObject* OP, const std::string message) {};
-	inline virtual void onDirectMessage(const GameObject* OP, const std::string message) {};
+	inline virtual void onDirectMessage(const GameObject* sender, const std::string message) {};
 
 	inline virtual void onDestruction() {
 
@@ -229,6 +226,7 @@ public:
 		//	const_cast<GameObject*>(parent_)->removeDependent(this);
 		//}
 	}
+	
 
 	void destroyChild(GameObject* child) {
 		removeDependent(child);
@@ -353,9 +351,9 @@ public:
 		timers_.erase(timer);
 	}
 
-	static void postGlobalMessage(const std::string message) {};
+	static void postGlobalMessage(const std::string message) {};//if you need to talk to a const gameObject*
 
-	void directMessage(const std::string message) {};
+	void directMessage(GameObject* recipient, const std::string message, const void* attachments=nullptr) {};
 
 	float getdt() const {
 		//below 30 fps, game will just slow down
@@ -392,6 +390,10 @@ public:
 
 	const std::unordered_set<AnimationBase*>& getAnimations() const {
 		return animations_;
+	}
+
+	void setActiveAnimation(AnimationBase* animation) {
+		active_animation_ = animation;
 	}
 
 	const AnimationBase* getActiveAnimation() const {

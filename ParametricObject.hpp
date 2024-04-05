@@ -12,8 +12,6 @@
 #ifndef PUPPET_PARAMETRICOBJECT
 #define PUPPET_PARAMETRICOBJECT
 
-
-
 template<int n_dofs>
 class ParametricObject : public GameObject {
 

@@ -284,6 +284,7 @@
     <ClInclude Include="CollisionProbe.hpp" />
     <ClInclude Include="CollisionVisualizer.hpp" />
     <ClInclude Include="collision_info.hpp" />
+    <ClInclude Include="connector_cluster.hpp" />
     <ClInclude Include="debug_camera.h" />
     <ClInclude Include="DebugGraphics.h" />
     <ClInclude Include="Debugger.h" />

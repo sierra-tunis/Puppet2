@@ -272,5 +272,8 @@
     <ClInclude Include="CollisionVisualizer.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="connector_cluster.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
