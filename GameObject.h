@@ -483,6 +483,9 @@ public:
 	void addMotionConstraint(BoundaryConstraint* BC) {
 		motion_constraints_.push_back(BC);
 	}
+	void removeMotionConstraint(BoundaryConstraint* BC) {
+		motion_constraints_.erase(std::remove(motion_constraints_.begin(), motion_constraints_.end(), BC), motion_constraints_.end());
+	}
 
 	const std::vector<BoundaryConstraint*>& getMotionConstraints() const {
 		return motion_constraints_;

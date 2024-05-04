@@ -88,7 +88,7 @@ private:
 	void deactivate() {
 		load_state_ = standby;
 		for (auto& obj : getDependents()) {
-			obj->onRoomActivation();
+			obj->onRoomDeactivation();
 		}
 		theme_.stop();
 	}

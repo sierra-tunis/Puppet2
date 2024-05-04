@@ -125,6 +125,10 @@ protected:
 
 public:
 
+	std::string getFilename() const {
+		return fname_;
+	}
+
 	void setVert(int index, Eigen::Vector3f data) {
 		vert_data_[3 * index] = data(0);
 		vert_data_[3 * index + 1] = data(1);
@@ -197,7 +201,8 @@ public:
 	Model(std::string fname, bool force_shade_hard=true) : Model(fname, default_path, force_shade_hard) {
 	}
 
-	Model(std::string fname, std::string path, bool force_shade_hard=true) {
+	Model(std::string fname, std::string path, bool force_shade_hard=true):
+	fname_(fname){
 		std::string line;
 		std::string type;
 		std::string value;
