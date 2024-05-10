@@ -626,6 +626,16 @@ public:
 		}
 	}
 
+	void next() {
+		activatePane((active_pane_index_ + 1)%panes_.size());
+	}
+	void prev() {
+		activatePane((active_pane_index_ - 1) % panes_.size());
+	}
+
+	int getActivePaneIndex() const {
+		return active_pane_index_;
+	}
 
 };
 
