@@ -26,6 +26,8 @@ public:
 	const unsigned int height;
 	const unsigned int n_channels;
 
+	//Texture() :Texture(0, 0, 0, std::vector<uint8_t>()) {}
+
 	Texture(std::string fname):Texture(fname, default_path){
 	}
 

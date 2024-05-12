@@ -25,7 +25,7 @@ const char* Default2d::fragment_code = "#version 330 core\n"
 "void main()\n"
 "{\n"
 "	vec4 tex_color = texture(tex,texCoord);\n"
-"	if(tex_color.w < .1) discard;\n"
+"	if(tex_color.w != 1.) discard;\n"
 "	FragColor = tex_color;\n"
 //"	FragColor = vec4(0.,0.,0.,1.);\n"
 " } ";

@@ -12,5 +12,9 @@ std::vector<uint8_t> Texture::read_img_data(std::string fname) {
 	} else {
 		data = stbi_load(fname.c_str(), &(this->w_tmp), &(this->h_tmp), &(this->n_ch_tmp), STBI_rgb);
 	}
-	return std::vector<uint8_t>(data, &(data[w_tmp * h_tmp * n_ch_tmp]));
+	if (data != nullptr) {
+		return std::vector<uint8_t>(data, &(data[w_tmp * h_tmp * n_ch_tmp]));
+	} else {
+		return std::vector<uint8_t>{};
+	}
 }

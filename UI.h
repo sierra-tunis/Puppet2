@@ -627,7 +627,7 @@ public:
 	}
 
 	void next() {
-		activatePane((active_pane_index_ + 1)%panes_.size());
+		activatePane((active_pane_index_ + 1) % panes_.size());
 	}
 	void prev() {
 		activatePane((active_pane_index_ - 1) % panes_.size());
