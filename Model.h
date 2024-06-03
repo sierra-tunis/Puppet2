@@ -181,7 +181,7 @@ public:
 		edge_data_ = OBJ_lines_;
 		return;
 	}
-	static constexpr char debug_path[] = "C:\\Users\\Justin\\source\\repos\\Puppet2\\Puppet2\\assets\\";
+	static constexpr char debug_path[] = "C:\\Users\\Sierra\\source\\repos\\Puppet2\\Puppet2\\assets\\";
 	static std::string default_path;
 
 	Model(){}

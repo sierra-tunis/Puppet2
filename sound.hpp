@@ -18,7 +18,7 @@ class Sound {
 
 public:
 
-	static constexpr char debug_path[] = "C:\\Users\\Justin\\source\\repos\\Puppet2\\Puppet2\\assets\\";
+	static constexpr char debug_path[] = "C:\\Users\\Sierra\\source\\repos\\Puppet2\\Puppet2\\assets\\";
 	static std::string default_path;
 
 	Sound() :name_(""), fname_("default_constructor_noise.wav"),is_loaded_(false),is_playing_(false) {};

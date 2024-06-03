@@ -508,6 +508,11 @@ public:
 		setState(Eigen::Vector<float, n_dofs>::Zero());
 	}
 
+	bool inEditMode() {
+		return edit_animation_mode_;
+	}
+
+
 	const Eigen::Matrix4f& getLeftHandTform() const {
 		return wrist_L_.getEndTransform();
 	}

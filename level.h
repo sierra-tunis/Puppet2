@@ -95,7 +95,7 @@ private:
 
 public:
 	static std::string default_path;
-	static constexpr char debug_path[] = "C:\\Users\\Justin\\source\\repos\\Puppet2\\Puppet2\\assets\\";
+	static constexpr char debug_path[] = "C:\\Users\\Sierra\\source\\repos\\Puppet2\\Puppet2\\assets\\";
 
 	static GraphicsRaw<GameObject>* level_shader;
 

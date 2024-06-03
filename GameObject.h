@@ -595,6 +595,10 @@ public:
 		}
 		erase(shader);//undraws in reverse order
 	}
+	void redraw(GraphicsRaw<GameObject>* shader) {
+		shader->refresh(*this);
+	}
+
 
 	Eigen::Vector3f translate(Eigen::Vector3f vec) {
 		Eigen::Matrix4f new_pos = getPosition();

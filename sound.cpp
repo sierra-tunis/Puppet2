@@ -9,7 +9,7 @@
 
 #include "sound.hpp"
 
-//#define PATH_TO_AUDIO "C:\\Users\\Justin\\source\\repos\\Puppet2\\Puppet2\\assets\\audio\\"
+//#define PATH_TO_AUDIO "C:\\Users\\Sierra\\source\\repos\\Puppet2\\Puppet2\\assets\\audio\\"
 
 std::string Sound::default_path = Sound::debug_path;
 

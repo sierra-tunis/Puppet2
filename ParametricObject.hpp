@@ -341,6 +341,10 @@ public:
 		dyn_model_ = dyn_model;
 	}
 
+	bool inEditMode() {
+		return edit_animation_mode_;
+	}
+
 	/*
 	void setDynamicModelGroupTransform(std::string group_name, const Eigen::Matrix4f* tform) {
 		dyn_model_->getGroup(group_name)->setTform(tform);
