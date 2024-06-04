@@ -38,6 +38,7 @@ private:
 public:
 
 	static Texture rect_tex;
+	static Texture rect_tex_depressed;
 	static Texture border_rect_tex;
 
 	Rect2d(float height, float width):
@@ -63,6 +64,8 @@ class Button : public GameObject{
 //	float x_, y_; //center coord
 	Rect2d button_model_;
 	GraphicsRaw<Textbox>* text_graphics_;
+	GraphicsRaw<GameObject>* graphics_2d_;
+
 
 	TextboxObject label_;
 
@@ -94,7 +97,8 @@ public:
 		height_(height),
 		width_(width),
 		button_model_(height_, width_),
-		text_graphics_(nullptr){
+		text_graphics_(nullptr),
+		graphics_2d_(nullptr){
 
 		setModel(&button_model_);
 		setTexture(&Rect2d::rect_tex);
@@ -150,7 +154,7 @@ public:
 		activateMouseInput(window);
 		const TextboxObject& tmp = label_;
 		text_graphics_ = &text_graphics;
-		
+		graphics_2d_ = &graphics_2d;
 	}
 
 	void unload(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {
@@ -158,6 +162,19 @@ public:
 		text_graphics.unload(this->label_);
 		deactivateMouseInput(window);
 		text_graphics_ = nullptr;
+	}
+
+	void depress() {
+		setTexture(&Rect2d::rect_tex_depressed);
+		if (graphics_2d_ != nullptr) {
+			this->redraw(graphics_2d_);
+		}
+	}
+	void undepress() {
+		setTexture(&Rect2d::rect_tex);
+		if (graphics_2d_ != nullptr) {
+			this->redraw(graphics_2d_);
+		}
 	}
 
 };
@@ -562,8 +579,11 @@ class TabbedPane : public GameObject {
 	//whether this function is private or public says a lot about the architecture of puppet code pachake/puppet software
 	void activatePane(int i) {
 		panes_[active_pane_index_]->hide();
+		tabs_[active_pane_index_]->undepress();
 		panes_[i]->show();
+		tabs_[i]->depress();
 		active_pane_index_ = i;
+
 	}
 
 	template<int i>
@@ -629,8 +649,9 @@ public:
 	void next() {
 		activatePane((active_pane_index_ + 1) % panes_.size());
 	}
+
 	void prev() {
-		activatePane((active_pane_index_ - 1) % panes_.size());
+		activatePane((panes_.size() + active_pane_index_ - 1) % panes_.size());
 	}
 
 	int getActivePaneIndex() const {
