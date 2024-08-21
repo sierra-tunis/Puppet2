@@ -52,6 +52,7 @@ private:
 	Eigen::Matrix4f initial_position_;
 
 	time_point<system_clock> t_ref_;
+	time_point<system_clock> t_init_;
 	std::chrono::duration<float> dt_;
 	Eigen::Matrix4f last_position_;
 	Eigen::Matrix4f dG_;
@@ -186,7 +187,13 @@ protected:
 			i++;
 		}
 		setInitialPosition(init_position);
-		setPosition(initial_position_);
+		//if (getConnector() == nullptr) {
+			setPosition(initial_position_);
+		//}
+		//else if (getConnector()->getRootTransform() == nullptr) {
+		//	setConnectorBase(new Eigen::Matrix4f(initial_position_));
+		//}
+		t_init_ = system_clock::now();
 		std::getline(ss, *remainder_string, '\0');//rest of string
 
 	}
@@ -360,6 +367,10 @@ public:
 		return std::min(.03333f, dt_.count()*global_game_speed_);
 	}//note this is a copy, not a ref
 
+	float gett() const {
+		return std::chrono::duration<float>(t_ref_-t_init_).count() * global_game_speed_;
+	}
+
 	const Eigen::Matrix4f& getdG() const {
 		return dG_;
 	}
@@ -476,7 +487,7 @@ public:
 	void setInitialPosition(Eigen::Matrix4f initial_position) {
 		initial_position_ = initial_position;
 	}
-	Eigen::Matrix4f getInitialPosition() const {
+	const Eigen::Matrix4f& getInitialPosition() const {
 		return initial_position_;
 	}
 
@@ -658,7 +669,14 @@ public:
 			i++;
 		}
 		setInitialPosition(init_position);
+		//if (getConnector() == nullptr) {
 		setPosition(initial_position_);
+		//}
+		//else if (getConnector()->getRootTransform() == nullptr) {
+		//	setConnectorBase(new Eigen::Matrix4f(initial_position_));
+		//}
+		t_init_ = system_clock::now();
+
 	}
 
 	virtual std::string save() const {

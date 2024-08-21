@@ -54,10 +54,22 @@ private:
 	}
 
 
+	void onStep() override {
+		Eigen::Vector<float, n_dofs> new_state;
+		if (edit_animation_mode_ && edit_animation_ != nullptr) { //set state using edit_frame cursor
+			new_state = edit_animation_->getFrame()(seq(1, n_dofs));
+			setState(new_state);
+		}
+		/*else if (!edit_animation_mode_ && getActiveAnimation() != nullptr) {//set state using elapsed time
+			new_state = dynamic_cast<const Animation<n_dofs>*>(getActiveAnimation())->getState();
+		}
+		else {
+			new_state = Eigen::Vector<float, n_dofs>::Constant(0);
+		}
+		setState(new_state);*/
+		dyn_model_->updateData();
 
-	void setState(Eigen::Vector<float, n_dofs> new_state) {
-		state_ = new_state;
-		updateParameters();
+		refreshDebugSliders();
 	}
 
 	virtual void updateParameters() {
@@ -124,7 +136,6 @@ private:
 
 protected:
 
-	static constexpr int n_dofs = n_dofs;
 
 	const Eigen::Vector<float, n_dofs>& getState() const {
 		return state_;
@@ -132,7 +143,7 @@ protected:
 
 	void update(GLFWwindow* window) override {
 		GameObject::update(window);
-		Eigen::Vector<float, n_dofs> new_state;
+		/*Eigen::Vector<float, n_dofs> new_state;
 		if (edit_animation_mode_ && edit_animation_ != nullptr) { //set state using edit_frame cursor
 			new_state = edit_animation_->getFrame()(seq(1, n_dofs));
 		}
@@ -148,6 +159,7 @@ protected:
 			dyn_model_->updateData();
 		}
 		refreshDebugSliders();
+		*/
 	}
 
 	void onKeyPress(int key) override {
@@ -163,6 +175,8 @@ protected:
 	}
 
 public:
+
+	static constexpr int n_dofs = n_dofs;
 
 	ParametricObject(std::string name, const KeyStateCallback_base& key_state_callback_caller = InternalObject::no_key_state_callback, const ControllerStateCallback_base& controller_state_callback_caller = InternalObject::no_controller_state_callback) :
 		GameObject(name, key_state_callback_caller, controller_state_callback_caller),
@@ -345,6 +359,11 @@ public:
 		return edit_animation_mode_;
 	}
 
+
+	void setState(Eigen::Vector<float, n_dofs> new_state) {
+		state_ = new_state;
+		updateParameters();
+	}
 	/*
 	void setDynamicModelGroupTransform(std::string group_name, const Eigen::Matrix4f* tform) {
 		dyn_model_->getGroup(group_name)->setTform(tform);
