@@ -207,6 +207,9 @@ public:
 	static void setGlobalGameSpeed(float game_speed) {
 		global_game_speed_ = game_speed;
 	}
+	static float getGlobalGameSpeed() {
+		return global_game_speed_;
+	}
 	
 	static std::unordered_set<GameObject*> global_game_objects;
 
