@@ -277,7 +277,7 @@ public:
 			auto& other = collidor.first;
 			auto& collision_pair = collidor.second;
 			if (active_hitbox_ && collidor.first->active_hitbox_ && collision_pair->isCollision()) {
-				collision_pair->fullCollisionInfo();
+				//collision_pair->fullCollisionInfo();
 				if (collision_flags_.at(collision_pair) == false) {
 					//is colliding, hasnt called onCollision
 					onCollision(other, collision_pair);

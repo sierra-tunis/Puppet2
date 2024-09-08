@@ -202,6 +202,11 @@ protected:
 		return named_internal_objects_;
 	};
 
+	template<class T>
+	static T* getNamedObjectAs(std::string name) {
+		return dynamic_cast<T*>(named_internal_objects_.at(name));
+	}
+
 public:
 
 	// these two should probably not be protected

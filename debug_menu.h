@@ -402,9 +402,9 @@ public:
 			avg_fps_ = static_cast<float>(frame_counter_) / time_since_last_fps_avg_;
 			time_since_last_fps_avg_ = 0.;
 			frame_counter_ = 0;
-			//text_graphics_.unload(fps_tbox_);
+			text_graphics_.unload(fps_tbox_);
 			fps_tbox_.text = std::to_string(avg_fps_);
-			//text_graphics_.add(fps_tbox_);
+			text_graphics_.add(fps_tbox_);
 		}
 
 		//test_slider_.update(window);

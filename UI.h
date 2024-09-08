@@ -176,6 +176,10 @@ public:
 			this->redraw(graphics_2d_);
 		}
 	}
+	
+	void virtualClick() {
+		callback_func_(callback_input_);
+	}
 
 };
 
