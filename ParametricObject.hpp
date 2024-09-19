@@ -267,6 +267,10 @@ public:
 	}*/
 
 	void openDebugUI(GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) override {
+		openDebugUI(getAnimations(), UI_container, window, graphics_2d, text_graphics);
+	}
+
+	void openDebugUI(const std::unordered_set<AnimationBase*>& animations, GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {
 		GameObject::openDebugUI(UI_container, window, graphics_2d, text_graphics);
 		float slider_height = .6 / n_dofs;
 		for (int i = 0; i < n_dofs; i++) {
@@ -323,7 +327,7 @@ public:
 		UI_container->addDependent(&animation_iterator_);
 		animation_iterator_.load(window, graphics_2d, text_graphics);
 		animation_iterator_.setChangeCallback(setAnimation_static, this);
-		animation_iterator_.setIterable(&getAnimations());
+		animation_iterator_.setIterable(&animations);
 
 		activateKeyInput(window);
 

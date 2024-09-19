@@ -134,7 +134,7 @@ public:
 		}
 		float new_extension_ = tether_.getState()(2);
 		float damped_return_to_equilibrium = (new_extension_ + (19) * current_extension_) / (20);
-		dist_.setState(Eigen::Vector<float,1>(damped_return_to_equilibrium));
+		//dist_.setState(Eigen::Vector<float,1>(damped_return_to_equilibrium));
 		tether_.setState(tether_.getState());
 
 		//scale camera mesh by certain ratio 

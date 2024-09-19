@@ -709,8 +709,8 @@ class ProgressBar : public GameObject {
 	float bar_min_;
 
 	void onStep() override {
-		//bar_.rescale((*read_float_ - bar_min_) / (bar_max_ - bar_min_),1.0, 1.0);
-		//graphics_2d_->refresh(*this);
+		bar_.rescale((*read_float_ - bar_min_) / (bar_max_ - bar_min_),1.0, 1.0);
+		graphics_2d_->refresh(*this);
 	}
 
 public:

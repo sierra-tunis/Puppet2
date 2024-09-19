@@ -3,15 +3,15 @@
 #include "Graphics.hpp"
 #include "GameObject.h"
 
-class Default2d : public Graphics<GameObject, int, int> {
+class Default2d : public Graphics<GameObject, unsigned int, unsigned int> {
 											//vao, tex_id
 	const unsigned int position_location_;
 
-	constexpr int& getVAO(Cache cache) const {
+	constexpr unsigned int& getVAO(Cache cache) const {
 		return std::get<0>(cache);
 	}
 
-	constexpr int& getTexID(Cache cache) const {
+	constexpr unsigned int& getTexID(Cache cache) const {
 		return std::get<1>(cache);
 	}
 
@@ -70,7 +70,8 @@ class Default2d : public Graphics<GameObject, int, int> {
 	}
 
 	void deleteDataCache(Cache cache) const override {
-
+		glDeleteVertexArrays(1, &getVAO(cache));
+		glDeleteTextures(1, &getTexID(cache));
 	}
 
 public:
