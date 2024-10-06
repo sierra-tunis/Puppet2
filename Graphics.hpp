@@ -6,9 +6,13 @@
 #include <glad/glad.h>
 #include <iostream>
 #include <unordered_map>
+#include <set>
 #include <concepts>
+#include <Eigen/Dense>
 
 #include "graphics_raw.hpp"
+#include "scene.hpp"
+#include "GameObject.h"
 
 /*
 template<class T>
@@ -20,6 +24,7 @@ void write_png(std::string fname, int screenshot_width, int screenshot_height, s
 template<class T, class obj_T>
 concept Cacher = requires(obj_T obj) {
 	new T(obj);
+	//{obj.getPosition()}-> std::same_as<const Eigen::Matrix4f&>;
 };
 /*
 template <class Object, Cacher cache_T>
@@ -70,6 +75,7 @@ private:
 protected:
 	typedef std::tuple<data...> Cache;
 
+	static inline Scene* scene_ = nullptr;
 	/*
 	struct DataCache {
 		std::tuple<data...> data;
@@ -122,14 +128,53 @@ protected:
 		return cached_data_.at(obj.getID());
 	}
 
+	static bool fartherAway(const GameObject* a, const GameObject* b) {
+		if (scene_ != nullptr && scene_->camera != nullptr) {
+			return (a->getPosition()(seq(0, 2), 3) - scene_->camera->getPosition()(seq(0, 2), 3)).norm() > (b->getPosition()(seq(0, 2), 3) - scene_->camera->getPosition()(seq(0, 2), 3)).norm();
+		} else {
+			return a->getPosition()(seq(0, 2), 3).norm() > b->getPosition()(seq(0, 2), 3).norm();
+
+		}
+	}
+
 public:
 	
+	void setCamera(const Camera* camera) {
+		if (scene_ == nullptr) {
+			scene_ = new Scene();
+		}
+		scene_->camera = camera;
+	}
 
+	void setScene(const Scene* scene) {
+		scene_ = scene;
+	}
 	/*template<class... data_>
 	Graphics(Graphics<Object, data_...> convert_from):Graphics(){
 	}*/
 
-	void drawAll() const {
+	template<bool cond = std::is_same<Object, GameObject>::value>
+	auto drawAll() const -> std::enable_if_t<cond,void> {
+		glUseProgram(gl_id);
+		beginDraw();
+		std::set<const GameObject*, decltype(&fartherAway)> ordered_targets_(&fartherAway);
+		for (const auto& obj : draw_targets_) {
+			ordered_targets_.insert(obj.second);
+		}
+		for (const Object* obj : ordered_targets_) {
+			if (scene_ != nullptr) {
+				//std::cout << "\n" << obj->getName() << " (" << obj->getID() << "): " << (obj->getPosition()(seq(0, 2), 3) - scene_->camera->getPosition()(seq(0, 2), 3)).norm();
+			}
+			if (!(obj->isHidden())) {
+				drawObj(*obj, cached_data_[obj->getID()]);
+			}
+		}
+		endDraw();
+		glBindVertexArray(0);
+		glUseProgram(0);
+	}
+
+	void drawAllUnordered() const {
 		glUseProgram(gl_id);
 		beginDraw();
 		for (const auto& obj : draw_targets_) {

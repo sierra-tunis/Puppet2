@@ -144,7 +144,7 @@ public:
 			label_.text = label;
 			text_graphics_->add(label_);
 		}
-		label_.font_size = label_.box_width / ((label_.text.size()+1) * char_info('A').unscaled_width);
+		label_.font_size = std::min(label_.box_width / ((label_.text.size() + 1) * char_info('A').unscaled_width), height_*.9f/char_info('A').unscaled_height);
 		label_.box_height = char_info('A').unscaled_height * label_.font_size;
 	}
 

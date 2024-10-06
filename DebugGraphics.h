@@ -11,7 +11,7 @@
 
 using Eigen::Matrix4f;
 
-class HboxGraphics : public Graphics<DebugCamera, int, int, size_t,std::vector<float>*> { //VAO, tex_id, n_elems
+class HboxGraphics : public Graphics<DebugCamera, unsigned int, int, size_t,std::vector<float>*> { //VAO, tex_id, n_elems
 
 private:
 	const unsigned int perspective_location_;
@@ -20,7 +20,7 @@ private:
 
 	const Camera& camera_;
 
-	constexpr int& getVAO(Cache cache) const {
+	constexpr unsigned int& getVAO(Cache cache) const {
 		return std::get<0>(cache);
 	}
 
@@ -83,11 +83,13 @@ private:
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
 
+
 		return Cache{ VAO, VBO[1], n_edges,vert_colors };
 	}
 
 	virtual void deleteDataCache(Cache cache) const override {
-		//...
+		glDeleteVertexArrays(1, &getVAO(cache));
+		delete getVertColors(cache);
 	}
 
 public:

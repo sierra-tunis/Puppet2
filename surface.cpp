@@ -32,5 +32,6 @@ MeshSurface::MeshSurface(std::string fname, std::string path){
 			faces_.push_back(std::tuple<int, int, int>{model.getFaces()[3 * i], model.getFaces()[3 * i + 1], model.getFaces()[3 * i + 2]});
 		}
 	}
+	calculateBoundingBox();
 
 }

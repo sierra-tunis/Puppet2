@@ -139,7 +139,7 @@ class TextGraphics : public Graphics<Textbox, unsigned int, unsigned int, size_t
 	};
 
 	void deleteDataCache(Cache cache) const override {
-
+			glDeleteVertexArrays(1, &getVAO(cache));
 	};
 
 

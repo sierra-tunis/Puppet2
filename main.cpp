@@ -243,9 +243,9 @@ int main(void)
 
         default3d.drawAll();
         dynamic3d.drawAll();
-        hbox_graphics.drawAll();
+        //hbox_graphics.drawAllUnordered();
         default2d.drawAll();
-        text_graphics.drawAll();
+        text_graphics.drawAllUnordered();
 
         if (camera.getScreenshotFlag()) {
             default3d.finishScreenshot<uint8_t, GL_UNSIGNED_BYTE>(&screenshot_buffer,"screenshot.png");

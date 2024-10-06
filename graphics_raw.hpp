@@ -20,6 +20,7 @@ public:
 	};
 
 	void refresh(const Object& obj) {
+		//MEMORY LEAK
 		unload(obj);
 		add(obj);
 	}

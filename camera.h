@@ -7,7 +7,6 @@
 
 #include "math_constants.hpp"
 #include "GameObject.h"
-#include "Graphics.hpp"
 
 
 using Eigen::Matrix4f;

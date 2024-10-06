@@ -14,8 +14,8 @@
 using Eigen::Matrix4f;
 
 struct Default3dCache {
-	int VAO;
-	int tex_id;
+	unsigned int VAO;
+	unsigned int tex_id;
 	size_t n_elems;
 	Eigen::Vector4f overlay_color;
 
@@ -38,15 +38,14 @@ private:
 
 	//Eigen::Vector3f atmosphere_color_;
 	//float atmosphere_strength_;
-	Scene* scene_;
 
 	static constexpr int max_lights = 3;
 
-	int& getVAO(Cache cache) const {
+	unsigned int& getVAO(Cache cache) const {
 		return std::get<0>(cache).VAO;
 	}
 
-	int& getTexID(Cache cache) const {
+	unsigned int& getTexID(Cache cache) const {
 		return std::get<0>(cache).tex_id;
 	}
 	size_t& getNElems(Cache cache) const {
@@ -110,7 +109,8 @@ private:
 	}
 
 	virtual void deleteDataCache(Cache cache) const override {
-		//...
+		glDeleteVertexArrays(1, &getVAO(cache));
+		glDeleteTextures(1, &getTexID(cache));
 	}
 
 public:
@@ -179,12 +179,7 @@ public:
 		//default3d specific code
 	}
 
-	void setCamera(Camera* camera) {
-		if (scene_ == nullptr) {
-			scene_ = new Scene();
-		}
-		scene_->camera = camera;
-	}
+	
 
 	void setScene(Scene* scene) {
 		scene_ = scene;
@@ -197,8 +192,7 @@ public:
 	Default3d():
 		model_location_(glGetUniformLocation(gl_id, "model")),
 		camera_location_(glGetUniformLocation(gl_id, "camera")),
-		perspective_location_(glGetUniformLocation(gl_id, "perspective")),
-		scene_(nullptr){
+		perspective_location_(glGetUniformLocation(gl_id, "perspective")){
 
 		//perspective_ << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1;
 	}

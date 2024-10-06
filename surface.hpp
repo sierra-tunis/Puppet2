@@ -35,6 +35,9 @@ class MeshSurface : public Surface<3> {
 	std::vector<std::tuple<int, int, int>> faces_;
 	std::vector<Eigen::Vector3f> face_norms_;
 
+	Eigen::Vector3f box_center_;
+	Eigen::Vector3f bounding_box_;
+
 	struct edgeHasher {
 		size_t operator()(const std::pair<int, int>& p) const {
 			auto hash1 = std::hash<int>{}(p.first);
@@ -49,6 +52,25 @@ class MeshSurface : public Surface<3> {
 		}
 	};
 
+	void calculateBoundingBox() {
+		std::array<float, 3> min = { INFINITY,INFINITY,INFINITY };
+		std::array<float, 3> max = { -INFINITY,-INFINITY,-INFINITY };
+		for (int i = 0; i < verts_.size(); i ++) {
+			for (int j = 0; j < 3; j++) {
+				float v = verts_[i](j);
+				if (v < min[j]) {
+					min[j] = v;
+				}
+				if (v > max[j]) {
+					max[j] = v;
+				}
+			}
+		}
+		bounding_box_ << max[0] - min[0], max[1] - min[1], max[2] - min[2];
+		box_center_ << (max[0] + min[0]) / 2, (max[1] + min[1]) / 2, (max[2] + min[2]) / 2;
+
+
+	}
 	//returns true if the line segment e12 intersects the triangle t123
 	static bool crossesTriangle(Eigen::Vector3f e1, Eigen::Vector3f e2, Eigen::Vector3f t1, Eigen::Vector3f t2, Eigen::Vector3f t3) {
 
@@ -163,6 +185,15 @@ public:
 	}
 	void addFace(int first_ind, int second_ind, int third_ind) {
 		faces_.emplace_back(first_ind, second_ind, third_ind);
+	}
+
+	void centerVerts() {
+		for (int i = 0; i < verts_.size(); i ++) {
+			for (int j = 0; j < 3; j++) {
+				verts_[i](j) -= box_center_(j);
+			}
+		}
+		box_center_ << 0, 0, 0;
 	}
 
 	explicit MeshSurface(std::string fname);

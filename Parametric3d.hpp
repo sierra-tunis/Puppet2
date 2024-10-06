@@ -14,7 +14,6 @@ class Parametric3d : public Graphics<ParametricObject<n_dofs>,int,int,size_t,uns
 	const unsigned int model_location_;
 
 
-	Scene* scene_;
 
 	constexpr int& getVAO(Cache cache) const {
 		return std::get<0>(cache);
