@@ -28,6 +28,7 @@ public:
 
 };
 
+
 //hitbox is then a child of region
 class MeshSurface : public Surface<3> {
 	std::vector<Eigen::Vector3f> verts_;
@@ -196,10 +197,32 @@ public:
 		box_center_ << 0, 0, 0;
 	}
 
+	bool insideBoundingBox(Eigen::Vector3f point) const {
+		return point.x() < bounding_box_[0] / 2 && point.x() > -bounding_box_[0] / 2
+			&& point.y() < bounding_box_[1] / 2 && point.y() > -bounding_box_[1] / 2
+			&& point.z() < bounding_box_[2] / 2 && point.z() > -bounding_box_[2] / 2;
+	}
+
 	explicit MeshSurface(std::string fname);
 	MeshSurface(std::string fname, std::string path);
 
 	MeshSurface(){}
+
+};
+
+
+class RectHitbox : public MeshSurface {
+
+	
+public:
+	RectHitbox(std::string fname) :MeshSurface(fname){
+
+	}
+
+
+	bool crossesSurface(Eigen::Vector<float, 3> first_state, Eigen::Vector<float, 3> second_state) const override {
+		return MeshSurface::crossesSurface(first_state, second_state) || insideBoundingBox(second_state);
+	}
 
 };
 

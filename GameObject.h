@@ -661,6 +661,9 @@ public:
 		dependents_.erase(child);
 	}
 
+	bool alreadyDependent(GameObject* child) const {
+		return dependents_.contains(child);
+	}
 	
 	virtual void initialize(std::string init_string) {
 		Eigen::Matrix4f init_position = Eigen::Matrix4f::Identity();
