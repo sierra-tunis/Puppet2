@@ -20,6 +20,10 @@ private:
 	Eigen::Vector<float, n_dofs> clipboard_;
 
 	std::array<Slider*, n_dofs> debug_sliders_;
+	std::vector<int> dof_map_;
+	std::vector<std::string> pane_names_;
+	std::vector<Pane*> dof_panes_;
+	TabbedPane slider_panes_;
 
 	std::vector<Button*> anim_buttons_;
 	UIIterator<AnimationBase> animation_iterator_;
@@ -181,7 +185,8 @@ public:
 	ParametricObject(std::string name, const KeyStateCallback_base& key_state_callback_caller = InternalObject::no_key_state_callback, const ControllerStateCallback_base& controller_state_callback_caller = InternalObject::no_controller_state_callback) :
 		GameObject(name, key_state_callback_caller, controller_state_callback_caller),
 		animation_iterator_(.3, .6),
-		state_(Eigen::Vector<float,n_dofs>::Zero()){
+		state_(Eigen::Vector<float,n_dofs>::Zero()),
+		slider_panes_(1.,1.,1.){
 
 		edit_animation_mode_ = false;
 	}
@@ -270,15 +275,30 @@ public:
 		openDebugUI(getAnimations(), UI_container, window, graphics_2d, text_graphics);
 	}
 
-	void openDebugUI(const std::unordered_set<AnimationBase*>& animations, GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {
+	void openDebugUI(const std::unordered_set<AnimationBase*>& animations,GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {
 		GameObject::openDebugUI(UI_container, window, graphics_2d, text_graphics);
-		float slider_height = .6 / n_dofs;
-		for (int i = 0; i < n_dofs; i++) {
-			debug_sliders_[i] = new Slider(slider_height, .5, -M_PI, M_PI);
-			UI_container->addDependent(debug_sliders_[i]);
-			debug_sliders_[i]->load(window, graphics_2d, text_graphics);
-			debug_sliders_[i]->moveTo(-.5, -static_cast<float>(i) / (n_dofs), 0);
+
+		int dof = 0;
+		int dofs_in_tab;
+		Pane* current_pane;
+		for (int tab = 0; tab < dof_map_.size(); tab++) {
+			current_pane = new Pane();
+			dof_panes_.push_back(current_pane);
+			dofs_in_tab = dof_map_[tab];
+			slider_panes_.addPane(current_pane, pane_names_[tab], .9 / dof_map_.size());
+			for (int i = 0; i < dofs_in_tab; i++) {
+				debug_sliders_[dof] = new Slider(.6 / dofs_in_tab, .5, -M_PI, M_PI);
+				current_pane->addDependent(debug_sliders_[dof]);
+				debug_sliders_[dof]->load(window, graphics_2d, text_graphics);
+				debug_sliders_[dof]->moveTo(-.5, -.8 * static_cast<float>(i) / (dofs_in_tab)-.2, 0);
+				dof++;
+			}
 		}
+		slider_panes_.moveTo(-.5, -.5, 0);
+		UI_container->addDependent(&slider_panes_);
+		slider_panes_.load(window, graphics_2d, text_graphics);
+		slider_panes_.clampTo(UI_container);
+
 		setSliderCallbacks();
 
 		Button* prev_frame = new Button(.1, .35);
@@ -331,14 +351,24 @@ public:
 
 		activateKeyInput(window);
 
-		edit_animation_mode_ = true;
+		//edit_animation_mode_ = true;
 	}
 	void closeDebugUI(GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) override {
-		for (int i = 0; i < n_dofs; i++) {
-			debug_sliders_[i]->unload(window, graphics_2d, text_graphics);
-			UI_container->destroyChild(debug_sliders_[i]);
-			debug_sliders_[i] = nullptr;
+		int dof = 0;
+		for (int tab = 0; tab < dof_map_.size(); tab++) {
+			int dofs_in_tab = dof_map_[tab];
+			for (int i = 0; i < dofs_in_tab; i++) {
+				debug_sliders_[dof]->unload(window, graphics_2d, text_graphics);
+				dof_panes_[tab]->destroyChild(debug_sliders_[dof]);
+				debug_sliders_[dof] = nullptr;
+				dof++;
+			}
+			//delete dof_panes_[tab];
 		}
+		UI_container->removeDependent(&slider_panes_);
+		slider_panes_.unload(window, graphics_2d, text_graphics);
+		dof_panes_.clear();
+
 		for (Button* button : anim_buttons_) {
 			UI_container->removeDependent(button);
 			button->unload(window, graphics_2d, text_graphics);
@@ -350,6 +380,10 @@ public:
 		edit_animation_mode_ = false;
 	}
 
+	void setPaneMap(std::vector<std::string> pane_names, std::vector<int> dof_map) {
+		dof_map_ = dof_map;
+		pane_names_ = pane_names;
+	}
 	void ZeroPose() {
 		setState(Eigen::Vector<float, n_dofs>::Zero());
 	}

@@ -22,6 +22,7 @@ class DebugMenu : public GameObject {
 	//Slider test_slider_;
 	Button reposition_target_;
 	bool reposition_mode_;
+	Button center_in_level_;
 	Button set_init_position_;
 	Button reset_level_;
 
@@ -105,6 +106,13 @@ public:
 			this_->reposition_target_.setLabel("done repositioning");
 		} else {
 			this_->reposition_target_.setLabel("reposition target");
+		}
+
+	}
+	static void centerTargetInLevel(void* must_be_this) {
+		DebugMenu* this_ = static_cast<DebugMenu*>(must_be_this);
+		if (this_->level_iterator_.getTarget() != nullptr && this_->target_iterator_.getTarget() != nullptr) {
+			this_->target_iterator_.getTarget()->setPosition(this_->level_iterator_.getTarget()->getPosition());
 		}
 
 	}
@@ -237,6 +245,7 @@ public:
 		//test_button_(.1, .2, "test_button"),
 		//test_slider_(.1, .3, 0, 1),
 		reposition_target_(.1,.5),
+		center_in_level_(.1,.5),
 		set_init_position_(.1,.5),
 		reset_level_(.1,.5),
 		//next_target_(.2, .2, "next_target"),
@@ -271,15 +280,22 @@ public:
 		reposition_target_.load(window, graphics_2d_, text_graphics_);
 		reposition_target_.setCallback(&repositionTarget, this);
 
+		addDependent(&center_in_level_);
+		center_in_level_.moveTo(.6, -.35, 0);
+		reposition_pane_.addDependent(&center_in_level_);
+		center_in_level_.setLabel("center target in level");
+		center_in_level_.load(window, graphics_2d_, text_graphics_);
+		center_in_level_.setCallback(&centerTargetInLevel, this);
+
 		addDependent(&set_init_position_);
-		set_init_position_.moveTo(.6, -.35, 0);
+		set_init_position_.moveTo(.6, -.5, 0);
 		reposition_pane_.addDependent(&set_init_position_);
 		set_init_position_.setLabel("set init position");
 		set_init_position_.load(window, graphics_2d_, text_graphics_);
 		set_init_position_.setCallback(&setInitialPosition, this);
 
 		addDependent(&reset_level_);
-		reset_level_.moveTo(.6, -.5, 0);
+		reset_level_.moveTo(.6, -.65, 0);
 		reposition_pane_.addDependent(&reset_level_);
 		reset_level_.setLabel("reset level");
 		reset_level_.load(window, graphics_2d_, text_graphics_);
@@ -448,7 +464,6 @@ public:
 				level_display_.text = level_name;
 				text_graphics_.add(level_display_);
 			}*/
-
 		}
 	}
 

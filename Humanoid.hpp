@@ -65,6 +65,12 @@ protected:
 	LimbConnector leg_L_;
 	LimbConnector leg_R_;
 
+	/*ConnectorChain<CartesianJoint,
+		OffsetConnector, RotationJoint, BallJoint,
+		LimbConnector, LimbConnector,
+		LimbConnector, LimbConnector,
+		OffsetConnector, BallJoint, OffsetConnector, RotationJoint> humanoid_chain_;*/
+
 public:
 	static constexpr int n_dofs = CartesianJoint::getDoF() + 2*RotationJoint::getDoF() + 2*BallJoint::getDoF() + 4 * LimbConnector::getDoF();
 	static constexpr int upper_dofs_ = 2 * LimbConnector::getDoF() + 2 * BallJoint::getDoF() + RotationJoint::getDoF();
@@ -75,6 +81,14 @@ private:
 	Eigen::Vector<float, n_dofs> clipboard_;
 
 	std::array<Slider*,n_dofs> debug_sliders_;
+	Pane position_pane_;
+	Pane torso_pane_;
+	Pane head_pane_;
+	Pane arm_L_pane_;
+	Pane arm_R_pane_;
+	Pane leg_L_pane_;
+	Pane leg_R_pane_;
+	TabbedPane slider_panes_;
 
 	DynamicModel* dyn_model_;
 
@@ -244,7 +258,9 @@ public:
 		leg_L_(hip_offset_L_, hip_L_, knee_offset_L_, knee_L_, ankle_offset_L_, ankle_L_),
 		leg_R_(hip_offset_R_, hip_R_, knee_offset_R_, knee_R_, ankle_offset_R_, ankle_R_),
 		head_chain_(neck_offset_,neck_,head_offset_,head_tilt_),
+		//humanoid_chain_(origin_position_,origin_,waist_rotation_, chest_rotation_, arm_L_,arm_R_,leg_L_,leg_R_,neck_offset_,neck_,head_offset_,head_tilt_),
 		animation_iterator_(.3,.6),
+		slider_panes_(1.,1.,1.),
 		hitbox_("human_static_hitbox.obj", AnimationBase::debug_path),
 		exact_hitbox_("human_B.obj",AnimationBase::debug_path),
 		enlarged_hitbox_("human_combat_hitbox.obj", AnimationBase::debug_path){
@@ -392,33 +408,36 @@ public:
 
 	void openDebugUI(const std::unordered_set<AnimationBase*>& animations,GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics)  {
 		GameObject::openDebugUI(UI_container, window, graphics_2d, text_graphics);
-		float slider_height = .6 / n_dofs;
-		int n_sections = 7;
-		for (int i = 0; i < n_dofs; i++) {
-			debug_sliders_[i] = new Slider(slider_height, .5, -M_PI, M_PI);
-			UI_container->addDependent(debug_sliders_[i]);
-			debug_sliders_[i]->load(window, graphics_2d, text_graphics);
-		}
-		for (int i = 0; i < 4; i++) {
-			debug_sliders_[i]->moveTo(-.5, -static_cast<float>(i) / (n_dofs+n_sections), 0);
-		}
-		for (int i = 4; i < 11; i++) {
-			debug_sliders_[i]->moveTo(-.5, -static_cast<float>(i+1) / (n_dofs + n_sections), 0);
-		}
-		for (int i = 11; i < 18; i++) {
-			debug_sliders_[i]->moveTo(-.5, -static_cast<float>(i+2) / (n_dofs + n_sections), 0);
-		}
-		for (int i = 18; i < 25; i++) {
-			debug_sliders_[i]->moveTo(-.5, -static_cast<float>(i+3) / (n_dofs + n_sections), 0);
-		}
-		for (int i = 25; i < 32; i++) {
-			debug_sliders_[i]->moveTo(-.5, -static_cast<float>(i+4) / (n_dofs + n_sections), 0);
-		}
-		for (int i = 32; i < 36; i++) {
-			debug_sliders_[i]->moveTo(-.5, -static_cast<float>(i+5) / (n_dofs + n_sections), 0);
-		}
-		for (int i = 36; i < n_dofs; i++) {
-			debug_sliders_[i]->moveTo(-.5, -static_cast<float>(i + 6) / (n_dofs + n_sections), 0);
+
+		slider_panes_.addPane(&position_pane_, "Pos", .14);
+		slider_panes_.addPane(&torso_pane_, "Torso", .14);
+		slider_panes_.addPane(&arm_L_pane_, "Arm L", .14);
+		slider_panes_.addPane(&arm_R_pane_, "Arm R", .14);
+		slider_panes_.addPane(&leg_L_pane_, "Leg L", .14);
+		slider_panes_.addPane(&leg_R_pane_, "Leg R", .14);
+		slider_panes_.addPane(&head_pane_, "Head", .2);
+		slider_panes_.moveTo(-.5, -.5, 0);
+		UI_container->addDependent(&slider_panes_);
+		slider_panes_.load(window, graphics_2d, text_graphics);
+		slider_panes_.clampTo(UI_container);
+
+		std::array<int,7> dof_map = { 3,4,6,6,6,6,4 };
+		std::array<Pane*,7> panes_map = { &position_pane_,&torso_pane_,&arm_L_pane_,&arm_R_pane_,&leg_L_pane_,&leg_R_pane_,&head_pane_ };
+
+
+		int dof = 0;
+		int dofs_in_tab;
+		Pane* current_pane;
+		for (int tab = 0; tab < dof_map.size();tab++) {
+			current_pane = panes_map[tab];
+			dofs_in_tab = dof_map[tab];
+			for (int i = 0; i < dofs_in_tab; i++) {
+				debug_sliders_[dof] = new Slider(.6/dofs_in_tab, .5, -M_PI, M_PI);
+				current_pane->addDependent(debug_sliders_[dof]);
+				debug_sliders_[dof]->load(window, graphics_2d, text_graphics);
+				debug_sliders_[dof]->moveTo(-.5, -.8*static_cast<float>(i) / (dofs_in_tab) - .2, 0);
+				dof++;
+			}
 		}
 		
 		setSliderCallbacks();
@@ -474,11 +493,22 @@ public:
 		//edit_animation_mode_ = true;
 	}
 	void closeDebugUI(GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) override {
-		for (int i = 0; i < n_dofs; i++) {
-			debug_sliders_[i]->unload(window, graphics_2d, text_graphics);
-			UI_container->destroyChild(debug_sliders_[i]);
-			debug_sliders_[i] = nullptr;
+		std::array<int, 7> dof_map = { 3,4,6,6,6,6,4 };
+		std::array<Pane*, 7> panes_map = { &position_pane_,&torso_pane_,&arm_L_pane_,&arm_R_pane_,&leg_L_pane_,&leg_R_pane_,&head_pane_ };
+
+		int dof = 0;
+		for (int tab = 0; tab < dof_map.size(); tab++) {
+			int dofs_in_tab = dof_map[tab];
+			for (int i = 0; i < dofs_in_tab; i++) {
+				debug_sliders_[dof]->unload(window, graphics_2d, text_graphics);
+				panes_map[tab]->destroyChild(debug_sliders_[dof]);
+				debug_sliders_[dof] = nullptr;
+				dof++;
+			}
 		}
+		UI_container->removeDependent(&slider_panes_);
+		slider_panes_.unload(window, graphics_2d, text_graphics);
+
 		for (Button* button : anim_buttons_) {
 			UI_container->removeDependent(button);
 			button->unload(window, graphics_2d, text_graphics);
