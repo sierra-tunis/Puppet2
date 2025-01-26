@@ -33,7 +33,9 @@ public:
 	void  setPlaybackSpeed(float playback_speed) {
 		playback_speed_ = playback_speed;
 	}
-
+	float getPlaybackSpeed() const {
+		return playback_speed_;
+	}
 
 	virtual void advance(float dt, bool* animation_over=nullptr) {
 		if (!paused_) {

@@ -184,7 +184,7 @@ public:
 				const Eigen::Matrix3f& rot = rel_tform(seq(0, 2), seq(0, 2));
 				for (const VertexGroup::vertex& vert : vg->getVerts()) {
 					Eigen::Vector3f pos = vert_mat_(seq(0, 2), vert.index);
-					pos = rot * pos + rel_tform(seq(0, 2), 3);
+					pos = (rot * pos + rel_tform(seq(0, 2), 3))/rel_tform(3,3);
 					setVert(vert.index, pos);
 					Eigen::Vector3f norm = norm_mat_(seq(0, 2), vert.index);
 					norm = rot * norm;
