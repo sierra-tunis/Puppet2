@@ -91,6 +91,8 @@ private:
 	TabbedPane slider_panes_;
 
 	DynamicModel* dyn_model_;
+	int update_count_;
+	int update_freq_;
 
 	std::vector<Button*> anim_buttons_;
 	UIIterator<AnimationBase> animation_iterator_;
@@ -202,7 +204,12 @@ protected:
 			new_state = Eigen::Vector<float, n_dofs>::Constant(0);
 		}
 		setState(new_state);*/
-		dyn_model_->updateData();
+		if (update_count_ == update_freq_) {
+			dyn_model_->updateData();
+			update_count_ = 0;
+		} else {
+			update_count_++;
+		}
 
 		refreshDebugSliders();
 	}
@@ -532,6 +539,13 @@ public:
 
 	const DynamicModel* getDynamicModel() const {
 		return dyn_model_;
+	}
+
+	void setUpdateFreq(int freq) {
+		update_freq_ = freq;
+	}
+	void setUpdateCount(int count) {
+			update_count_ = count%update_freq_;
 	}
 
 	void TPose() {

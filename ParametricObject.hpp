@@ -31,6 +31,8 @@ private:
 	Animation<n_dofs>* edit_animation_;
 
 	DynamicModel* dyn_model_;
+	int update_count_;
+	int update_freq_;
 
 	Eigen::Vector<float, n_dofs> state_;
 
@@ -71,7 +73,13 @@ private:
 			new_state = Eigen::Vector<float, n_dofs>::Constant(0);
 		}
 		setState(new_state);*/
-		dyn_model_->updateData();
+		if (update_count_ == update_freq_) {
+			dyn_model_->updateData();
+			update_count_ = 0;
+		}
+		else {
+			update_count_++;
+		}
 
 		refreshDebugSliders();
 	}
@@ -186,7 +194,9 @@ public:
 		GameObject(name, key_state_callback_caller, controller_state_callback_caller),
 		animation_iterator_(.3, .6),
 		state_(Eigen::Vector<float,n_dofs>::Zero()),
-		slider_panes_(1.,1.,1.){
+		slider_panes_(1.,1.,1.),
+		update_count_(0),
+		update_freq_(0){
 
 		edit_animation_mode_ = false;
 	}
@@ -392,6 +402,13 @@ public:
 		setModel(dyn_model);
 		dyn_model_ = dyn_model;
 	}
+	void setUpdateFreq(int freq) {
+		update_freq_ = freq;
+	}
+	void setUpdateCount(int count) {
+		update_count_ = count % update_freq_;
+	}
+
 
 	bool inEditMode() {
 		return edit_animation_mode_;
