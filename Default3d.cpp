@@ -52,8 +52,9 @@ const char* Default3d::fragment_code = "#version 330 core\n"
 
 "void main()\n"
 "{\n"
-"   float a = atmosphere_color.w * (length(position));"
-"	float diff = 0;"
+
+"   float a = atmosphere_color.w * (length(position));\n"
+"	float diff = 0;\n"
 "   vec3 light_dir = (light_position - position);\n"
 "	diff += (max(dot(normal, normalize(light_dir)), 0.0)*light_strength*light_strength)/(light_strength*light_strength+dot(light_dir, light_dir));\n"//strength scaling
 

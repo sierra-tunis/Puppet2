@@ -56,6 +56,7 @@ private:
 		glfwGetWindowSize(window, &ret[0], &ret[1]);
 		return ret;
 	}
+	
 
 	void enterStandby() {
 		if (load_state_ == active) {
@@ -98,6 +99,19 @@ public:
 	static constexpr char debug_path[] = "C:\\Users\\Sierra\\source\\repos\\Puppet2\\Puppet2\\assets\\";
 
 	static GraphicsRaw<GameObject>* level_shader;
+
+	static const Level* determineRoom(const GameObject* obj) {
+		while (obj->getParent() != nullptr) {
+			const Level* parent_level = dynamic_cast<const Level*>(obj->getParent());
+			if (parent_level != nullptr) {
+				return parent_level;
+			}
+			else {
+				obj = obj->getParent();
+			}
+		}
+		return nullptr;
+	}
 
 	void reset() {
 		std::ifstream layout_file(Level::default_path + fname_);

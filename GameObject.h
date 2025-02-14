@@ -723,9 +723,6 @@ public:
 		active_hitbox_ = false;
 	}
 
-
-
-
 };
 
 template<class T>
