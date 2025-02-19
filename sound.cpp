@@ -192,6 +192,16 @@ bool Sound::load(){
 	buffer.AudioBytes = dwChunkSize;  //size of the audio buffer in bytes
 	buffer.pAudioData = pDataBuffer;  //buffer containing audio data
 	buffer.Flags = XAUDIO2_END_OF_STREAM; // tell the source voice not to expect any data after this buffer
+	
+	//deep copy original
+	BYTE* new_buff = new BYTE[buffer.AudioBytes];
+	for (DWORD i = 0; i < buffer.AudioBytes; i++) {
+		new_buff[i] = buffer.pAudioData[i];
+	}
+	buffer_original.pAudioData = new_buff;
+	buffer_original.AudioBytes = dwChunkSize;
+	buffer_original.Flags = XAUDIO2_END_OF_STREAM; // tell the source voice not to expect any data after this buffer
+
 
 	is_loaded_ = true;
 	return true;
@@ -280,4 +290,30 @@ bool Sound::stop() {
 		is_playing_ = false;
 	}
 	else return false;
+}
+
+bool Sound::setGain(float gain) {
+	if (is_playing_ || !is_loaded_) {
+		return false;
+	} else {
+		//https://stackoverflow.com/questions/2302841/win32-playsound-how-to-control-the-volume
+		const SHORT* pSample_read = (SHORT*)(buffer_original.pAudioData + 8);
+		SHORT* pSample_write = (SHORT*)(buffer.pAudioData + 8);
+		//BYTE* new_buff = new BYTE[buffer_original.AudioBytes];
+		for (DWORD i = 0; i < buffer_original.AudioBytes/2; i++) {
+			SHORT shSample = *pSample_read;
+			shSample = (SHORT)(shSample * gain);
+			*pSample_write = shSample;
+			pSample_read++;
+			pSample_write++;
+
+			if (((BYTE*)pSample_read) >= (buffer_original.pAudioData + buffer_original.AudioBytes - 1))
+				break;
+		}
+
+		//delete[] buffer.pAudioData;
+		//buffer.pAudioData = new_buff;
+		gain_ = gain;
+		return true;
+	}
 }

@@ -22,9 +22,11 @@ class DebugMenu : public GameObject {
 	//Slider test_slider_;
 	Button reposition_target_;
 	bool reposition_mode_;
+	float reposition_speed_;
 	Button center_in_level_;
 	Button set_init_position_;
 	Button reset_level_;
+
 
 	OffsetConnector cam_clamp_;
 	PlayerCamera debug_camera_;
@@ -67,6 +69,13 @@ class DebugMenu : public GameObject {
 			else {
 				debug_scene_->camera = &debug_camera_;
 			}
+		} else if (key == GLFW_KEY_LEFT_SHIFT) {
+			reposition_speed_ = 1.0;
+		}
+	}
+	void onKeyRelease(int key) override {
+		if (key == GLFW_KEY_LEFT_SHIFT) {
+			reposition_speed_ = 10.0;
 		}
 	}
 
@@ -75,23 +84,29 @@ class DebugMenu : public GameObject {
 			Eigen::Vector3f new_pos;
 			switch (key) {
 			case GLFW_KEY_UP:
-				new_pos = debug_target_->getPosition()(seq(0, 2), 3) + 10.*getdt() * Eigen::Vector3f(debug_camera_.getPosition()(seq(0, 2), 0)).cross(Eigen::Vector3f(0, -1., 0));
+				new_pos = debug_target_->getPosition()(seq(0, 2), 3) + reposition_speed_ *getdt() * Eigen::Vector3f(debug_camera_.getPosition()(seq(0, 2), 0)).cross(Eigen::Vector3f(0, -1., 0));
 				debug_target_->moveTo(new_pos);
 				break;
 			case GLFW_KEY_DOWN:
-				debug_target_->moveTo(debug_target_->getPosition()(seq(0, 2), 3) + 10.*getdt() * Eigen::Vector3f(debug_camera_.getPosition()(seq(0, 2), 0)).cross(Eigen::Vector3f(0, 1., 0)));
+				debug_target_->moveTo(debug_target_->getPosition()(seq(0, 2), 3) + reposition_speed_ *getdt() * Eigen::Vector3f(debug_camera_.getPosition()(seq(0, 2), 0)).cross(Eigen::Vector3f(0, 1., 0)));
 				break;
 			case GLFW_KEY_LEFT:
-				debug_target_->moveTo(debug_target_->getPosition()(seq(0, 2), 3) + 10.*getdt() * Eigen::Vector3f(debug_camera_.getPosition()(seq(0, 2), 2)).cross(Eigen::Vector3f(0, 1., 0)));
+				debug_target_->moveTo(debug_target_->getPosition()(seq(0, 2), 3) + reposition_speed_ *getdt() * Eigen::Vector3f(debug_camera_.getPosition()(seq(0, 2), 2)).cross(Eigen::Vector3f(0, 1., 0)));
 				break;
 			case GLFW_KEY_RIGHT:
-				debug_target_->moveTo(debug_target_->getPosition()(seq(0, 2), 3) + 10.*getdt() * Eigen::Vector3f(debug_camera_.getPosition()(seq(0, 2), 2)).cross(Eigen::Vector3f(0, -1., 0)));
+				debug_target_->moveTo(debug_target_->getPosition()(seq(0, 2), 3) + reposition_speed_ *getdt() * Eigen::Vector3f(debug_camera_.getPosition()(seq(0, 2), 2)).cross(Eigen::Vector3f(0, -1., 0)));
 				break;
 			case GLFW_KEY_PAGE_UP:
-				debug_target_->moveTo(debug_target_->getPosition()(seq(0, 2), 3) + 10.*getdt() * debug_camera_.getPosition()(seq(0, 2), 1));
+				debug_target_->moveTo(debug_target_->getPosition()(seq(0, 2), 3) + reposition_speed_ *getdt() * Eigen::Vector3f::UnitY());
 				break;
 			case GLFW_KEY_PAGE_DOWN:
-				debug_target_->moveTo(debug_target_->getPosition()(seq(0, 2), 3) + 10.*getdt() * -debug_camera_.getPosition()(seq(0, 2), 1));
+				debug_target_->moveTo(debug_target_->getPosition()(seq(0, 2), 3) + -reposition_speed_ *getdt() * Eigen::Vector3f::UnitY());
+				break;
+			case GLFW_KEY_COMMA:
+				debug_target_->rotateY(-reposition_speed_ * getdt());
+				break;
+			case GLFW_KEY_PERIOD:
+				debug_target_->rotateY(reposition_speed_ * getdt());
 				break;
 			}
 		}
@@ -263,7 +278,8 @@ public:
 		target_iterator_(.3,.6),
 		level_iterator_(.3,.6),
 		debug_camera_(.1, 5000, 120, 1600, 800, 1.0,true),
-		edit_pane_(1.,1.,.1){
+		edit_pane_(1.,1.,.1),
+		reposition_speed_(10){
 		
 		/*
 		test_button_.activateMouseInput(window);
@@ -464,6 +480,8 @@ public:
 				level_display_.text = level_name;
 				text_graphics_.add(level_display_);
 			}*/
+			
+
 		}
 	}
 
@@ -474,6 +492,13 @@ public:
 	void setDebugScene(Scene* scene) {
 		debug_scene_ = scene;
 		game_cam_ = scene->camera;
+	}
+
+	void refreshCollidors() {
+		if (debug_target_ != nullptr) {
+			hitbox_visualizer_.empty();
+			debug_target_->drawAllCollidors(&hitbox_visualizer_);
+		}
 	}
 
 };

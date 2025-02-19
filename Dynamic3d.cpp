@@ -13,18 +13,21 @@ const char* Dynamic3d::vertex_code = "\n"
 
 "out vec2 texCoord;\n"
 "out vec3 position;\n"
+"out vec3 rel_position;\n"
 "out vec3 normal;"
 
 "void main()\n"
 "{\n"
 "	position = (model * vec4(pos.x, pos.y, pos.z, 1.0)).xyz;"
 "	normal = (model* vec4(norm.x, norm.y, norm.z, 0.0)).xyz;"
-"   gl_Position = perspective * camera * vec4(position.x, position.y, position.z, 1.0);\n"
+"  rel_position = (camera * vec4(position.x, position.y, position.z, 1.0)).xyz;"
+"   gl_Position = perspective *vec4(rel_position.x, rel_position.y, rel_position.z, 1.0);\n"
 "	texCoord = vt;\n"
 "}\0";
 const char* Dynamic3d::fragment_code = "#version 330 core\n"
 "in vec2 texCoord;\n "
 "in vec3 position;\n"
+"in vec3 rel_position;\n"
 "in vec3 normal;\n"
 
 "uniform sampler2D tex;\n"
@@ -49,7 +52,7 @@ const char* Dynamic3d::fragment_code = "#version 330 core\n"
 
 "void main()\n"
 "{\n"
-"   float a = atmosphere_color.w * (length(position));"
+"   float a = 1-exp(-atmosphere_color.w * length(rel_position));\n"
 
 "	float diff = 0; "
 "   vec3 light_dir = (light_position - position);\n"
@@ -66,7 +69,7 @@ const char* Dynamic3d::fragment_code = "#version 330 core\n"
 "   if(tex_pixel_data.w < .2) discard;\n"
 "	vec3 tex_color = (diff + .3) * tex_pixel_data.xyz;\n"
 //apply atmospheric perspective
-"	FragColor.xyz = (tex_color + atmosphere_color.xyz * a)/(1 + a)*(1-overlay_color.w) + overlay_color.xyz*overlay_color.w;\n"
+"	FragColor.xyz = (tex_color*(1-overlay_color.w) + overlay_color.xyz*overlay_color.w)*(1 - a) + atmosphere_color.xyz * a;\n"
 
 "	FragColor.w = tex_pixel_data.w;\n"
 " } ";

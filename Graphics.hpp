@@ -206,6 +206,12 @@ public:
 		deleteDataCache(cached_data_[obj.getID()]);
 		cached_data_.erase(obj.getID());
 	}
+	void empty() override {
+		for (auto& obj : draw_targets_) {
+			remove(*obj.second);
+		}
+	}
+
 
 	//virtual G* makeGrobj(const GameObject& obj) const = 0;
 	

@@ -31,6 +31,7 @@ public:
 
 	virtual void unload(const Object& obj) = 0;
 
+	virtual void empty() = 0;
 };
 
 

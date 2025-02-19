@@ -203,6 +203,10 @@ public:
 			&& point.z() < bounding_box_[2] / 2 && point.z() > -bounding_box_[2] / 2;
 	}
 
+	Eigen::Vector3f getBoundingBox() const {
+		return bounding_box_;
+	}
+
 	explicit MeshSurface(std::string fname);
 	MeshSurface(std::string fname, std::string path);
 

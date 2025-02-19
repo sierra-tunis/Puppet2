@@ -16,9 +16,12 @@ class Sound {
 	bool is_loaded_;
 	bool is_playing_;
 
+	float gain_;
+
 	DWORD filetype_;
 	
 	WAVEFORMATEXTENSIBLE wfx; 
+	XAUDIO2_BUFFER buffer_original;
 	XAUDIO2_BUFFER buffer;
 	
 	IXAudio2SourceVoice* pSourceVoice;
@@ -54,6 +57,8 @@ public:
 	bool load();
 
 	bool unload();
+
+	bool setGain(float gain);
 };
 
 #endif

@@ -404,6 +404,7 @@ public:
 
 class OffsetConnector : public ConnectorConstraint<0> {
 public:
+	
 	OffsetConnector(const Eigen::Matrix4f& root_position, Eigen::Matrix4f initial_child_position) :
 		ConnectorConstraint(root_position.inverse()* initial_child_position) {
 		setRootTransform(&root_position);
@@ -418,6 +419,11 @@ public:
 												  0., 0., 1., z,
 												  0., 0., 0., 1).finished()) {
 
+	}
+	OffsetConnector(Eigen::Vector3f offset_global,OffsetConnector& prev_offset_) :
+		OffsetConnector(offset_global(0) - prev_offset_.getEndTransform()(0,3),
+			offset_global(1) - prev_offset_.getEndTransform()(1, 3),
+			offset_global(2) - prev_offset_.getEndTransform()(2, 3)) {
 	}
 	OffsetConnector(Eigen::Vector3f offset_global, Eigen::Vector3f prev_offset_global):
 		OffsetConnector(offset_global(0)-prev_offset_global(0),
