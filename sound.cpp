@@ -244,6 +244,7 @@ bool Sound::play() {
 			//std::cout << std::hex << hr;
 			return false;
 		}
+		is_playing_ = true;
 		return true;
 	}
 	else return false;

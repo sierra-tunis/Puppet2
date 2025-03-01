@@ -59,6 +59,10 @@ public:
 	bool unload();
 
 	bool setGain(float gain);
+
+	bool isPlaying() {
+		return is_playing_;
+	}
 };
 
 #endif
