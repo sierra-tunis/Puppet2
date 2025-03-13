@@ -540,6 +540,9 @@ public:
 	const DynamicModel* getDynamicModel() const {
 		return dyn_model_;
 	}
+	void updateDynamicModel() {
+		dyn_model_->updateData();
+	}
 
 	void setUpdateFreq(int freq) {
 		update_freq_ = freq;
