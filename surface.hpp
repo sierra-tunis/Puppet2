@@ -53,25 +53,7 @@ class MeshSurface : public Surface<3> {
 		}
 	};
 
-	void calculateBoundingBox() {
-		std::array<float, 3> min = { INFINITY,INFINITY,INFINITY };
-		std::array<float, 3> max = { -INFINITY,-INFINITY,-INFINITY };
-		for (int i = 0; i < verts_.size(); i ++) {
-			for (int j = 0; j < 3; j++) {
-				float v = verts_[i](j);
-				if (v < min[j]) {
-					min[j] = v;
-				}
-				if (v > max[j]) {
-					max[j] = v;
-				}
-			}
-		}
-		bounding_box_ << max[0] - min[0], max[1] - min[1], max[2] - min[2];
-		box_center_ << (max[0] + min[0]) / 2, (max[1] + min[1]) / 2, (max[2] + min[2]) / 2;
-
-
-	}
+	
 	//returns true if the line segment e12 intersects the triangle t123
 	static bool crossesTriangle(Eigen::Vector3f e1, Eigen::Vector3f e2, Eigen::Vector3f t1, Eigen::Vector3f t2, Eigen::Vector3f t3) {
 
@@ -196,6 +178,25 @@ public:
 		}
 		box_center_ << 0, 0, 0;
 	}
+	void calculateBoundingBox() {
+		std::array<float, 3> min = { INFINITY,INFINITY,INFINITY };
+		std::array<float, 3> max = { -INFINITY,-INFINITY,-INFINITY };
+		for (int i = 0; i < verts_.size(); i++) {
+			for (int j = 0; j < 3; j++) {
+				float v = verts_[i](j);
+				if (v < min[j]) {
+					min[j] = v;
+				}
+				if (v > max[j]) {
+					max[j] = v;
+				}
+			}
+		}
+		bounding_box_ << max[0] - min[0], max[1] - min[1], max[2] - min[2];
+		box_center_ << (max[0] + min[0]) / 2, (max[1] + min[1]) / 2, (max[2] + min[2]) / 2;
+
+
+	}
 
 	bool insideBoundingBox(Eigen::Vector3f point) const {
 		return point.x() < bounding_box_[0] / 2 && point.x() > -bounding_box_[0] / 2
@@ -205,6 +206,12 @@ public:
 
 	Eigen::Vector3f getBoundingBox() const {
 		return bounding_box_;
+	}
+	void clear() {
+		verts_.clear();
+		edges_.clear();
+		faces_.clear();
+		bounding_box_ = Eigen::Vector3f::Zero();
 	}
 
 	explicit MeshSurface(std::string fname);
