@@ -93,7 +93,7 @@ bool CollisionPair<Surface<3>, MeshSurface>::checkCollision(const Surface<3>& Pr
 }
 
 bool CollisionPair<MeshSurface,MeshSurface>::checkCollision(const MeshSurface& PrimarySurf, const MeshSurface& SecondarySurf, const Eigen::Matrix4f PrimaryPosition, const Eigen::Matrix4f SecondaryPosition, const Eigen::Matrix4f secondary_motion) {
-	if ((PrimaryPosition(seq(0, 2), 3) - SecondaryPosition(seq(0, 2), 3)).norm() + secondary_motion(seq(0, 2), 3).norm() > PrimarySurf.getBoundingBox().norm() + SecondarySurf.getBoundingBox().norm()) {
+	if ((PrimaryPosition(seq(0, 2), 3) - SecondaryPosition(seq(0, 2), 3)).norm() + secondary_motion(seq(0, 2), 3).norm() > PrimarySurf.getBoxRadius() + PrimarySurf.getBoxDist() + SecondarySurf.getBoxRadius() + SecondarySurf.getBoxDist()) {
 		return false;
 	}
 	Eigen::Matrix4f secondary_last_position = SecondaryPosition * secondary_motion.inverse();

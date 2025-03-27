@@ -38,6 +38,8 @@ class MeshSurface : public Surface<3> {
 
 	Eigen::Vector3f box_center_;
 	Eigen::Vector3f bounding_box_;
+	float bounding_box_radius_;
+	float box_center_dist_;
 
 	struct edgeHasher {
 		size_t operator()(const std::pair<int, int>& p) const {
@@ -193,7 +195,9 @@ public:
 			}
 		}
 		bounding_box_ << max[0] - min[0], max[1] - min[1], max[2] - min[2];
+		bounding_box_radius_ = bounding_box_.norm();
 		box_center_ << (max[0] + min[0]) / 2, (max[1] + min[1]) / 2, (max[2] + min[2]) / 2;
+		box_center_dist_ = box_center_.norm();
 
 
 	}
@@ -207,6 +211,13 @@ public:
 	Eigen::Vector3f getBoundingBox() const {
 		return bounding_box_;
 	}
+	float getBoxRadius() const {
+		return bounding_box_radius_;
+	}
+	float getBoxDist() const {
+		return box_center_dist_;
+	}
+
 	void clear() {
 		verts_.clear();
 		edges_.clear();

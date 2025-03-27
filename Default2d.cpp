@@ -13,7 +13,7 @@ const char* Default2d::vertex_code = "\n"
 
 "void main()\n"
 "{\n"
-"   gl_Position = position_matrix * vec4(pos.x, pos.y, 0., 1.0);\n"
+"   gl_Position = position_matrix * vec4(pos.x*position_matrix[3][3], pos.y*position_matrix[3][3], 0., 1.0);\n"
 "	texCoord = vt;\n"
 "}\0";
 const char* Default2d::fragment_code = "#version 330 core\n"
