@@ -224,6 +224,7 @@ public:
 		last_position_(position_),
 		InternalObject(name, key_state_callback_caller, controller_state_callback_caller),
 		t_ref_(system_clock::now()),
+		t_init_(system_clock::now()),
 		parent_(nullptr),
 		connector_(nullptr),
 		active_hitbox_(true){
