@@ -4,7 +4,7 @@
 
 #include <string>
 #include <vector>
-
+#include"DebugPath.hpp"
 
 class Texture {
 	std::string fname;
@@ -19,7 +19,7 @@ protected:
 
 
 public:
-	static constexpr char debug_path[] = "C:\\Users\\Sierra\\source\\repos\\Puppet2\\Puppet2\\assets\\";
+	static constexpr char debug_path[] = DEBUG_PATH;
 	static std::string default_path;
 
 	const unsigned int width;

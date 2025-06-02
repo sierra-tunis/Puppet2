@@ -6,6 +6,7 @@
 #include <string>
 #include <iostream>
 #include "sequence.h"
+#include "DebugPath.hpp"
 
 class AnimationBase {
 
@@ -23,7 +24,7 @@ protected:
 
 
 public:
-	static constexpr char debug_path[] = "C:\\Users\\Sierra\\source\\repos\\Puppet2\\Puppet2\\assets\\";
+	static constexpr char debug_path[] = DEBUG_PATH;
 	static std::string default_path;
 
 	virtual bool load() = 0;

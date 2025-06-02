@@ -9,6 +9,7 @@
 #include <iostream>
 
 #include<Eigen/Dense>
+#include "DebugPath.hpp"
 
 //this is conceptually the same as "mesh" may want to rename since a model can also be nurbs, but a mesh is always a mesh
 struct vertex;
@@ -181,7 +182,7 @@ public:
 		edge_data_ = OBJ_lines_;
 		return;
 	}
-	static constexpr char debug_path[] = "C:\\Users\\Sierra\\source\\repos\\Puppet2\\Puppet2\\assets\\";
+	static constexpr char debug_path[] = DEBUG_PATH;
 	static std::string default_path;
 
 	Model(){}

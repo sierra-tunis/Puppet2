@@ -12,6 +12,8 @@
 #include "camera.h"
 #include "zdata.hpp"
 
+#include "DebugPath.hpp"
+
 //An alternative, non-zmap based approach would be breaking up the level into large voxels,
 // each voxel contains an array of faces to check collisions on. this way the collision checking is
 // o(rho) where rho is the average face per voxel density. each collision check needs to be done per vertex.
@@ -194,7 +196,7 @@ public:
 		//...see https://stackoverflow.com/questions/12157646/how-to-render-offscreen-on-opengl
 		data->reserve(y_resolution * x_resolution * n_channels);
 		if (save_image) {
-			finishScreenshot<uint8_t, GL_UNSIGNED_BYTE>(data, "C:\\Users\\Sierra\\source\\repos\\Puppet2\\Puppet2" + fname);
+			finishScreenshot<uint8_t, GL_UNSIGNED_BYTE>(data, DEBUG_PATH + fname);
 		} else {
 			finishScreenshot<uint8_t, GL_UNSIGNED_BYTE>(data);
 		}

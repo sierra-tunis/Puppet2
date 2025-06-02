@@ -14,6 +14,7 @@
 #include "scene.hpp"
 
 #include <GLFW/glfw3.h>
+#include "DebugPath.hpp"
 
 
 using std::array;
@@ -96,7 +97,7 @@ private:
 
 public:
 	static std::string default_path;
-	static constexpr char debug_path[] = "C:\\Users\\Sierra\\source\\repos\\Puppet2\\Puppet2\\assets\\";
+	static constexpr char debug_path[] = DEBUG_PATH;
 
 	static GraphicsRaw<GameObject>* level_shader;
 

@@ -6,6 +6,8 @@
 #define NOMINMAX
 #include<xaudio2.h>
 
+#include "DebugPath.hpp"
+
 class Sound {
 	bool looping_;
 
@@ -32,7 +34,7 @@ class Sound {
 
 public:
 
-	static constexpr char debug_path[] = "C:\\Users\\Sierra\\source\\repos\\Puppet2\\Puppet2\\assets\\";
+	static constexpr char debug_path[] = DEBUG_PATH;
 	static std::string default_path;
 
 	static void initialize();
