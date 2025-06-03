@@ -9,4 +9,13 @@ Descender.h
 /x64/Release/*.obj
 /x64/static link debug/*.obj
 /x64/static link release/*.obj
+/x64/static library/*.obj
 *.tmp.*
+*.recipe
+x64/Debug/Puppet2.vcxproj.FileListAbsolute.txt
+*.iobj
+*.ipdb
+x64/Release/Puppet2.vcxproj.FileListAbsolute.txt
+x64/static library/Puppet2.vcxproj.FileListAbsolute.txt
+x64/static link debug/Puppet2.vcxproj.FileListAbsolute.txt
+x64/static link release/Puppet2.vcxproj.FileListAbsolute.txt
