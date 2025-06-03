@@ -240,7 +240,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Justin\source\repos\Puppet2\Puppet2;C:\Users\Justin\Documents\libraries;C:\Users\Justin\Documents\libraries\eigen-3.4.0;C:\Users\Justin\Documents\libraries\glfw-3.3.8.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Users\Sierra\source\repos\Puppet2\Puppet2;C:\Users\Sierra\Documents\libraries;C:\Users\Sierra\Documents\libraries\eigen-3.4.0;C:\Users\Sierra\Documents\libraries\glfw-3.3.8.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>

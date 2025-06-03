@@ -641,11 +641,14 @@ public:
 
 	virtual std::string getDebugInfo() const {
 		const Eigen::Matrix4f& M = getPosition();
-		constexpr char fs[] = "{:.3}";
-		return std::format(fs, M(0, 0)) + "\t " + std::format(fs, M(0, 1)) + "\t " + std::format(fs, M(0, 2)) + "\t " + std::format(fs, M(0, 3)) + "\n" +
-			std::format(fs, M(1, 0)) + "\t " + std::format(fs, M(1, 1)) + "\t " + std::format(fs, M(1, 2)) + "\t " + std::format(fs, M(1, 3)) + "\n" +
-			std::format(fs, M(2, 0)) + "\t " + std::format(fs, M(2, 1)) + "\t " + std::format(fs, M(2, 2)) + "\t " + std::format(fs, M(2, 3)) + "\n" +
-			std::format(fs, M(3, 0)) + "\t " + std::format(fs, M(3, 1)) + "\t " + std::format(fs, M(3, 2)) + "\t " + std::format(fs, M(3, 3)) + "\n"; 
+		constexpr char fs[] = "{:.3}\t {:.3}\t {:.3}\t {:.3}\n{:.3}\t {:.3}\t {:.3}\t {:.3}\n{:.3}\t {:.3}\t {:.3}\t {:.3}\n{:.3}\t {:.3}\t {:.3}\t {:.3}\n";
+
+		return std::vformat(fs, std::make_format_args(
+			M(0, 0), M(0, 1), M(0, 2), M(0, 3),
+			M(1, 0), M(1, 1), M(1, 2), M(1, 3),
+			M(2, 0), M(2, 1), M(2, 2), M(2, 3),
+			M(3, 0), M(3, 1), M(3, 2), M(3, 3)
+		));
 	}
 	//this is a terrible way of doing this since there is just total boilerplate code where you have to add all new objects to UI_container
 	//also if the object is deleted, the UI elements associated with it would also be deleted???
