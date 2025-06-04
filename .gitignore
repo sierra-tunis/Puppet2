@@ -19,3 +19,5 @@ x64/Release/Puppet2.vcxproj.FileListAbsolute.txt
 x64/static library/Puppet2.vcxproj.FileListAbsolute.txt
 x64/static link debug/Puppet2.vcxproj.FileListAbsolute.txt
 x64/static link release/Puppet2.vcxproj.FileListAbsolute.txt
+*.vcxproj
+DebugPath.hpp
