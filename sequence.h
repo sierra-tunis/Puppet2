@@ -97,7 +97,7 @@ public:
 	bool saveToFile(std::string fname, std::string path) const {
 		std::ofstream file(path + fname);
 		if(file.is_open()){
-			file << "v1.1 " << "1.0" << " false" << "\n";
+			file << "v1.1 1.0 false\n";
 			for (int i = 0; i < size(); i++) {
 				for (int j = 0; j < n_dofs+1; j++) {
 					file << sequence_(j, i) << " ";
