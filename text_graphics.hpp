@@ -18,10 +18,10 @@ struct char_info {
 	char_info(char c) {
 		char row = c / 25;
 		char col = c % 25;
-		unscaled_height = 1./15.;
-		unscaled_width = 1./25.;
-		glyph_left = static_cast<float>(col)/26.;
-		glyph_top = static_cast<float>(row)/15.;
+		unscaled_height = 20. / 312.;
+		unscaled_width = 12./512.;
+		glyph_left = static_cast<float>(col)*20./512.;
+		glyph_top = static_cast<float>(row)*20./312.;
 	}
 
 	char_info() {}
@@ -51,9 +51,13 @@ public:
 	}
 
 
-	Font(std::string glyph_fname, std::string path):glyph(glyph_fname, path),unscaled_line_height_(1.f/15.f) {
+	Font(std::string glyph_fname, std::string path):
+		glyph(glyph_fname, path),unscaled_line_height_(1.f/15.f) {
 		for (int i = 0; i < 256; i++) {
 			char_info_bank[static_cast<char>(i)] = char_info(static_cast<char>(i));
+			switch (i) {
+				case 'A': char_info_bank[static_cast<char>(i)].unscaled_width = 12. / 512.; break;
+			}
 		}
 		unsigned int tex_id;
 		glGenTextures(1, &(tex_id));
