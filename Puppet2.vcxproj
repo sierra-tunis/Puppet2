@@ -292,7 +292,9 @@
     <ClInclude Include="debug_menu.h" />
     <ClInclude Include="debug_player.hpp" />
     <ClInclude Include="Default2d.hpp" />
+    <ClInclude Include="Dynamic2d.hpp" />
     <ClInclude Include="Dynamic3d.hpp" />
+    <ClInclude Include="DynamicTexture.hpp" />
     <ClInclude Include="dynamic_model.hpp" />
     <ClInclude Include="game_main.hpp" />
     <ClInclude Include="graph.h" />

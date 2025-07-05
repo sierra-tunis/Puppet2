@@ -10,7 +10,7 @@
 
 class DebugMenu : public GameObject {
 
-	KeyStateCallback<GLFW_KEY_UP, GLFW_KEY_DOWN, GLFW_KEY_LEFT, GLFW_KEY_RIGHT, GLFW_KEY_PAGE_UP,GLFW_KEY_PAGE_DOWN> key_state_callback_caller_;
+	KeyStateCallback<GLFW_KEY_UP, GLFW_KEY_DOWN, GLFW_KEY_LEFT, GLFW_KEY_RIGHT, GLFW_KEY_PAGE_UP,GLFW_KEY_PAGE_DOWN,GLFW_KEY_COMMA,GLFW_KEY_PERIOD> key_state_callback_caller_;
 
 	std::vector<Button*> buttons_;
 

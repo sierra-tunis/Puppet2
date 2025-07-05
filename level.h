@@ -67,6 +67,7 @@ private:
 		theme_.load();
 
 	}
+public:
 
 	void activate() {
 		if (load_state_ == frozen) {
@@ -95,7 +96,6 @@ private:
 		theme_.stop();
 	}
 
-public:
 	static std::string default_path;
 	static constexpr char debug_path[] = DEBUG_PATH;
 

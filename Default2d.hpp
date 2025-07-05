@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef PUPPET_DEFAULT2D
+#define PUPPET_DEFAULT2D
+
 #include "Graphics.hpp"
 #include "GameObject.h"
 
@@ -95,3 +98,4 @@ public:
 		//}
 	}
 };
+#endif

@@ -278,5 +278,11 @@
     <ClInclude Include="DebugPath.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DynamicTexture.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Dynamic2d.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
