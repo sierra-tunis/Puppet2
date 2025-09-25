@@ -532,10 +532,8 @@ public:
 	}
 
 	void clampTo(const GameObject* base) {// this has unintuitive behavior
-		if (parent_ != nullptr) {
-			connector_ = new OffsetConnector(base->getPosition(), position_);
-			connector_->setRootTransform(&base->getPosition());
-		}
+		connector_ = new OffsetConnector(base->getPosition(), position_);
+		connector_->setRootTransform(&base->getPosition());
 	}
 
 	void clampToParent() {// this has unintuitive behavior

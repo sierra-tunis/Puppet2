@@ -290,7 +290,6 @@ public:
 	Level(std::string name, GLFWwindow* window) : Level(name + ".txt", window, new Model(name + ".obj"), new Texture(name + ".png"), name) {}
 	Level(std::string name, GLFWwindow* window, Texture* texture) : Level(name + ".txt", window, new Model(name + ".obj"), texture, name) {}
 
-
 	Level(std::string layout_fname, GLFWwindow* window, Model* model, Texture* texture, std::string room_name) :
 		GameObject(room_name),
 		load_state_(frozen),
@@ -372,6 +371,13 @@ public:
 		const_neighbors_.push_back(neighbor);
 	}
 
+	void addNeighbors(std::vector<Level*> neighbors) {
+		for (auto& n : neighbors) {
+			neighbors_.push_back(n);
+			const_neighbors_.push_back(n);
+		}
+	}
+
 	/*
 	void activateNeighbor(Level* neighbor) {
 		deactivate();
@@ -401,6 +407,10 @@ public:
 
 	Scene& getScene() {
 		return scene_;
+	}
+
+	void setScene(const auto& scene) {
+		scene_ = scene;
 	}
 
 	static void resetGame(GLFWwindow* window) {
