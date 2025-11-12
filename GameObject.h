@@ -86,7 +86,8 @@ private:
 	GraphicsRaw<GameObject>* graphics_;
 
 	static float global_game_speed_;
-
+	
+	bool physics_on_;
 	
 protected:
 	
@@ -227,7 +228,8 @@ public:
 		t_init_(system_clock::now()),
 		parent_(nullptr),
 		connector_(nullptr),
-		active_hitbox_(true){
+		active_hitbox_(true),
+		physics_on_(false){
 	}
 
 	~GameObject() {
@@ -311,6 +313,11 @@ public:
 			if (animation_over) {
 				onAnimationEnd(active_animation_);
 			}
+		}
+		//physics
+		if (physicsEnabled()) {
+			velocity_ = translate(velocity_ * getdt() + acceleration_ * getdt() * getdt()) / getdt();//exact gravity
+			velocity_ += acceleration_ * getdt();
 		}
 		//perform user code
 		onStep();
@@ -723,6 +730,16 @@ public:
 	}
 	void deactivateHitbox() {
 		active_hitbox_ = false;
+	}
+
+	void enablePhysics() {
+		physics_on_ = true;
+	}
+	void disablePhysics() {
+		physics_on_ = false;
+	}
+	bool physicsEnabled() const {
+		return physics_on_;
 	}
 
 };

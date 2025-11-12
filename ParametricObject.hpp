@@ -149,10 +149,6 @@ private:
 protected:
 
 
-	const Eigen::Vector<float, n_dofs>& getState() const {
-		return state_;
-	}
-
 	void update(GLFWwindow* window) override {
 		GameObject::update(window);
 		/*Eigen::Vector<float, n_dofs> new_state;
@@ -396,6 +392,10 @@ public:
 	}
 	void ZeroPose() {
 		setState(Eigen::Vector<float, n_dofs>::Zero());
+	}
+
+	const Eigen::Vector<float, n_dofs>& getState() const {
+		return state_;
 	}
 
 	void setDynamicModel(DynamicModel* dyn_model) {
