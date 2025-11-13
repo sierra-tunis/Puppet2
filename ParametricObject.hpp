@@ -73,7 +73,7 @@ private:
 			new_state = Eigen::Vector<float, n_dofs>::Constant(0);
 		}
 		setState(new_state);*/
-		if (update_count_ == update_freq_) {
+		if (update_count_ == update_freq_ && dyn_model_!=nullptr) {
 			dyn_model_->updateData();
 			update_count_ = 0;
 		}
