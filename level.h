@@ -44,6 +44,7 @@ private:
 	Sound theme_;
 	Scene scene_;
 
+	bool is_menu_;
 
 	//we can render the floor like an image with color corresponding to the height.
 	// use some sentinel color for the background to indicate out of bounds regions.
@@ -242,6 +243,9 @@ public:
 					neig->freeze();
 				}
 			}
+			if (std::find(new_level->neighbors_.begin(), new_level->neighbors_.end(), prev_level_) == new_level->neighbors_.end()) {
+				prev_level_->freeze();
+			}
 		}
 	}
 
@@ -296,7 +300,8 @@ public:
 		window_(window),
 		fname_(layout_fname),
 		collision_surface_(nullptr),
-		level_number_(all_levels_.size())
+		level_number_(all_levels_.size()),
+		is_menu_(false)
 		//for now this uses current window size as resolution since thats what ZMapper will output as
 	{
 		all_levels_.push_back(this); //need to add remove call for destruction
@@ -354,7 +359,7 @@ public:
 	}
 
 	bool withinLevel(Eigen::Vector3f pos) const {
-		return level_region_->insideRegion(pos-getPosition()(seq(0,2),3));
+			return level_region_->insideRegion(pos-getPosition()(seq(0,2),3));
 	}
 
 	int neighborAt(Eigen::Vector3f pos) const {
@@ -413,11 +418,20 @@ public:
 		scene_ = scene;
 	}
 
+	bool isMenu() const {
+		return is_menu_;
+	}
+	void setMenuState(bool is_menu) {
+		is_menu_ = is_menu;
+	}
+
 	static void resetGame(GLFWwindow* window) {
 		for (auto& level : Level::AllLevels()) {
-			//level->saveLayoutFile();
-			level->reset();
-			level->update(window);
+			if (!level->isMenu()) {
+				//level->saveLayoutFile();
+				level->reset();
+				level->update(window);
+			}
 		}
 	}
 	/*
