@@ -373,6 +373,118 @@ public:
 		callback_input_ = callback_input;
 	}
 };
+
+class Checkbox : public GameObject {
+
+	const float height_, width_;
+	const float label_width_;
+
+	Rect2d box_model_;
+	Rect2d check_model_;
+	GraphicsRaw<Textbox>* text_graphics_;
+	GraphicsRaw<GameObject>* graphics_2d_;
+
+	TextboxObject label_;
+	GameObject check_mark_;
+
+	static Texture box_texture_;
+	static Texture check_texture_;
+
+	bool is_checked_;
+
+	float getX() const {
+		return getPosition()(0, 3);
+	}
+
+	float getY() const {
+		return getPosition()(1, 3);
+	}
+
+	void onMouseDown(int key, float x, float y) override {
+		if (!isHidden() &&
+			x > getX() - width_ / 2 && x < getX() + width_ / 2
+			&& y > getY() - height_ / 2 && y < getY() + height_ / 2) {
+			virtualClick();
+			//std::cout << "within button!\n";
+		}
+	}
+
+public:
+
+	Checkbox(float height, float width, float label_width):
+		height_(height),
+		width_(width),
+		label_width_(label_width),
+		box_model_(height,width),
+		check_model_(height,width),
+		text_graphics_(nullptr),
+		graphics_2d_(nullptr),
+		is_checked_(false){
+
+
+		setModel(&box_model_);
+		setTexture(&Rect2d::rect_tex_depressed);
+
+		label_.box_width = label_width_;
+		label_.box_height = height_;
+		addDependent(&label_);
+		label_.connectToParent(new OffsetConnector(-label_width_/2, 0, -.01));
+
+		check_mark_.setModel(&check_model_);
+		check_mark_.setTexture(&check_texture_);
+		addDependent(&check_mark_);
+		check_mark_.connectToParent(new OffsetConnector(0, 0, -.01));
+		check_mark_.hide();
+
+	}
+
+	void setLabel(std::string label) {
+		if (text_graphics_ == nullptr) {
+			label_.text = label;
+		}
+		else {
+			text_graphics_->unload(label_);
+			label_.text = label;
+			text_graphics_->add(label_);
+		}
+		label_.font_size = std::min(label_.box_width / ((label_.text.size() + 1) * char_info('A').unscaled_width), height_ * .9f / char_info('A').unscaled_height);
+		label_.box_height = char_info('A').unscaled_height * label_.font_size;
+	}
+
+	void load(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {
+		graphics_2d.add(*this);
+		graphics_2d.add(check_mark_);
+		text_graphics.add(this->label_);
+		activateMouseInput(window);
+		text_graphics_ = &text_graphics;
+		graphics_2d_ = &graphics_2d;
+	}
+
+	void unload(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {
+		graphics_2d.unload(*this);
+		graphics_2d.unload(check_mark_);
+		text_graphics.unload(this->label_);
+		deactivateMouseInput(window);
+		text_graphics_ = nullptr;
+	}
+
+	void virtualClick() {
+		if (!is_checked_) {
+			is_checked_ = true;
+			check_mark_.show();
+		}
+		else {
+			is_checked_ = false;
+			check_mark_.hide();
+		}
+	}
+
+	bool isChecked() const {
+		return is_checked_;
+	}
+
+};
+
 /*
 template<std::derived_from<GameObject> T>
 std::vector<GameObject*> openDebugUI(T obj, const GameObject* UI_container, Default2d& graphics_2d, TextGraphics& text_graphics) {};
