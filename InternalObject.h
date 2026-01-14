@@ -209,6 +209,11 @@ public:
 	static T* getNamedObjectAs(std::string name) {
 		return dynamic_cast<T*>(named_internal_objects_.at(name));
 	}
+
+	static bool isControllerConnected() {
+		return InternalObject::controller_id_ != -1;
+	}
+
 	// these two should probably not be protected
 	inline virtual void onRoomActivation() {};
 

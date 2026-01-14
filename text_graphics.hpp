@@ -16,8 +16,12 @@ struct char_info {
 	float glyph_top, glyph_left;
 
 	char_info(char c) {
-		char row = c / 25;
-		char col = c % 25;
+		int c_ = (int)c;
+		if (c_ < 0) {
+			c_ += 256;
+		}
+		int row = c_ / 25;
+		int col = c_ % 25;
 		unscaled_height = 20. / 312.;
 		unscaled_width = 12./512.;
 		glyph_left = static_cast<float>(col)*20./512.;
@@ -80,10 +84,9 @@ public:
 	
 	Font(std::string glyph_fname) : Font(glyph_fname, Texture::default_path) {}
 
-
 };
 
-class TextGraphics : public Graphics<Textbox, unsigned int, unsigned int, size_t> {
+class TextGraphics : public Graphics<Textbox, unsigned int, unsigned int, unsigned int, size_t> {
 								//textbox, VAO, tex_id, n_elems
 	std::unordered_map<std::string, const Font*> named_fonts_;
 	Font& default_font_;
@@ -101,31 +104,52 @@ class TextGraphics : public Graphics<Textbox, unsigned int, unsigned int, size_t
 		}
 
 		//super lazy code...
-		const Model* model_ = makeTextboxModel(obj,*font);
-		const Model& model = *model_;
+		 
+
+
+		const Model& PS_model = *makeTextboxModel(obj, *font,false);
+		const Model& keyboard_model = *makeTextboxModel(obj, *font,true);
 
 		// = model.flen();
-		unsigned int VAO;
-		glGenVertexArrays(1, &(VAO));
-		unsigned int VBO[2];
-		glGenBuffers(2, VBO);
-		unsigned int EBO;
-		glGenBuffers(1, &EBO);
+		unsigned int VAO[2];
+		glGenVertexArrays(2, VAO);
+		unsigned int VBO[4];
+		glGenBuffers(4, VBO);
+		unsigned int EBO[2];
+		glGenBuffers(2, EBO);
 
-		glBindVertexArray(VAO);
+		glBindVertexArray(VAO[0]);
 
 		glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * model.vlen() * 3, model.getVerts().data(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * keyboard_model.vlen() * 3, keyboard_model.getVerts().data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(0);
 
 		glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * model.getTexCoords().size(), model.getTexCoords().data(), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * keyboard_model.getTexCoords().size(), keyboard_model.getTexCoords().data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(1);
 
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * model.flen() * 3, model.getFaces().data(), GL_STATIC_DRAW);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[0]);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * keyboard_model.flen() * 3, keyboard_model.getFaces().data(), GL_STATIC_DRAW);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindVertexArray(0);
+		
+		glBindVertexArray(VAO[1]);
+
+		glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * PS_model.vlen() * 3, PS_model.getVerts().data(), GL_STATIC_DRAW);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, VBO[3]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * PS_model.getTexCoords().size(), PS_model.getTexCoords().data(), GL_STATIC_DRAW);
+		glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO[1]);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * PS_model.flen() * 3, PS_model.getFaces().data(), GL_STATIC_DRAW);
+		
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 		glBindVertexArray(0);
@@ -137,31 +161,42 @@ class TextGraphics : public Graphics<Textbox, unsigned int, unsigned int, size_t
 
 		//texture code:
 		unsigned int glyph_tex_id = font->getTexID();
-		int n_elems = model.flen();
-		delete model_;
-		return Cache{ VAO, glyph_tex_id,  n_elems};
+		int n_elems = PS_model.flen();
+		delete &keyboard_model;
+		delete &PS_model;
+		return Cache{ VAO[0],VAO[1], glyph_tex_id,  n_elems};
 	};
 
 	void deleteDataCache(Cache cache) const override {
-			glDeleteVertexArrays(1, &getVAO(cache));
+			glDeleteVertexArrays(1, &getKeyboardVAO(cache));
+			glDeleteVertexArrays(1, &getPSVAO(cache));
+
 	};
 
 
-	constexpr unsigned int& getVAO(Cache cache) const {
+	constexpr unsigned int& getKeyboardVAO(Cache cache) const {
 		return std::get<0>(cache);
 	}
 
-	constexpr unsigned int& getTexID(Cache cache) const {
+	constexpr unsigned int& getPSVAO(Cache cache) const {
 		return std::get<1>(cache);
 	}
 
-	constexpr size_t& getNElems(Cache cache) const {
+	constexpr unsigned int& getTexID(Cache cache) const {
 		return std::get<2>(cache);
+	}
+
+	constexpr size_t& getNElems(Cache cache) const {
+		return std::get<3>(cache);
 	}
 
 	void drawObj(const Textbox& obj, Cache cache) const override {
 		glBindTexture(GL_TEXTURE_2D, getTexID(cache));
-		glBindVertexArray(getVAO(cache));
+		if (InternalObject::isControllerConnected()) {
+			glBindVertexArray(getPSVAO(cache));
+		} else {
+			glBindVertexArray(getKeyboardVAO(cache));
+		}
 
 		Eigen::Matrix4f position_centered = obj.getPosition();
 		position_centered(0, 3) -= obj.box_width / 2;
@@ -195,7 +230,7 @@ public:
 
 	//renamed from get to make since it is allocating memory
 //nodiscard since memory needs to be deleted later. this should be a smart pointer eventually
-	[[nodiscard]] static Model* makeTextboxModel(const Textbox& textbox, const Font& font) {
+	[[nodiscard]] static Model* makeTextboxModel(const Textbox& textbox, const Font& font, bool convert_PS_to_keyboard) {
 		float line_length = 0;
 		int line_num = 0;
 		Model* textbox_model = new Model(std::vector<float>{},
@@ -208,6 +243,9 @@ public:
 		const size_t& strlen = textbox.text.size();
 		for (size_t i = 0; i < strlen; i++) {
 			char c = textbox.text[i];
+			if (convert_PS_to_keyboard && textbox.ps_to_keyboard_.contains(c)) {
+				c = textbox.ps_to_keyboard_.at(c);
+			}
 			char_info char_info_ = font.getCharInfo(c);
 			float char_end = line_length + char_info_.unscaled_width * textbox.font_size;
 			if (char_end > textbox.box_width || c == '\n') {
