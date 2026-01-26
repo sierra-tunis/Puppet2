@@ -47,22 +47,41 @@ public:
 
 
 class UIElement : public GameObject {
-	float height_, width_;
+	const float height_, width_;
 	Rect2d model_;
 
 	TextboxObject label_;
 
 	virtual void load(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) = 0;
 	virtual void unload(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) = 0;
+public:
+	UIElement(std::string name,float height, float width) :
+		GameObject(name),
+		height_(height),
+		width_(width),
+		model_(height_,width_){
 
+	}
+	UIElement(float height, float width) :
+		UIElement(InternalObject::no_name,height,width){
+
+	}
+
+	float getHeight() const {
+		return height_;
+	}
+	float getWidth() const {
+		return width_;
+	}
+	Rect2d& getModel() {
+		return model_;
+	}
 };
 
 
-class Button : public GameObject{
+class Button : public UIElement{
 
-	const float height_, width_;
-//	float x_, y_; //center coord
-	Rect2d button_model_;
+	//	float x_, y_; //center coord
 	GraphicsRaw<Textbox>* text_graphics_;
 	GraphicsRaw<GameObject>* graphics_2d_;
 
@@ -82,8 +101,8 @@ class Button : public GameObject{
 
 	void onMouseDown(int key,float x, float y) override {
 		if (!isHidden() &&
-			x > getX() - width_ / 2 && x < getX() + width_ / 2
-			&& y > getY() - height_ / 2 && y < getY() + height_ / 2) {
+			x > getX() - getWidth() / 2 && x < getX() + getWidth() / 2
+			&& y > getY() - getHeight() / 2 && y < getY() + getHeight() / 2) {
 			if (callback_func_ != nullptr){
 				callback_func_(callback_input_);
 			}
@@ -94,30 +113,25 @@ class Button : public GameObject{
 public:
 
 	Button(float height, float width) :
-		height_(height),
-		width_(width),
-		button_model_(height_, width_),
+		UIElement(height,width),
 		text_graphics_(nullptr),
 		graphics_2d_(nullptr){
 
-		setModel(&button_model_);
+		setModel(&getModel());
 		setTexture(&Rect2d::rect_tex);
-		label_.box_width = width_*.9;
+		label_.box_width = getWidth()*.9;
 		addDependent(&label_);
 		label_.connectToParent(new OffsetConnector(0, 0, 0));
 
 	}
 
 	Button(float height, float width, std::string name) : 
-		GameObject(name),
-		height_(height),
-		width_(width),
-		button_model_(height_,width_),
+		UIElement(name,height,width),
 		text_graphics_(nullptr){
 
-		setModel(&button_model_);
+		setModel(&getModel());
 		setTexture(&Rect2d::rect_tex);
-		label_.box_width = width_*.9;
+		label_.box_width = getWidth()*.9;
 		addDependent(&label_);
 		label_.connectToParent(new OffsetConnector(0, 0, 0));//idk why this needs to be height/2 instead of 0
 
@@ -126,13 +140,6 @@ public:
 	void setCallback(void (*callback_func)(void*), void* callback_input) {
 		callback_func_ = callback_func;
 		callback_input_ = callback_input;
-	}
-
-	float getHeight() const {
-		return height_;
-	}
-	float getWidth() const {
-		return width_;
 	}
 
 	void setLabel(std::string label) {
@@ -144,11 +151,11 @@ public:
 			label_.text = label;
 			text_graphics_->add(label_);
 		}
-		label_.font_size = std::min(label_.box_width / ((label_.text.size() + 1) * char_info('A').unscaled_width), height_*.9f/char_info('A').unscaled_height);
+		label_.font_size = std::min(label_.box_width / ((label_.text.size() + 1) * char_info('A').unscaled_width), getHeight()*.9f/char_info('A').unscaled_height);
 		label_.box_height = char_info('A').unscaled_height * label_.font_size;
 	}
 
-	void load(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {
+	void load(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) override {
 		graphics_2d.add(*this);
 		text_graphics.add(this->label_);
 		activateMouseInput(window);
@@ -157,7 +164,7 @@ public:
 		graphics_2d_ = &graphics_2d;
 	}
 
-	void unload(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {
+	void unload(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) override {
 		graphics_2d.unload(*this);
 		text_graphics.unload(this->label_);
 		deactivateMouseInput(window);

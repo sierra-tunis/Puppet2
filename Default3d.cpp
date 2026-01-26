@@ -36,6 +36,8 @@ const char* Default3d::fragment_code = "#version 330 core\n"
 "uniform vec4 overlay_color;\n"
 
 "uniform vec4 atmosphere_color;\n" //alpha is atmosphere strength
+"uniform float ambient_light;\n"
+"uniform float white_reduction;\n"
 "uniform vec4 light_color;\n"
 "uniform vec3 light_position;\n"
 "uniform float light_strength;\n"
@@ -68,7 +70,8 @@ const char* Default3d::fragment_code = "#version 330 core\n"
 "   light_dir = (light_position_3 - position); \n"
 "	diff += (max(dot(normal, normalize(light_dir)), 0.0)*light_strength_3*light_strength_3)/(light_strength_3*light_strength_3+dot(light_dir, light_dir));\n"
 
-"	vec3 tex_color = (diff + .3) * texture(tex,texCoord).xyz;\n"
+"	vec3 tex_color_raw = texture(tex,texCoord).xyz;\n"
+"	vec3 tex_color = (diff + ambient_light*(1-white_reduction*length(tex_color_raw))) * texture(tex,texCoord).xyz;\n"
 //apply atmospheric perspective
 "	FragColor.xyz = (tex_color*(1-overlay_color.w) + overlay_color.xyz*overlay_color.w)*(1 - a) + atmosphere_color.xyz * a;\n"
 "	FragColor.w = texture(tex,texCoord).w;\n"

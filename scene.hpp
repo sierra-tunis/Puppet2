@@ -33,9 +33,11 @@ struct Scene {
 	const Camera* camera;
 	Eigen::Vector3f atmosphere_color;
 	float atmosphere_strength;
+	float ambient_light;
+	float white_reduction;
 
 	Scene() : 
-		primary_light_(nullptr),shadow_light(nullptr),camera(nullptr),atmosphere_color(Eigen::Vector3f::Zero()),atmosphere_strength(0){
+		primary_light_(nullptr),shadow_light(nullptr),camera(nullptr),atmosphere_color(Eigen::Vector3f::Zero()),atmosphere_strength(0),white_reduction(0.0),ambient_light(0.0){
 	}
 
 

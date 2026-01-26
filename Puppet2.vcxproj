@@ -277,6 +277,7 @@
     <ClCompile Include="ZMapper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Achievement.hpp" />
     <ClInclude Include="animation.hpp" />
     <ClInclude Include="animation_menu.hpp" />
     <ClInclude Include="camera.h" />
