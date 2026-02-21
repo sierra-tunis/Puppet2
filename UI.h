@@ -155,6 +155,10 @@ public:
 		label_.box_height = char_info('A').unscaled_height * label_.font_size;
 	}
 
+	Textbox& getLabel() {
+		return label_;
+	}
+
 	void load(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) override {
 		graphics_2d.add(*this);
 		text_graphics.add(this->label_);
@@ -880,6 +884,14 @@ class UIWheel : public GameObject {
 
 	GLFWwindow* window_;
 
+	virtual void setTargetName() {
+
+	}
+
+	virtual std::string getTargetName() {
+		return getTarget()->getName();
+	}
+
 	void onStep() override {
 		if (!isHidden() && window_ != nullptr) {
 			Eigen::Vector2f stick_input = Eigen::Vector2f(InternalObject::getRightStickPosition(window_).first, InternalObject::getRightStickPosition(window_).second);
@@ -889,7 +901,7 @@ class UIWheel : public GameObject {
 			if (getTarget() == nullptr) {
 				target_name_.text = "None";
 			} else {
-				target_name_.text = getTarget()->getName();
+				target_name_.text = getTargetName();
 			}
 			//setOrientation(Eigen::Matrix3f::Identity());
 			//rotateZ(getCursorAngle());
@@ -898,12 +910,17 @@ class UIWheel : public GameObject {
 		}
 	}
 
+protected:
+	const std::vector<obj_T*>* getIterable() {
+		return iterable_;
+	}
+
 public:
 
 	UIWheel(float radius) :
 		iterable_(nullptr),
 		iterator_model_(radius, radius),
-		name_offset_(0, -radius / 2, 0) {
+		name_offset_(0, 0, 0) {
 
 		setTexture(&Rect2d::border_rect_tex);
 		setModel(&iterator_model_);
