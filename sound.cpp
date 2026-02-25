@@ -164,12 +164,14 @@ bool Sound::load(){
 		NULL);
 
 	if (INVALID_HANDLE_VALUE == hFile) {
-		std::cout << std::hex << HRESULT_FROM_WIN32(GetLastError());
+		//std::cout << std::hex << HRESULT_FROM_WIN32(GetLastError());
+		std::cout << fname_ << " not found!\n";
 		return false;
 	}
 
 	if (INVALID_SET_FILE_POINTER == SetFilePointer(hFile, 0, NULL, FILE_BEGIN)) {
-		std::cout << std::hex << HRESULT_FROM_WIN32(GetLastError());
+		//std::cout << std::hex << HRESULT_FROM_WIN32(GetLastError());
+		std::cout << fname_ << " not found, invalid set file pointer!\n";
 		return false;
 	}
 
