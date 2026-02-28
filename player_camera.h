@@ -155,11 +155,6 @@ public:
 	}
 	void enableMouseControl(GLFWwindow* window) {
 		window_ = window;
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-		//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-		if (glfwRawMouseMotionSupported()) {
-			glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
-		}
 		activateKeyInput(window);
 		activateMouseInput(window);
 	}

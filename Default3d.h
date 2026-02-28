@@ -39,7 +39,7 @@ private:
 	//Eigen::Vector3f atmosphere_color_;
 	//float atmosphere_strength_;
 
-	static constexpr int max_lights = 3;
+	static constexpr int max_lights = 6;
 
 	unsigned int& getVAO(Cache cache) const {
 		return std::get<0>(cache).VAO;
@@ -168,7 +168,9 @@ public:
 		}
 		std::set<const Scene::light*, decltype(&closerToPlayer)> ordered_lights_(&closerToPlayer);
 		for (const auto& l : scene_->secondary_lights_) {
-			ordered_lights_.insert(l);
+			if (l->on) {
+				ordered_lights_.insert(l);
+			}
 		}
 		int i = 0;
 		for (auto& l : ordered_lights_) {

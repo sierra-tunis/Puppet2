@@ -403,6 +403,10 @@ class Checkbox : public GameObject {
 
 	bool is_checked_;
 
+	void* callback_input_;
+	void (*callback_func_)(void*);
+
+
 	float getX() const {
 		return getPosition()(0, 3);
 	}
@@ -420,9 +424,11 @@ class Checkbox : public GameObject {
 		}
 	}
 
+
+
 public:
 
-	Checkbox(float height, float width, float label_width):
+	Checkbox(float height, float width, float label_width, bool initial_state=false):
 		height_(height),
 		width_(width),
 		label_width_(label_width),
@@ -430,7 +436,9 @@ public:
 		check_model_(height,width),
 		text_graphics_(nullptr),
 		graphics_2d_(nullptr),
-		is_checked_(false){
+		is_checked_(initial_state),
+		callback_func_(nullptr),
+		callback_input_(nullptr){
 
 
 		setModel(&box_model_);
@@ -445,8 +453,17 @@ public:
 		check_mark_.setTexture(&check_texture_);
 		addDependent(&check_mark_);
 		check_mark_.connectToParent(new OffsetConnector(0, 0, -.01));
-		check_mark_.hide();
+		if (isChecked()) {
+			check_mark_.show();
+		} else {
+			check_mark_.hide();
+		}
 
+	}
+
+	void setCallback(void (*callback_func)(void*), void* callback_input) {
+		callback_func_ = callback_func;
+		callback_input_ = callback_input;
 	}
 
 	void setLabel(std::string label) {
@@ -487,6 +504,9 @@ public:
 		else {
 			is_checked_ = false;
 			check_mark_.hide();
+		}
+		if (callback_func_ != nullptr) {
+			callback_func_(callback_input_);
 		}
 	}
 

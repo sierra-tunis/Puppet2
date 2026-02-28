@@ -11,11 +11,13 @@ struct Scene {
 		float brightness;
 		Eigen::Vector3f color;
 		Eigen::Vector3f position;
+		bool on;
 
 		light():
 		brightness(100),
 		color(Eigen::Vector3f::Ones()),
-		position(Eigen::Vector3f::Zero()){
+		position(Eigen::Vector3f::Zero()),
+		on(true){
 
 		}
 
