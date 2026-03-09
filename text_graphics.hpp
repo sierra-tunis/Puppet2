@@ -247,8 +247,27 @@ public:
 				c = textbox.ps_to_keyboard_.at(c);
 			}
 			char_info char_info_ = font.getCharInfo(c);
+			int word_count = 0;
+			float word_len = 0.0f;
+			while (word_count + i < strlen) {
+				if (textbox.text[i + word_count] == '\n' || textbox.text[i + word_count] == ' ') {
+					break;
+				} else {
+					char c_temp = textbox.text[i];
+					if (convert_PS_to_keyboard && textbox.ps_to_keyboard_.contains(c_temp)) {
+						c_temp = textbox.ps_to_keyboard_.at(c_temp);
+					}
+					word_len += font.getCharInfo(c_temp).unscaled_width * textbox.font_size;
+					word_count++;
+				}
+			}
+			float word_end = line_length + word_len;
 			float char_end = line_length + char_info_.unscaled_width * textbox.font_size;
-			if (char_end > textbox.box_width || c == '\n') {
+			if (word_len <= textbox.box_width && word_end > textbox.box_width ) {
+				char_end = char_info_.unscaled_width * textbox.font_size;
+				line_num++;
+				line_length = 0;
+			} else if (char_end > textbox.box_width || c == '\n') {
 				char_end = char_info_.unscaled_width * textbox.font_size;
 				line_num++;
 				line_length = 0;
