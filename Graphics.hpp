@@ -211,6 +211,13 @@ public:
 			remove(*obj.second);
 		}
 	}
+	void refreshAll() {
+		auto tmp_iterator = draw_targets_;
+		for (auto& obj : tmp_iterator) {
+			unload(*obj.second);
+			add(*obj.second);
+		}
+	}
 
 
 	//virtual G* makeGrobj(const GameObject& obj) const = 0;

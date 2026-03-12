@@ -92,7 +92,7 @@ class TextGraphics : public Graphics<Textbox, unsigned int, unsigned int, unsign
 	Font& default_font_;
 	unsigned int position_location_;
 
-
+	Textbox::Language display_language_;
 
 	Cache makeDataCache(const Textbox& obj) const override {
 		const Font* font;
@@ -107,8 +107,8 @@ class TextGraphics : public Graphics<Textbox, unsigned int, unsigned int, unsign
 		 
 
 
-		const Model& PS_model = *makeTextboxModel(obj, *font,false);
-		const Model& keyboard_model = *makeTextboxModel(obj, *font,true);
+		const Model& PS_model = *makeTextboxModel(obj, *font,false,display_language_);
+		const Model& keyboard_model = *makeTextboxModel(obj, *font,true, display_language_);
 
 		// = model.flen();
 		unsigned int VAO[2];
@@ -223,14 +223,20 @@ public:
 		named_fonts_[name] = &font;
 	}
 	
+	void setLanguage(Textbox::Language language) {
+		display_language_ = language;
+		refreshAll();
+	}
+
 	TextGraphics(Font& default_font):
+		display_language_(Textbox::Language::English),
 		default_font_(default_font),
 		position_location_(glGetUniformLocation(gl_id, "position_matrix")){
 	}
 
 	//renamed from get to make since it is allocating memory
 //nodiscard since memory needs to be deleted later. this should be a smart pointer eventually
-	[[nodiscard]] static Model* makeTextboxModel(const Textbox& textbox, const Font& font, bool convert_PS_to_keyboard) {
+	[[nodiscard]] static Model* makeTextboxModel(const Textbox& textbox, const Font& font, bool convert_PS_to_keyboard, Textbox::Language language) {
 		float line_length = 0;
 		int line_num = 0;
 		Model* textbox_model = new Model(std::vector<float>{},
@@ -240,9 +246,22 @@ public:
 			std::vector<unsigned int>{},
 			std::vector<unsigned int>{});
 
-		const size_t& strlen = textbox.text.size();
+		std::string text;
+		float translation_scale_factor = 1.0f;
+		float font_size;
+		if (language == Textbox::Language::English || !textbox.translations.contains(language)) {
+			text = textbox.text;
+			translation_scale_factor = 1.0f;
+		} else if(textbox.translations.contains(language)){
+			text = textbox.translations.at(language);
+			translation_scale_factor = std::min(1.0f,((float)textbox.text.size()) / ((float)text.size()));
+			translation_scale_factor = std::max(translation_scale_factor, .7f);
+		}
+		font_size = textbox.font_size * translation_scale_factor;
+
+		const size_t& strlen = text.size();
 		for (size_t i = 0; i < strlen; i++) {
-			char c = textbox.text[i];
+			char c = text[i];
 			if (convert_PS_to_keyboard && textbox.ps_to_keyboard_.contains(c)) {
 				c = textbox.ps_to_keyboard_.at(c);
 			}
@@ -250,35 +269,38 @@ public:
 			int word_count = 0;
 			float word_len = 0.0f;
 			while (word_count + i < strlen) {
-				if (textbox.text[i + word_count] == '\n' || textbox.text[i + word_count] == ' ') {
+				if (text[i + word_count] == '\n' || text[i + word_count] == ' ') {
 					break;
 				} else {
 					char c_temp = textbox.text[i];
 					if (convert_PS_to_keyboard && textbox.ps_to_keyboard_.contains(c_temp)) {
 						c_temp = textbox.ps_to_keyboard_.at(c_temp);
 					}
-					word_len += font.getCharInfo(c_temp).unscaled_width * textbox.font_size;
+					word_len += font.getCharInfo(c_temp).unscaled_width * font_size;
 					word_count++;
 				}
 			}
 			float word_end = line_length + word_len;
-			float char_end = line_length + char_info_.unscaled_width * textbox.font_size;
+			float char_end = line_length + char_info_.unscaled_width * font_size;
 			if (word_len <= textbox.box_width && word_end > textbox.box_width ) {
-				char_end = char_info_.unscaled_width * textbox.font_size;
+				char_end = char_info_.unscaled_width * font_size;
 				line_num++;
-				line_length = 0;
+				line_length = 0.0f;
 			} else if (char_end > textbox.box_width || c == '\n') {
 				char_end = char_info_.unscaled_width * textbox.font_size;
 				line_num++;
-				line_length = 0;
+				line_length = 0.0f;
 			}
-			float line_top = -line_num * font.getUnscaledLineHeight() * textbox.font_size;
+			if (line_length == 0.0f && c == ' ') {
+				char_end = 0.0f;
+			}
+			float line_top = -line_num * font.getUnscaledLineHeight() * font_size;
 			int vert_index_offset = textbox_model->getVerts().size() / 3;
 			//add verts model
 			textbox_model->addVert(Eigen::Vector3f(line_length, line_top, 0));
-			textbox_model->addVert(Eigen::Vector3f(line_length, line_top - textbox.font_size * char_info_.unscaled_height, 0));
+			textbox_model->addVert(Eigen::Vector3f(line_length, line_top - font_size * char_info_.unscaled_height, 0));
 			textbox_model->addVert(Eigen::Vector3f(char_end, line_top, 0));
-			textbox_model->addVert(Eigen::Vector3f(char_end, line_top - textbox.font_size * char_info_.unscaled_height, 0));//bottom right
+			textbox_model->addVert(Eigen::Vector3f(char_end, line_top - font_size * char_info_.unscaled_height, 0));//bottom right
 			//add tex coords to model
 			textbox_model->addTexCoord(char_info_.glyph_left, 1-(char_info_.glyph_top));
 			textbox_model->addTexCoord(char_info_.glyph_left, 1-(char_info_.glyph_top + char_info_.unscaled_height));

@@ -11,6 +11,8 @@
 #include "solid_tex.hpp"
 #include "math_constants.hpp"
 
+#include <unordered_map>
+
 class Rect2d : public Model {
 private:
 
@@ -51,6 +53,12 @@ class UIElement : public GameObject {
 	Rect2d model_;
 
 	TextboxObject label_;
+
+	UIElement* element_above_;
+	UIElement* element_below_;
+	UIElement* element_left_;
+	UIElement* element_right_;
+
 
 	virtual void load(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) = 0;
 	virtual void unload(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) = 0;
@@ -154,6 +162,19 @@ public:
 		label_.font_size = std::min(label_.box_width / ((label_.text.size() + 1) * char_info('A').unscaled_width), getHeight()*.9f/char_info('A').unscaled_height);
 		label_.box_height = char_info('A').unscaled_height * label_.font_size;
 	}
+	void setLabelTranslation(Textbox::Language language, std::string translation) {
+		if (text_graphics_ == nullptr) {
+			label_.translations[language] = translation;
+		}
+		else {
+			text_graphics_->unload(label_);
+			label_.translations[language] = translation;
+			text_graphics_->add(label_);
+		}
+		label_.font_size = std::min(label_.box_width / ((label_.text.size() + 1) * char_info('A').unscaled_width), getHeight() * .9f / char_info('A').unscaled_height);
+		label_.box_height = char_info('A').unscaled_height * label_.font_size;
+	}
+
 
 	Textbox& getLabel() {
 		return label_;
@@ -427,18 +448,18 @@ class Checkbox : public GameObject {
 
 
 public:
-
-	Checkbox(float height, float width, float label_width, bool initial_state=false):
+	Checkbox(std::string name, float height, float width, float label_width, bool initial_state = false) :
+		GameObject(name),
 		height_(height),
 		width_(width),
 		label_width_(label_width),
-		box_model_(height,width),
-		check_model_(height,width),
+		box_model_(height, width),
+		check_model_(height, width),
 		text_graphics_(nullptr),
 		graphics_2d_(nullptr),
 		is_checked_(initial_state),
 		callback_func_(nullptr),
-		callback_input_(nullptr){
+		callback_input_(nullptr) {
 
 
 		setModel(&box_model_);
@@ -447,7 +468,7 @@ public:
 		label_.box_width = label_width_;
 		label_.box_height = height_;
 		addDependent(&label_);
-		label_.connectToParent(new OffsetConnector(-label_width_/2, 0, -.01));
+		label_.connectToParent(new OffsetConnector(-label_width_ / 2, 0, -.01));
 
 		check_mark_.setModel(&check_model_);
 		check_mark_.setTexture(&check_texture_);
@@ -455,11 +476,16 @@ public:
 		check_mark_.connectToParent(new OffsetConnector(0, 0, -.01));
 		if (isChecked()) {
 			check_mark_.show();
-		} else {
+		}
+		else {
 			check_mark_.hide();
 		}
 
 	}
+
+
+	Checkbox(float height, float width, float label_width, bool initial_state = false) :
+		Checkbox(InternalObject::no_name, height,width, label_width, initial_state){}
 
 	void setCallback(void (*callback_func)(void*), void* callback_input) {
 		callback_func_ = callback_func;
@@ -473,6 +499,18 @@ public:
 		else {
 			text_graphics_->unload(label_);
 			label_.text = label;
+			text_graphics_->add(label_);
+		}
+		label_.font_size = std::min(label_.box_width / ((label_.text.size() + 1) * char_info('A').unscaled_width), height_ * .9f / char_info('A').unscaled_height);
+		label_.box_height = char_info('A').unscaled_height * label_.font_size;
+	}
+	void setLabelTranslation(Textbox::Language language, std::string translation) {
+		if (text_graphics_ == nullptr) {
+			label_.translations[language] = translation;
+		}
+		else {
+			text_graphics_->unload(label_);
+			label_.translations[language] = translation;
 			text_graphics_->add(label_);
 		}
 		label_.font_size = std::min(label_.box_width / ((label_.text.size() + 1) * char_info('A').unscaled_width), height_ * .9f / char_info('A').unscaled_height);
@@ -546,6 +584,7 @@ class UIIterator : public GameObject{
 
 	const std::unordered_set<obj_T*>* iterable_;
 	std::unordered_set<obj_T*>::const_iterator target_iterator_;
+	std::unordered_map<obj_T*, std::string> iterable_dict_;
 	TextboxObject target_name_;
 
 	void (*callback_on_change_)(obj_T*, obj_T*, void*);//prev, next
@@ -578,8 +617,14 @@ class UIIterator : public GameObject{
 		if (this_->getTarget() == nullptr) {
 			this_->target_name_.text = "None";
 		}
-		else {
-			this_->target_name_.text = this_->getTarget()->getName();
+		if (this_->iterable_dict_.contains(this_->getTarget())) {
+			this_->target_name_.text = this_->iterable_dict_.at(this_->getTarget());
+		} else {
+			if constexpr (std::is_base_of<GameObject, obj_T>::value) {
+				if (this_->getTarget() != nullptr) {
+					this_->target_name_.text = this_->getTarget()->getName();
+				}
+			}
 		}
 		this_->text_graphics_->refresh(this_->target_name_);
 
@@ -599,8 +644,15 @@ class UIIterator : public GameObject{
 		}
 		if (this_->getTarget() == nullptr) {
 			this_->target_name_.text = "None";
+		}
+		if (this_->iterable_dict_.contains(this_->getTarget())) {
+			this_->target_name_.text = this_->iterable_dict_.at(this_->getTarget());
 		} else {
-			this_->target_name_.text = this_->getTarget()->getName();
+			if constexpr (std::is_base_of<GameObject, obj_T>::value) {
+				if (this_->getTarget() != nullptr) {
+					this_->target_name_.text = this_->getTarget()->getName();
+				}
+			}
 		}
 		this_->text_graphics_->refresh(this_->target_name_);
 
@@ -696,6 +748,9 @@ public:
 		}
 	}
 
+	void addIterableDictEntry(obj_T* target, std::string name) {
+		iterable_dict_[target] = name;
+	}
 	void goToNext() {
 		nextTargetCallback(this);
 	}
@@ -772,6 +827,9 @@ public:
 		total_tab_width_ += tab_width;
 		activatePane(tabs_.size()-1);
 		new_pane->clampToParent();
+	}
+	void addPaneLabelTranslation(int pane_index, Textbox::Language language, std::string translation) {
+		tabs_[pane_index]->setLabelTranslation(language, translation);
 	}
 
 	Pane* getPane(int i) {

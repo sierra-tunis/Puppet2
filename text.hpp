@@ -7,7 +7,9 @@
 #include <string>
 
 struct Textbox {
+	enum class Language {English, Spanish, French, BrazilianPortuguese};
 	std::string text;
+	std::unordered_map <Language, std::string> translations;
 	std::string font;
 	float top, left;
 	float box_width, box_height;
