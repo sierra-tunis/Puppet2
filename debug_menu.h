@@ -187,7 +187,7 @@ public:
 			prev->closeDebugUI(&this_->custom_obj_pane_, this_->window_, this_->graphics_2d_, this_->text_graphics_);
 			prev->hideAllCollidors(&this_->hitbox_visualizer_);
 		}
-		if (next != nullptr) {
+		if (next != nullptr && this_->debug_target_!= nullptr) {
 			this_->debug_target_->openDebugUI(&this_->custom_obj_pane_, this_->window_, this_->graphics_2d_, this_->text_graphics_);
 			this_->debug_target_->drawAllCollidors(&this_->hitbox_visualizer_);
 			this_->debug_camera_.setConnectorBase(&this_->debug_target_->getPosition());
