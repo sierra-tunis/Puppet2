@@ -37,6 +37,9 @@ private:
 	//Signal damped_tether_length_;
 
 	void onMouseMove(float x, float y, float dx, float dy) override {
+		if (frozen_) {
+			return;
+		}
 		if (look_mode_) {
 			if (dx != 0) {
 				pan_.setState(Eigen::Vector<float, 1>(pan_.getState()(0) - dx * .004));

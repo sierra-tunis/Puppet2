@@ -970,12 +970,21 @@ class UIWheel : public GameObject {
 		return getTarget()->getName();
 	}
 
+	void onMouseMove(float x, float y, float dx, float dy) override {
+		if (!isHidden()) {
+			int width, height;
+			glfwGetWindowSize(window_, &width, &height);
+			cursor_ = Eigen::Vector2f(x - (float) width / 2 - dy, y - (float)height / 2 + dx).normalized();
+			//cursor_ = Eigen::Vector2f(-dy, dx).normalized();
+		}
+	};
+
 	void onStep() override {
 		if (!isHidden() && window_ != nullptr) {
 			Eigen::Vector2f stick_input = Eigen::Vector2f(InternalObject::getRightStickPosition(window_).first, InternalObject::getRightStickPosition(window_).second);
 			if (stick_input.norm() > .3) {
 				cursor_ = stick_input.normalized();
-			}
+			} 
 			if (getTarget() == nullptr) {
 				target_name_.text = "None";
 			} else {
