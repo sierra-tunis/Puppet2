@@ -15,22 +15,29 @@
 
 using Eigen::Matrix4f;
 
+struct Dynamic3dStaticSubcache {
+	unsigned int static_VAO;
+	unsigned int* static_VBO;
+	unsigned int flen;
+	const Eigen::Matrix4f* root_tform;
+};
 
 struct Dynamic3dCache {
 	unsigned int VAO;
+	unsigned int* VBO;
 	unsigned int tex_id;
 	size_t n_elems;
 	unsigned int pos_vbo;
 	unsigned int norm_vbo;
 
-	std::vector<std::tuple<unsigned int, unsigned int, const Eigen::Matrix4f*>> static_VAOs;
+	std::vector<std::tuple<Dynamic3dStaticSubcache>> static_VAOs;
 
 	Eigen::Vector4f overlay_color;
 
-	Dynamic3dCache() : VAO(-1), tex_id(-1), n_elems(0), pos_vbo(0),norm_vbo(0), overlay_color(0, 0, 0, 0) {
+	Dynamic3dCache() : VAO(-1),VBO(nullptr), tex_id(-1), n_elems(0), pos_vbo(0),norm_vbo(0), overlay_color(0, 0, 0, 0) {
 	};
-	Dynamic3dCache(int VAO, int tex_id, size_t n_elems,unsigned int pos_vbo,unsigned int norm_vbo, std::vector<std::tuple<unsigned int, unsigned int, const Eigen::Matrix4f*>> static_VAOs)
-		: VAO(VAO), tex_id(tex_id), n_elems(n_elems),
+	Dynamic3dCache(unsigned int VAO, unsigned int* VBO, unsigned int tex_id, size_t n_elems,unsigned int pos_vbo,unsigned int norm_vbo, std::vector<std::tuple<Dynamic3dStaticSubcache>> static_VAOs)
+		: VAO(VAO), VBO(VBO),tex_id(tex_id), n_elems(n_elems),
 			pos_vbo(pos_vbo), norm_vbo(norm_vbo),static_VAOs(static_VAOs),
 			overlay_color(0.0f, 0.0f, 0.0f, 0.0f) {
 	};
@@ -50,6 +57,9 @@ private:
 		return std::get<0>(cache).VAO;
 	}
 
+	unsigned int* getVBO(Cache cache) const {
+		return std::get<0>(cache).VBO;
+	}
 	unsigned int& getTexID(Cache cache) const {
 		return std::get<0>(cache).tex_id;
 	}
@@ -64,7 +74,7 @@ private:
 		return std::get<0>(cache).norm_vbo;
 	}
 
-	const std::vector<std::tuple<unsigned int, unsigned int, const Eigen::Matrix4f*>>& getStaticVAOs(Cache& cache) const {
+	const std::vector<std::tuple<Dynamic3dStaticSubcache>>& getStaticVAOs(Cache& cache) const {
 		return std::get<0>(cache).static_VAOs;
 	}
 
@@ -93,6 +103,17 @@ private:
 		for (int i = 0; i < vert_norm->size(); i++) {
 			(*vert_norm)[i] = 0.;
 		}
+
+		glBindBuffer(GL_ARRAY_BUFFER, VBO[0]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * obj.getModel()->vlen() * 3, obj.getModel()->getVerts().data(),GL_DYNAMIC_DRAW);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * obj.getModel()->getNorms().size(), obj.getModel()->getNorms().data(), GL_DYNAMIC_DRAW);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(1);
+
 		glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
 		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * model.getTexCoords().size(), model.getTexCoords().data(), GL_STATIC_DRAW);
 		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)0);
@@ -103,16 +124,18 @@ private:
 
 		const DynamicModel* dyn_model = dynamic_cast<const DynamicModel*>(obj.getModel());
 
-		std::vector<std::tuple<unsigned int, unsigned int, const Eigen::Matrix4f*>> static_VAOs;
+		std::vector<std::tuple<Dynamic3dStaticSubcache>> static_VAOs;
 		if (dyn_model != nullptr) {
 			for (auto& stat_mod : dyn_model->getStaticModels()) {
 				Model static_model = *stat_mod.second;
 
 				unsigned int sVAO;
 				glGenVertexArrays(1, &sVAO);
-				static_VAOs.push_back({ sVAO,static_model.flen(),stat_mod.first->getTform() });
 				unsigned int sVBO[3];
 				glGenBuffers(3, sVBO);
+
+				static_VAOs.push_back(std::tuple<Dynamic3dStaticSubcache>{Dynamic3dStaticSubcache(sVAO, sVBO, static_model.flen(), stat_mod.first->getTform())});
+
 
 				glBindVertexArray(sVAO);
 
@@ -163,12 +186,17 @@ private:
 		delete vert_norm;
 		delete vert_pos;
 
-		return Dynamic3dCache(VAO,tex_id, model.flen(), VBO[0], VBO[1],static_VAOs);
+		return Cache{ Dynamic3dCache(VAO,VBO,tex_id, model.flen(), VBO[0], VBO[1],static_VAOs) };
 	}
 
 	virtual void deleteDataCache(Cache cache) const override {
 		glDeleteVertexArrays(1, &getVAO(cache));
+		glDeleteBuffers(3, getVBO(cache));
 		glDeleteTextures(1, &getTexID(cache));
+		for (const std::tuple<Dynamic3dStaticSubcache>& s : getStaticVAOs(cache)) {
+			glDeleteVertexArrays(1, &std::get<0>(s).static_VAO);
+			glDeleteBuffers(3, std::get<0>(s).static_VBO);
+		}
 	}
 
 public:
@@ -183,13 +211,12 @@ public:
 			glBindVertexArray(getVAO(cache));
 
 			glBindBuffer(GL_ARRAY_BUFFER, getPosVBO(cache));
-
-			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * obj.getModel()->vlen() * 3, obj.getModel()->getVerts().data(), GL_DYNAMIC_DRAW);
+			glBufferSubData(GL_ARRAY_BUFFER,0, sizeof(float) * obj.getModel()->vlen() * 3, obj.getModel()->getVerts().data());
 			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 			glEnableVertexAttribArray(0);
 
 			glBindBuffer(GL_ARRAY_BUFFER, getNormVBO(cache));
-			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * obj.getModel()->getNorms().size(), obj.getModel()->getNorms().data(), GL_DYNAMIC_DRAW);
+			glBufferSubData(GL_ARRAY_BUFFER,0, sizeof(float) * obj.getModel()->getNorms().size(), obj.getModel()->getNorms().data());
 			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 			glEnableVertexAttribArray(1);
 
@@ -199,12 +226,12 @@ public:
 			if (dyn_model != nullptr) {
 				
 				for (int i = 0; i < getStaticVAOs(cache).size(); i++) {
-					const auto& sVAO_pos_pair = getStaticVAOs(cache)[i];
+					const Dynamic3dStaticSubcache& sVAO_pos_pair = std::get<0>(getStaticVAOs(cache)[i]);
 					//glBindTexture(GL_TEXTURE_2D, getTexID(cache));
-					glBindVertexArray(std::get<0>(sVAO_pos_pair));
+					glBindVertexArray(sVAO_pos_pair.static_VAO);
 					
-					glUniformMatrix4fv(model_location_, 1, GL_FALSE, std::get<2>(sVAO_pos_pair)->data());
-					glDrawArrays(GL_TRIANGLES, 0, 3 * std::get<1>(sVAO_pos_pair));
+					glUniformMatrix4fv(model_location_, 1, GL_FALSE, sVAO_pos_pair.root_tform->data());
+					glDrawArrays(GL_TRIANGLES, 0, 3 * sVAO_pos_pair.flen);
 				}
 			}
 

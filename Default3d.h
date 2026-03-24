@@ -15,13 +15,14 @@ using Eigen::Matrix4f;
 
 struct Default3dCache {
 	unsigned int VAO;
+	unsigned int* VBO;
 	unsigned int tex_id;
 	size_t n_elems;
 	Eigen::Vector4f overlay_color;
 
-	Default3dCache() : VAO(-1), tex_id(-1), n_elems(0), overlay_color(0, 0, 0, 0) {
+	Default3dCache() : VAO(-1), VBO(nullptr), tex_id(-1), n_elems(0), overlay_color(0, 0, 0, 0) {
 	};
-	Default3dCache(int VAO, int tex_id, size_t n_elems) : VAO(VAO),tex_id(tex_id), n_elems(n_elems),overlay_color(0.0f,0.0f,0.0f,0.0f){
+	Default3dCache(unsigned int VAO, unsigned int* VBO, unsigned int tex_id, size_t n_elems) : VAO(VAO),VBO(VBO),tex_id(tex_id), n_elems(n_elems),overlay_color(0.0f,0.0f,0.0f,0.0f){
 	};
 
 
@@ -43,6 +44,10 @@ private:
 
 	unsigned int& getVAO(Cache cache) const {
 		return std::get<0>(cache).VAO;
+	}
+
+	unsigned int* getVBO(Cache cache) const {
+		return std::get<0>(cache).VBO;
 	}
 
 	unsigned int& getTexID(Cache cache) const {
@@ -105,11 +110,12 @@ private:
 		}
 		glGenerateMipmap(GL_TEXTURE_2D);
 
-		return Default3dCache(VAO, tex_id, model.flen());
+		return Default3dCache(VAO, &(VBO[0]), tex_id, model.flen());
 	}
 
 	virtual void deleteDataCache(Cache cache) const override {
 		glDeleteVertexArrays(1, &getVAO(cache));
+		glDeleteBuffers(3, getVBO(cache));
 		glDeleteTextures(1, &getTexID(cache));
 	}
 

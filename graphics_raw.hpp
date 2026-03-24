@@ -19,7 +19,7 @@ public:
 
 	};
 
-	void refresh(const Object& obj) {
+	virtual void refresh(const Object& obj) {
 		//MEMORY LEAK
 		unload(obj);
 		add(obj);

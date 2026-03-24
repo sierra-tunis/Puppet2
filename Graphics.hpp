@@ -73,6 +73,7 @@ private:
 
 
 protected:
+
 	typedef std::tuple<data...> Cache;
 
 	static inline Scene* scene_ = nullptr;
@@ -112,6 +113,7 @@ protected:
 	virtual void endDraw() const {
 		
 	};
+	
 
 	virtual Cache makeDataCache(const Object& obj) const = 0;
 	virtual void deleteDataCache(Cache cache) const = 0;
@@ -139,6 +141,7 @@ protected:
 
 public:
 	
+
 	void setCamera(const Camera* camera) {
 		if (scene_ == nullptr) {
 			scene_ = new Scene();
@@ -197,6 +200,7 @@ public:
 		}
 	}
 
+
 	void remove(const Object& obj) override {
 		draw_targets_.erase(obj.getID());
 	}
@@ -206,6 +210,13 @@ public:
 		deleteDataCache(cached_data_[obj.getID()]);
 		cached_data_.erase(obj.getID());
 	}
+
+	void refresh(const Object& obj) override {
+		deleteDataCache(cached_data_[obj.getID()]);
+		cached_data_[obj.getID()] = this->makeDataCache(obj);
+
+	}
+
 	void empty() override {
 		for (auto& obj : draw_targets_) {
 			remove(*obj.second);
@@ -214,8 +225,7 @@ public:
 	void refreshAll() {
 		auto tmp_iterator = draw_targets_;
 		for (auto& obj : tmp_iterator) {
-			unload(*obj.second);
-			add(*obj.second);
+			refresh(*obj.second);
 		}
 	}
 

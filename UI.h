@@ -54,14 +54,12 @@ class UIElement : public GameObject {
 
 	TextboxObject label_;
 
-	UIElement* element_above_;
-	UIElement* element_below_;
-	UIElement* element_left_;
-	UIElement* element_right_;
+	UIElement* left_;
+	UIElement* right_;
+	UIElement* up_;
+	UIElement* down_;
 
 
-	virtual void load(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) = 0;
-	virtual void unload(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) = 0;
 public:
 	UIElement(std::string name,float height, float width) :
 		GameObject(name),
@@ -84,6 +82,38 @@ public:
 	Rect2d& getModel() {
 		return model_;
 	}
+
+	void setLeftRighUpDown(UIElement* left, UIElement* right, UIElement* up, UIElement* down) {
+		left_ = left;
+		right_ = right;
+		up_ = up;
+		down_ = down;
+	}
+	UIElement* getLeft() {
+		return left_;
+	}
+
+	UIElement* getRight() {
+		return right_;
+	}
+	UIElement* getUp() {
+		return up_;
+	}
+	UIElement* getDown() {
+		return down_;
+	}
+
+	virtual void hideText() {}
+
+	virtual void showText() {}
+
+	virtual bool textHidden() {
+		return true;
+	}
+
+	virtual void load(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) = 0;
+	virtual void unload(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) = 0;
+
 };
 
 

@@ -5,6 +5,7 @@
 
 
 #include <Eigen/Dense>
+#include <unordered_map>
 
 #include "math_constants.hpp"
 
@@ -89,6 +90,23 @@ private:
 	Pane leg_L_pane_;
 	Pane leg_R_pane_;
 	TabbedPane slider_panes_;
+public:
+	enum class BodyType {
+		A,
+		A_no_legs,
+		A_head_and_torso,
+		B,
+		B_no_legs,
+		B_head_and_torso
+	};
+private:
+	std::unordered_map<BodyType, DynamicModel*> body_models_;
+	DynamicModel body_a_;
+	DynamicModel body_a_no_legs_;
+	DynamicModel body_a_head_and_torso_;
+	DynamicModel body_b_;
+	DynamicModel body_b_no_legs_;
+	DynamicModel body_b_head_and_torso_;
 
 	DynamicModel* dyn_model_;
 	int update_count_;
@@ -270,7 +288,14 @@ public:
 		slider_panes_(1.,1.,1.),
 		hitbox_("human_static_hitbox.obj", AnimationBase::debug_path),
 		exact_hitbox_("human_B.obj",AnimationBase::debug_path),
-		enlarged_hitbox_("human_combat_hitbox.obj", AnimationBase::debug_path){
+		enlarged_hitbox_("human_combat_hitbox.obj", AnimationBase::debug_path),
+		body_a_("human.obj", "human.txt"),
+		body_a_no_legs_("human_a_no_legs.obj", "human_a_no_legs.txt"),
+		body_a_head_and_torso_("human_a_head_and_torso.obj", "human_a_head_and_torso.txt"),
+		body_b_("human_B.obj", "human_B.txt"),
+		body_b_no_legs_("human_b_no_legs.obj", "human_b_no_legs.txt"),
+		body_b_head_and_torso_("human_b_head_and_torso.obj", "human_b_head_and_torso.txt"),
+		body_models_{{ BodyType::A,&body_a_},{ BodyType::A_no_legs,&body_a_no_legs_},{ BodyType::A_head_and_torso,&body_a_head_and_torso_},{BodyType::B,&body_b_}, { BodyType::B_no_legs,& body_b_no_legs_}, { BodyType::B_head_and_torso,& body_b_head_and_torso_}}{
 
 		arm_L_.setRootTransform(&chest_rotation_.getEndTransform());
 		arm_R_.setRootTransform(&chest_rotation_.getEndTransform());
@@ -285,47 +310,51 @@ public:
 
 		refresh();
 
-		DynamicModel* model = new DynamicModel("human_B.obj", "human_B.txt");
-		
-		model->getGroup("fingers_L")->setTform(&wrist_L_.getEndTransform());
-		model->getGroup("fingers_L")->setTform(&wrist_L_.getEndTransform());
-		model->getGroup("thumb_L")->setTform(&wrist_L_.getEndTransform());
-		model->getGroup("palm_L")->setTform(&wrist_L_.getEndTransform());
-		model->getGroup("forearm_L")->setTform(&elbow_L_.getEndTransform());
-		model->getGroup("humerus_L")->setTform(&shoulder_L_.getEndTransform());
-		model->getGroup("shoulder_L")->setTform(&shoulder_L_.getEndTransform());
-
-		model->getGroup("fingers_R")->setTform(&wrist_R_.getEndTransform());
-		model->getGroup("thumb_R")->setTform(&wrist_R_.getEndTransform());
-		model->getGroup("palm_R")->setTform(&wrist_R_.getEndTransform());
-		model->getGroup("forearm_R")->setTform(&elbow_R_.getEndTransform());
-		model->getGroup("humerus_R")->setTform(&shoulder_R_.getEndTransform());
-		model->getGroup("shoulder_R")->setTform(&shoulder_R_.getEndTransform());
-
-		model->getGroup("ribcage")->setTform(&chest_rotation_.getEndTransform());
-		model->getGroup("waist")->setTform(&waist_rotation_.getEndTransform());
-
-		model->getGroup("hip_L")->setTform(&hip_offset_L_.getEndTransform());
-		model->getGroup("thigh_L")->setTform(&hip_L_.getEndTransform());
-		model->getGroup("calf_L")->setTform(&knee_L_.getEndTransform());
-		model->getGroup("foot_L")->setTform(&ankle_L_.getEndTransform());
-
-		model->getGroup("hip_R")->setTform(&hip_offset_R_.getEndTransform());
-		model->getGroup("thigh_R")->setTform(&hip_R_.getEndTransform());
-		model->getGroup("calf_R")->setTform(&knee_R_.getEndTransform());
-		model->getGroup("foot_R")->setTform(&ankle_R_.getEndTransform());
-
-		model->getGroup("neck")->setTform(&neck_.getEndTransform());
-		model->getGroup("head")->setTform(&head_tilt_.getEndTransform());
-		model->getGroup("eye_L")->setTform(&head_tilt_.getEndTransform());
-		model->getGroup("eye_R")->setTform(&head_tilt_.getEndTransform());
 
 
+		//DynamicModel* model = new DynamicModel("human_B.obj", "human_B.txt");
+		for (std::pair<const BodyType, DynamicModel*>& m : body_models_) {
+			DynamicModel* model = m.second;
+			model->getGroup("fingers_L")->setTform(&wrist_L_.getEndTransform());
+			model->getGroup("fingers_L")->setTform(&wrist_L_.getEndTransform());
+			model->getGroup("thumb_L")->setTform(&wrist_L_.getEndTransform());
+			model->getGroup("palm_L")->setTform(&wrist_L_.getEndTransform());
+			model->getGroup("forearm_L")->setTform(&elbow_L_.getEndTransform());
+			model->getGroup("humerus_L")->setTform(&shoulder_L_.getEndTransform());
+			model->getGroup("shoulder_L")->setTform(&shoulder_L_.getEndTransform());
 
-		model->offsetVerts();
-		model->setRootTransform(&getPosition());
-		dyn_model_ = model;
-		setModel(model);
+			model->getGroup("fingers_R")->setTform(&wrist_R_.getEndTransform());
+			model->getGroup("thumb_R")->setTform(&wrist_R_.getEndTransform());
+			model->getGroup("palm_R")->setTform(&wrist_R_.getEndTransform());
+			model->getGroup("forearm_R")->setTform(&elbow_R_.getEndTransform());
+			model->getGroup("humerus_R")->setTform(&shoulder_R_.getEndTransform());
+			model->getGroup("shoulder_R")->setTform(&shoulder_R_.getEndTransform());
+
+			model->getGroup("ribcage")->setTform(&chest_rotation_.getEndTransform());
+			model->getGroup("waist")->setTform(&waist_rotation_.getEndTransform());
+
+			model->getGroup("hip_L")->setTform(&hip_offset_L_.getEndTransform());
+			model->getGroup("thigh_L")->setTform(&hip_L_.getEndTransform());
+			model->getGroup("calf_L")->setTform(&knee_L_.getEndTransform());
+			model->getGroup("foot_L")->setTform(&ankle_L_.getEndTransform());
+
+			model->getGroup("hip_R")->setTform(&hip_offset_R_.getEndTransform());
+			model->getGroup("thigh_R")->setTform(&hip_R_.getEndTransform());
+			model->getGroup("calf_R")->setTform(&knee_R_.getEndTransform());
+			model->getGroup("foot_R")->setTform(&ankle_R_.getEndTransform());
+
+			model->getGroup("neck")->setTform(&neck_.getEndTransform());
+			model->getGroup("head")->setTform(&head_tilt_.getEndTransform());
+			model->getGroup("eye_L")->setTform(&head_tilt_.getEndTransform());
+			model->getGroup("eye_R")->setTform(&head_tilt_.getEndTransform());
+
+
+
+			model->offsetVerts();
+			model->setRootTransform(&getPosition());
+		}
+		setModel(&body_b_);
+		dyn_model_ = &body_b_;
 		setTexture(new Texture("human_tex.jpg", Texture::debug_path));
 
 		edit_animation_mode_ = false;
@@ -540,6 +569,12 @@ public:
 	const DynamicModel* getDynamicModel() const {
 		return dyn_model_;
 	}
+
+	void setBodyType(BodyType body_type) {
+		dyn_model_ = body_models_.at(body_type);
+		setModel(dyn_model_);
+	}
+
 	void updateDynamicModel() {
 		dyn_model_->updateData();
 	}
