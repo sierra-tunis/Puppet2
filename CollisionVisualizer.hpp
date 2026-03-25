@@ -87,7 +87,7 @@ class CollisionVisualizer : public Graphics<CollisionPair<MeshSurface,MeshSurfac
 		return Cache{VAO[0], primary_model.flen(),VAO[1],secondary_model.flen(),VBO[1]};
 	};
 
-	void drawObj(const CollisionPair<MeshSurface, MeshSurface>& obj, Cache cache) const {
+	void drawObj(const CollisionPair<MeshSurface, MeshSurface>& obj, const Cache&  cache) const override {
 		Eigen::Vector3f primary_model_color = Eigen::Vector3f(0.0, 1.0, 0.0);
 		Eigen::Vector3f primary_model_collision_color = Eigen::Vector3f(1.0, 0.0, 0.0);
 		Eigen::Vector3f secondary_model_color = Eigen::Vector3f(0.0, 1.0, 1.0);
@@ -153,7 +153,7 @@ class CollisionVisualizer : public Graphics<CollisionPair<MeshSurface,MeshSurfac
 		glEnable(GL_DEPTH_TEST);
 	}
 	
-	virtual void deleteDataCache(Cache cache) const override {
+	virtual void deleteDataCache(Cache& cache) const override {
 		//...
 	}
 

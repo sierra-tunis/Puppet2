@@ -27,7 +27,18 @@
 // a primitive with easy to compute collisions and get precise contact positioning. zmap can also be used for true out of bounds
 // information that supercedes mesh collisions
 
-class ZMapper : public Graphics<GameObject, int, size_t, uint8_t> { //note zmap is really the y direction in opengl, however Z usually represents the height dimension
+struct ZmapperCache {
+	unsigned int VAO;
+	unsigned int VBO[2];
+	unsigned int EBO;
+	size_t n_elems;
+	uint8_t room_id;
+
+	ZmapperCache(unsigned int VAO, unsigned int VBO[2], unsigned int EBO, size_t n_elems, uint8_t room_id) :
+		VAO(VAO), VBO{ VBO[0],VBO[1] }, EBO(EBO), n_elems(n_elems), room_id(room_id) {}
+};
+
+class ZMapper : public Graphics<GameObject, ZmapperCache> { //note zmap is really the y direction in opengl, however Z usually represents the height dimension
 private:
 	//const float step_height_; //data above step height will be clipped leaving only the background (cannot move onto background)
 								//in most cases this is "step height" i.e. the maximum height a player can step over small discontinuities
@@ -50,16 +61,24 @@ private:
 
 	unsigned int FBO_;
 
-	constexpr int& getVAO(Cache cache) const {
-		return std::get<0>(cache);
+	const unsigned int& getVAO(const Cache& cache) const {
+		return std::get<0>(cache).VAO;
 	}
 
-	constexpr size_t& getNElems(Cache cache) const {
-		return std::get<1>(cache);
+	const unsigned int* getVBO(const Cache& cache) const {
+		return std::get<0>(cache).VBO;
 	}
 
-	constexpr uint8_t& getRoomID(Cache cache) const {
-		return std::get<2>(cache);
+	const unsigned int& getEBO(const Cache& cache) const {
+		return std::get<0>(cache).EBO;
+	}
+
+	const size_t& getNElems(const Cache& cache) const {
+		return std::get<0>(cache).n_elems;
+	}
+
+	const uint8_t& getRoomID(const Cache& cache) const {
+		return std::get<0>(cache).room_id;
 	}
 
 	/*
@@ -111,10 +130,10 @@ private:
 		glBindVertexArray(0);
 
 		//return std::tuple<int, size_t, float, float>{VAO, model.flen(), model.getBoundingBox()[0], model.getBoundingBox()[2]};
-		return Cache{VAO, model.flen(), last_room_id_++,};
+		return Cache{ZmapperCache(VAO,VBO,EBO, model.flen(), last_room_id_++)};
 	}
 
-	virtual void deleteDataCache(Cache cache) const override {
+	virtual void deleteDataCache(Cache& cache) const override {
 
 	}
 
@@ -123,7 +142,7 @@ private:
 		last_room_id_ = 1;
 	}
 
-	void drawObj(const GameObject& obj, Cache cache) const override {
+	void drawObj(const GameObject& obj, const Cache& cache) const override {
 		glBindVertexArray(getVAO(cache));
 		glUniform1f(room_id_location_, static_cast<float>(getRoomID(cache))/256.);
 		glUniformMatrix4fv(position_location_, 1, GL_FALSE,obj.getPosition().data());
@@ -164,7 +183,7 @@ private:
 
 public:
 
-	ZMapper() :camera_(Camera("zmapper camera")),
+	ZMapper() :camera_("zmapper camera"),
 		camera_location_(glGetUniformLocation(gl_id, "camera")),
 		ZClip_location_(glGetUniformLocation(gl_id, "ZClip")),
 		room_id_location_(glGetUniformLocation(gl_id,"room_id")),

@@ -87,14 +87,14 @@ private:
 		return Cache{ VAO, VBO[1], n_edges,vert_colors };
 	}
 
-	virtual void deleteDataCache(Cache cache) const override {
+	virtual void deleteDataCache(Cache& cache) const override {
 		glDeleteVertexArrays(1, &getVAO(cache));
 		delete getVertColors(cache);
 	}
 
 public:
 
-	void drawObj(const DebugCamera& obj, Cache cache) const override {
+	void drawObj(const DebugCamera& obj, const Cache& cache) const override {
 		glBindVertexArray(getVAO(cache));
 
 		glUniformMatrix4fv(model_location_, 1, GL_FALSE, obj.getPosition().data());

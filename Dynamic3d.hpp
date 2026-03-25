@@ -17,14 +17,20 @@ using Eigen::Matrix4f;
 
 struct Dynamic3dStaticSubcache {
 	unsigned int static_VAO;
-	unsigned int* static_VBO;
+	unsigned int static_VBO[3];
 	unsigned int flen;
 	const Eigen::Matrix4f* root_tform;
+
+	Dynamic3dStaticSubcache(unsigned int static_VAO, unsigned int* static_VBO, unsigned int flen,const Eigen::Matrix4f* root_tform):
+		static_VAO(static_VAO), static_VBO{static_VBO[0],static_VBO[1],static_VBO[2]},flen(flen),root_tform(root_tform) {
+
+	}
+
 };
 
 struct Dynamic3dCache {
 	unsigned int VAO;
-	unsigned int* VBO;
+	unsigned int VBO[3];
 	unsigned int tex_id;
 	size_t n_elems;
 	unsigned int pos_vbo;
@@ -34,10 +40,10 @@ struct Dynamic3dCache {
 
 	Eigen::Vector4f overlay_color;
 
-	Dynamic3dCache() : VAO(-1),VBO(nullptr), tex_id(-1), n_elems(0), pos_vbo(0),norm_vbo(0), overlay_color(0, 0, 0, 0) {
+	Dynamic3dCache() : VAO(-1), VBO{ 0,0,0 }, tex_id(-1), n_elems(0), pos_vbo(0), norm_vbo(0), overlay_color(0, 0, 0, 0) {
 	};
 	Dynamic3dCache(unsigned int VAO, unsigned int* VBO, unsigned int tex_id, size_t n_elems,unsigned int pos_vbo,unsigned int norm_vbo, std::vector<std::tuple<Dynamic3dStaticSubcache>> static_VAOs)
-		: VAO(VAO), VBO(VBO),tex_id(tex_id), n_elems(n_elems),
+		: VAO(VAO), VBO{VBO[0],VBO[1],VBO[2]}, tex_id(tex_id), n_elems(n_elems),
 			pos_vbo(pos_vbo), norm_vbo(norm_vbo),static_VAOs(static_VAOs),
 			overlay_color(0.0f, 0.0f, 0.0f, 0.0f) {
 	};
@@ -53,28 +59,28 @@ private:
 	static constexpr int max_lights = 3;
 
 
-	unsigned int& getVAO(Cache cache) const {
+	const unsigned int& getVAO(const Cache& cache) const {
 		return std::get<0>(cache).VAO;
 	}
 
-	unsigned int* getVBO(Cache cache) const {
+	const unsigned int* getVBO(const Cache& cache) const {
 		return std::get<0>(cache).VBO;
 	}
-	unsigned int& getTexID(Cache cache) const {
+	const unsigned int& getTexID(const Cache& cache) const {
 		return std::get<0>(cache).tex_id;
 	}
-	size_t& getNElems(Cache cache) const {
+	const size_t& getNElems(const Cache& cache) const {
 		return std::get<0>(cache).n_elems;
 	}
-	unsigned int& getPosVBO(Cache cache) const {
+	const unsigned int& getPosVBO(const Cache& cache) const {
 		return std::get<0>(cache).pos_vbo;
 	}
 
-	unsigned int& getNormVBO(Cache cache) const {
+	const unsigned int& getNormVBO(const Cache& cache) const {
 		return std::get<0>(cache).norm_vbo;
 	}
 
-	const std::vector<std::tuple<Dynamic3dStaticSubcache>>& getStaticVAOs(Cache& cache) const {
+	const std::vector<std::tuple<Dynamic3dStaticSubcache>>& getStaticVAOs(const Cache& cache) const {
 		return std::get<0>(cache).static_VAOs;
 	}
 
@@ -189,7 +195,7 @@ private:
 		return Cache{ Dynamic3dCache(VAO,VBO,tex_id, model.flen(), VBO[0], VBO[1],static_VAOs) };
 	}
 
-	virtual void deleteDataCache(Cache cache) const override {
+	virtual void deleteDataCache(Cache& cache) const override {
 		glDeleteVertexArrays(1, &getVAO(cache));
 		glDeleteBuffers(3, getVBO(cache));
 		glDeleteTextures(1, &getTexID(cache));
@@ -201,7 +207,7 @@ private:
 
 public:
 
-	void drawObj(const GameObject& obj, Cache cache) const override {
+	void drawObj(const GameObject& obj, const Cache& cache) const override {
 		if (!obj.isHidden()) {
 			glUniformMatrix4fv(model_location_, 1, GL_FALSE, obj.getPosition().data());
 			glUniform4fv(glGetUniformLocation(gl_id, "overlay_color"), 1, std::get<0>(cache).overlay_color.data());

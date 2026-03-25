@@ -20,10 +20,9 @@ public:
 	};
 
 	virtual void refresh(const Object& obj) {
-		//MEMORY LEAK
-		unload(obj);
+		remove(obj);
 		add(obj);
-	}
+	};
 
 	virtual void add(const Object& obj) = 0;
 

@@ -8,17 +8,17 @@
 
 struct Default2dCache {
 	unsigned int VAO;
-	unsigned int* VBO;
+	unsigned int VBO[2];
 	unsigned int tex_id;
 
 	Default2dCache() :
 		VAO(0),
-		VBO(nullptr),
+		VBO{0,0},
 		tex_id(0) {}
 
 	Default2dCache(unsigned int VAO, unsigned int* VBO, unsigned int tex_id) :
 		VAO(VAO),
-		VBO(VBO),
+		VBO{VBO[0],VBO[1]},
 		tex_id(tex_id) {}
 
 };
@@ -27,15 +27,15 @@ class Default2d : public Graphics<GameObject, Default2dCache> {
 											//vao, tex_id
 	const unsigned int position_location_;
 
-	unsigned int& getVAO(Cache cache) const {
+	const unsigned int& getVAO(const Cache& cache) const {
 		return std::get<0>(cache).VAO;
 	}
 
-	unsigned int* getVBOPointer(Cache cache) const {
+	const unsigned int* getVBOPointer(const Cache& cache) const {
 		return std::get<0>(cache).VBO;
 	}
 
-	unsigned int& getTexID(Cache cache) const {
+	const unsigned int& getTexID(const Cache& cache) const {
 		return std::get<0>(cache).tex_id;
 	}
 
@@ -93,7 +93,7 @@ class Default2d : public Graphics<GameObject, Default2dCache> {
 		return Cache{Default2dCache(VAO, VBO, tex_id)};
 	}
 
-	void deleteDataCache(Cache cache) const override {
+	void deleteDataCache(Cache& cache) const override {
 		glDeleteVertexArrays(1, &getVAO(cache));
 		glDeleteBuffers(2, getVBOPointer(cache));
 		glDeleteTextures(1, &getTexID(cache));
@@ -109,7 +109,7 @@ public:
 		//default3d specific code
 	}
 
-	void drawObj(const GameObject& obj, Cache cache) const override {
+	void drawObj(const GameObject& obj, const Cache& cache) const override {
 		glBindTexture(GL_TEXTURE_2D, getTexID(cache));
 
 		glUniformMatrix4fv(position_location_, 1, GL_FALSE, obj.getPosition().data());

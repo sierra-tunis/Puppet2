@@ -86,7 +86,23 @@ public:
 
 };
 
-class TextGraphics : public Graphics<Textbox, unsigned int, unsigned int, unsigned int, size_t> {
+struct TextGraphicsCache {
+	unsigned int keyboard_VAO;
+	unsigned int ps_VAO;
+	unsigned int VBO[4];
+	unsigned int EBO[2];
+	constexpr static size_t VBO_size = 4;
+	constexpr static size_t EBO_size = 2;
+	unsigned int tex_id;
+	size_t n_elems;
+
+	TextGraphicsCache(unsigned int keyboard_VAO, unsigned int ps_VAO, unsigned int* VBO, unsigned int* EBO, unsigned int tex_id, size_t n_elems):
+		keyboard_VAO(keyboard_VAO), ps_VAO(ps_VAO), VBO{ VBO[0],VBO[1],VBO[2],VBO[3] }, EBO{ EBO[0],EBO[1] },tex_id(tex_id),n_elems(n_elems) {
+
+	}
+};
+
+class TextGraphics : public Graphics<Textbox, TextGraphicsCache> {
 								//textbox, VAO, tex_id, n_elems
 	std::unordered_map<std::string, const Font*> named_fonts_;
 	Font& default_font_;
@@ -164,33 +180,41 @@ class TextGraphics : public Graphics<Textbox, unsigned int, unsigned int, unsign
 		int n_elems = PS_model.flen();
 		delete &keyboard_model;
 		delete &PS_model;
-		return Cache{ VAO[0],VAO[1], glyph_tex_id,  n_elems};
+		return Cache{ TextGraphicsCache(VAO[0],VAO[1],VBO,EBO, glyph_tex_id,  n_elems)};
 	};
 
-	void deleteDataCache(Cache cache) const override {
+	void deleteDataCache(Cache& cache) const override {
 			glDeleteVertexArrays(1, &getKeyboardVAO(cache));
 			glDeleteVertexArrays(1, &getPSVAO(cache));
+			glDeleteBuffers(TextGraphicsCache::VBO_size, getVBO(cache));
+			glDeleteBuffers(TextGraphicsCache::EBO_size, getEBO(cache));
 
 	};
 
 
-	constexpr unsigned int& getKeyboardVAO(Cache cache) const {
-		return std::get<0>(cache);
+	const unsigned int& getKeyboardVAO(const Cache& cache) const {
+		return std::get<0>(cache).keyboard_VAO;
 	}
 
-	constexpr unsigned int& getPSVAO(Cache cache) const {
-		return std::get<1>(cache);
+	const unsigned int& getPSVAO(const Cache& cache) const {
+		return std::get<0>(cache).ps_VAO;
+	}
+	const unsigned int* getVBO(const Cache& cache) const {
+		return std::get<0>(cache).VBO;
+	}
+	const unsigned int* getEBO(const Cache& cache) const {
+		return std::get<0>(cache).EBO;
 	}
 
-	constexpr unsigned int& getTexID(Cache cache) const {
-		return std::get<2>(cache);
+	const unsigned int& getTexID(const Cache& cache) const {
+		return std::get<0>(cache).tex_id;
 	}
 
-	constexpr size_t& getNElems(Cache cache) const {
-		return std::get<3>(cache);
+	const size_t& getNElems(const Cache& cache) const {
+		return std::get<0>(cache).n_elems;
 	}
 
-	void drawObj(const Textbox& obj, Cache cache) const override {
+	void drawObj(const Textbox& obj, const Cache& cache) const override {
 		glBindTexture(GL_TEXTURE_2D, getTexID(cache));
 		if (InternalObject::isControllerConnected()) {
 			glBindVertexArray(getPSVAO(cache));

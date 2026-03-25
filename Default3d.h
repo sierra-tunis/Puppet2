@@ -15,14 +15,14 @@ using Eigen::Matrix4f;
 
 struct Default3dCache {
 	unsigned int VAO;
-	unsigned int* VBO;
+	unsigned int VBO[3];
 	unsigned int tex_id;
 	size_t n_elems;
 	Eigen::Vector4f overlay_color;
 
-	Default3dCache() : VAO(-1), VBO(nullptr), tex_id(-1), n_elems(0), overlay_color(0, 0, 0, 0) {
+	Default3dCache() : VAO(-1), VBO{0,0,0}, tex_id(-1), n_elems(0), overlay_color(0, 0, 0, 0) {
 	};
-	Default3dCache(unsigned int VAO, unsigned int* VBO, unsigned int tex_id, size_t n_elems) : VAO(VAO),VBO(VBO),tex_id(tex_id), n_elems(n_elems),overlay_color(0.0f,0.0f,0.0f,0.0f){
+	Default3dCache(unsigned int VAO, unsigned int* VBO, unsigned int tex_id, size_t n_elems) : VAO(VAO), VBO{ VBO[0],VBO[1],VBO[2] }, tex_id(tex_id), n_elems(n_elems), overlay_color(0.0f, 0.0f, 0.0f, 0.0f){
 	};
 
 
@@ -42,18 +42,18 @@ private:
 
 	static constexpr int max_lights = 6;
 
-	unsigned int& getVAO(Cache cache) const {
+	const unsigned int& getVAO(const Cache& cache) const {
 		return std::get<0>(cache).VAO;
 	}
 
-	unsigned int* getVBO(Cache cache) const {
+	const unsigned int* getVBO(const Cache& cache) const {
 		return std::get<0>(cache).VBO;
 	}
 
-	unsigned int& getTexID(Cache cache) const {
+	const unsigned int& getTexID(const Cache& cache) const {
 		return std::get<0>(cache).tex_id;
 	}
-	size_t& getNElems(Cache cache) const {
+	const size_t& getNElems(const Cache& cache) const {
 		return std::get<0>(cache).n_elems;
 	}
 
@@ -113,7 +113,7 @@ private:
 		return Default3dCache(VAO, &(VBO[0]), tex_id, model.flen());
 	}
 
-	virtual void deleteDataCache(Cache cache) const override {
+	virtual void deleteDataCache(Cache& cache) const override {
 		glDeleteVertexArrays(1, &getVAO(cache));
 		glDeleteBuffers(3, getVBO(cache));
 		glDeleteTextures(1, &getTexID(cache));
@@ -134,7 +134,7 @@ public:
 		scene_->atmosphere_strength = strength;
 	}
 
-	void drawObj(const GameObject& obj, Cache cache) const override {
+	void drawObj(const GameObject& obj, const Cache& cache) const override {
 			glBindTexture(GL_TEXTURE_2D, getTexID(cache));
 			glBindVertexArray(getVAO(cache));
 

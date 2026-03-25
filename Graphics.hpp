@@ -105,7 +105,7 @@ protected:
 		return shaderProgram;
 	}
 	
-	virtual void drawObj(const Object& obj , Cache cache) const = 0;
+	virtual void drawObj(const Object& obj , const Cache& cache) const = 0;
 
 	virtual void beginDraw() const {
 	};
@@ -116,7 +116,7 @@ protected:
 	
 
 	virtual Cache makeDataCache(const Object& obj) const = 0;
-	virtual void deleteDataCache(Cache cache) const = 0;
+	virtual void deleteDataCache(Cache& cache) const = 0;
 
 	const int gl_id;
 	static const char* vertex_code;
@@ -169,7 +169,7 @@ public:
 				//std::cout << "\n" << obj->getName() << " (" << obj->getID() << "): " << (obj->getPosition()(seq(0, 2), 3) - scene_->camera->getPosition()(seq(0, 2), 3)).norm();
 			}
 			if (!(obj->isHidden())) {
-				drawObj(*obj, cached_data_[obj->getID()]);
+				drawObj(*obj, cached_data_.at(obj->getID()));
 			}
 		}
 		endDraw();
@@ -182,7 +182,7 @@ public:
 		beginDraw();
 		for (const auto& obj : draw_targets_) {
 			if (!((obj.second)->isHidden())) {
-				this->drawObj(*(obj.second), cached_data_[obj.first]);
+				this->drawObj(*(obj.second), cached_data_.at(obj.first));
 			}
 		}
 		endDraw();
@@ -207,13 +207,13 @@ public:
 
 	void unload(const Object& obj) override {
 		draw_targets_.erase(obj.getID());
-		deleteDataCache(cached_data_[obj.getID()]);
+		deleteDataCache(cached_data_.at(obj.getID()));
 		cached_data_.erase(obj.getID());
 	}
-
+	 
 	void refresh(const Object& obj) override {
-		deleteDataCache(cached_data_[obj.getID()]);
-		cached_data_[obj.getID()] = this->makeDataCache(obj);
+		deleteDataCache(cached_data_.at(obj.getID()));
+		cached_data_.at(obj.getID()) = this->makeDataCache(obj);
 
 	}
 
