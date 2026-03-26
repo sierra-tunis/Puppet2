@@ -731,8 +731,8 @@ public:
 		text_graphics_ = &text_graphics;
 
 		graphics_2d.add(*this);
-		graphics_2d.add(prev_target_);
-		graphics_2d.add(next_target_);
+		//graphics_2d.add(prev_target_);
+		//graphics_2d.add(next_target_);
 		text_graphics.add(target_name_);
 
 		prev_target_.activateMouseInput(window);
@@ -745,8 +745,8 @@ public:
 
 	void unload(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {
 		graphics_2d.unload(*this);
-		graphics_2d.unload(prev_target_);
-		graphics_2d.unload(next_target_);
+		//graphics_2d.unload(prev_target_);
+		//graphics_2d.unload(next_target_);
 		text_graphics.unload(target_name_);
 
 		prev_target_.deactivateMouseInput(window);
@@ -855,7 +855,8 @@ public:
 		tabs_.back()->clampToParent();
 		tabs_.back()->setLabel(pane_label);
 		total_tab_width_ += tab_width;
-		activatePane(tabs_.size()-1);
+		//activatePane(tabs_.size()-1);
+		panes_.back()->hide();
 		new_pane->clampToParent();
 	}
 	void addPaneLabelTranslation(int pane_index, Textbox::Language language, std::string translation) {
@@ -868,7 +869,7 @@ public:
 
 	void load(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {
 		for (auto& tab : tabs_) {
-			graphics_2d.add(*tab);
+			//graphics_2d.add(*tab);
 			tab->load(window, graphics_2d, text_graphics);
 		}
 		activatePane(0);
@@ -876,7 +877,7 @@ public:
 
 	void unload(GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) {
 		for (auto& tab : tabs_) {
-			graphics_2d.unload(*tab);
+			//graphics_2d.unload(*tab);
 			tab->unload(window, graphics_2d, text_graphics);
 		}
 	}
