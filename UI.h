@@ -655,6 +655,9 @@ class UIIterator : public GameObject{
 					this_->target_name_.text = this_->getTarget()->getName();
 				}
 			}
+			else if constexpr (std::is_base_of<AnimationBase, obj_T>::value) {
+				this_->target_name_.text = this_->getTarget()->getName();
+			}
 		}
 		this_->text_graphics_->refresh(this_->target_name_);
 
@@ -682,6 +685,8 @@ class UIIterator : public GameObject{
 				if (this_->getTarget() != nullptr) {
 					this_->target_name_.text = this_->getTarget()->getName();
 				}
+			} else if constexpr (std::is_base_of<AnimationBase, obj_T>::value) {
+				this_->target_name_.text = this_->getTarget()->getName();
 			}
 		}
 		this_->text_graphics_->refresh(this_->target_name_);

@@ -21,6 +21,7 @@ class Humanoid : public GameObject {
 protected:
 	//origin is at navel
 	CartesianJoint origin_position_;
+	BallJoint origin_rotation_;
 
 	OffsetConnector origin_;
 	RotationJoint waist_rotation_;
@@ -73,7 +74,7 @@ protected:
 		OffsetConnector, BallJoint, OffsetConnector, RotationJoint> humanoid_chain_;*/
 
 public:
-	static constexpr int n_dofs = CartesianJoint::getDoF() + 2*RotationJoint::getDoF() + 2*BallJoint::getDoF() + 4 * LimbConnector::getDoF();
+	static constexpr int n_dofs = CartesianJoint::getDoF() + BallJoint::getDoF() + 2 * RotationJoint::getDoF() + 2 * BallJoint::getDoF() + 4 * LimbConnector::getDoF();
 	static constexpr int upper_dofs_ = 2 * LimbConnector::getDoF() + 2 * BallJoint::getDoF() + RotationJoint::getDoF();
 	static constexpr int lower_dofs_ = 2 * LimbConnector::getDoF() + RotationJoint::getDoF();
 
@@ -247,6 +248,7 @@ public:
 	Humanoid(std::string name, const KeyStateCallback_base& key_state_callback_caller=InternalObject::no_key_state_callback, const ControllerStateCallback_base& controller_state_callback_caller=InternalObject::no_controller_state_callback) :
 		GameObject(name,key_state_callback_caller,controller_state_callback_caller),
 		origin_(0, .15, 0),
+		origin_rotation_(BallJoint::XZX),
 		chest_rotation_(BallJoint::YXY),
 		waist_rotation_(Eigen::Vector3f(0, 1, 0)),
 		shoulder_offset_L_(Eigen::Vector3f(- .1607, .5952, 0), Eigen::Vector3f(0, .15, 0)),
@@ -304,8 +306,9 @@ public:
 		head_chain_.setRootTransform(&chest_rotation_.getEndTransform());
 		chest_rotation_.setRootTransform(&origin_.getEndTransform());
 		waist_rotation_.setRootTransform(&origin_.getEndTransform());
-		origin_.setRootTransform(&origin_position_.getEndTransform());
+		origin_.setRootTransform(&origin_rotation_.getEndTransform());
 		origin_position_.setRootTransform(&getPosition());
+		origin_rotation_.setRootTransform(&origin_position_.getEndTransform());
 		//origin_position_.setRootTransform(nullptr);
 
 		refresh();
@@ -445,20 +448,20 @@ public:
 	void openDebugUI(const std::unordered_set<AnimationBase*>& animations,GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics)  {
 		GameObject::openDebugUI(UI_container, window, graphics_2d, text_graphics);
 
-		slider_panes_.addPane(&position_pane_, "Pos", .14);
-		slider_panes_.addPane(&torso_pane_, "Torso", .14);
-		slider_panes_.addPane(&arm_L_pane_, "Arm L", .14);
-		slider_panes_.addPane(&arm_R_pane_, "Arm R", .14);
-		slider_panes_.addPane(&leg_L_pane_, "Leg L", .14);
-		slider_panes_.addPane(&leg_R_pane_, "Leg R", .14);
-		slider_panes_.addPane(&head_pane_, "Head", .2);
+		slider_panes_.addPane(&torso_pane_, "Torso", .12);
+		slider_panes_.addPane(&arm_L_pane_, "Arm L", .12);
+		slider_panes_.addPane(&arm_R_pane_, "Arm R", .12);
+		slider_panes_.addPane(&leg_L_pane_, "Leg L", .12);
+		slider_panes_.addPane(&leg_R_pane_, "Leg R", .12);
+		slider_panes_.addPane(&head_pane_, "Head", .12);
+		slider_panes_.addPane(&position_pane_, "Pos", .12);
 		slider_panes_.moveTo(-.5, -.5, 0);
 		UI_container->addDependent(&slider_panes_);
 		slider_panes_.load(window, graphics_2d, text_graphics);
 		slider_panes_.clampTo(UI_container);
 
-		std::array<int,7> dof_map = { 4,7,7,7,7,4,3 };
-		std::array<Pane*,7> panes_map = { &position_pane_,&torso_pane_,&arm_L_pane_,&arm_R_pane_,&leg_L_pane_,&leg_R_pane_,&head_pane_ };
+		std::array<int,7> dof_map = { 4,7,7,7,7,4,6 };
+		std::array<Pane*,7> panes_map = { &torso_pane_,&arm_L_pane_,&arm_R_pane_,&leg_L_pane_,&leg_R_pane_,&head_pane_,&position_pane_ };
 
 
 		int dof = 0;
@@ -468,7 +471,14 @@ public:
 			current_pane = panes_map[tab];
 			dofs_in_tab = dof_map[tab];
 			for (int i = 0; i < dofs_in_tab; i++) {
-				debug_sliders_[dof] = new Slider(.6/dofs_in_tab, .5, -M_PI, M_PI);
+				float limit;
+				if (panes_map[tab] == &position_pane_) {
+					if (i < 3) limit = 3.0;//translation
+					else limit = 3 * M_PI; // add extra rotation
+				} else {
+					limit = M_PI;
+				}
+				debug_sliders_[dof] = new Slider(.6/dofs_in_tab, .5, -1*limit, limit);
 				current_pane->addDependent(debug_sliders_[dof]);
 				debug_sliders_[dof]->load(window, graphics_2d, text_graphics);
 				debug_sliders_[dof]->moveTo(-.5, -.8*static_cast<float>(i) / (dofs_in_tab) - .2, 0);
@@ -625,6 +635,7 @@ public:
 		leg_R_.setState(new_state(seq(25, 31)));
 		head_chain_.setState(new_state(seq(32, 35)));
 		origin_position_.setState(new_state(seq(36, 38)));
+		origin_rotation_.setState(new_state(seq(39, 41)));
 	}
 
 	Eigen::Vector<float, n_dofs> getState() const {
@@ -637,6 +648,7 @@ public:
 		ret(seq(25, 31)) = leg_R_.getState();
 		ret(seq(32, 35)) = head_chain_.getState();
 		ret(seq(36, 38)) = origin_position_.getState();
+		ret(seq(39, 41)) = origin_rotation_.getState();
 		return ret;
 	}
 
