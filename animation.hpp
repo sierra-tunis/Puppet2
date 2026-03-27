@@ -64,6 +64,9 @@ public:
 	float getElapsed() const {
 		return elapsed_time_;
 	}
+	void setElapsed(float new_time_) {
+		elapsed_time_ = new_time_;
+	}
 
 	std::string getName() const {
 		return fname_;

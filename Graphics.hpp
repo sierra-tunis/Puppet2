@@ -202,19 +202,26 @@ public:
 
 
 	void remove(const Object& obj) override {
-		draw_targets_.erase(obj.getID());
+		if (draw_targets_.contains(obj.getID())) {
+			draw_targets_.erase(obj.getID());
+		}
 	}
 
 	void unload(const Object& obj) override {
-		draw_targets_.erase(obj.getID());
-		deleteDataCache(cached_data_.at(obj.getID()));
-		cached_data_.erase(obj.getID());
+		if (draw_targets_.contains(obj.getID())) {
+			draw_targets_.erase(obj.getID());
+			if (cached_data_.contains(obj.getID())) {
+				deleteDataCache(cached_data_.at(obj.getID()));
+				cached_data_.erase(obj.getID());
+			}
+		}
 	}
 	 
 	void refresh(const Object& obj) override {
-		deleteDataCache(cached_data_.at(obj.getID()));
+		if (cached_data_.contains(obj.getID())) {
+			deleteDataCache(cached_data_.at(obj.getID()));
+		}
 		cached_data_.at(obj.getID()) = this->makeDataCache(obj);
-
 	}
 
 	void empty() override {
