@@ -100,6 +100,7 @@ public:
 		B_no_legs,
 		B_head_and_torso
 	};
+
 private:
 	std::unordered_map<BodyType, DynamicModel*> body_models_;
 	DynamicModel body_a_;
@@ -539,8 +540,8 @@ public:
 		//edit_animation_mode_ = true;
 	}
 	void closeDebugUI(GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) override {
-		std::array<int, 7> dof_map = { 4,7,7,7,7,4,3 };
-		std::array<Pane*, 7> panes_map = {&position_pane_ , &torso_pane_,&arm_L_pane_,&arm_R_pane_,&leg_L_pane_,&leg_R_pane_,&head_pane_};
+		std::array<int, 7> dof_map = { 4,7,7,7,7,4,6 };
+		std::array<Pane*, 7> panes_map = { &torso_pane_,&arm_L_pane_,&arm_R_pane_,&leg_L_pane_,&leg_R_pane_,&head_pane_,&position_pane_ };
 
 		int dof = 0;
 		for (int tab = 0; tab < dof_map.size(); tab++) {
@@ -605,6 +606,9 @@ public:
 	}
 
 
+	const Eigen::Matrix4f& getOriginTform() const {
+		return origin_rotation_.getEndTransform();
+	}
 	const Eigen::Matrix4f& getLeftHandTform() const {
 		return wrist_L_.getEndTransform();
 	}
