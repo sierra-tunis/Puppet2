@@ -228,6 +228,10 @@ public:
 	inline virtual void onControllerButtonUp(int button) {}; //triggers repeatedly, probably not useful
 
 
+	static bool isKeyDown(int key,GLFWwindow* window) {
+		return glfwGetKey(window, key) == GLFW_PRESS;
+	}
+
 
 	constexpr static char no_name[] = "";
 	const static KeyStateCallback_base no_key_state_callback;
