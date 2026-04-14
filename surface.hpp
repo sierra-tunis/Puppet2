@@ -171,7 +171,16 @@ public:
 	void addFace(int first_ind, int second_ind, int third_ind) {
 		faces_.emplace_back(first_ind, second_ind, third_ind);
 	}
-
+	
+	void rescale(float scale_factor) {
+		for (int i = 0; i < verts_.size(); i++) {
+			verts_[i] *= scale_factor;
+		}
+		box_center_ *= scale_factor;
+		bounding_box_ *= scale_factor;
+		bounding_box_radius_ *= scale_factor;
+		box_center_dist_ += scale_factor;
+	}
 	void centerVerts() {
 		for (int i = 0; i < verts_.size(); i ++) {
 			for (int j = 0; j < 3; j++) {

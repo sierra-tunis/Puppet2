@@ -98,7 +98,8 @@ public:
 		A_head_and_torso,
 		B,
 		B_no_legs,
-		B_head_and_torso
+		B_head_and_torso,
+		custom
 	};
 
 private:
@@ -362,6 +363,115 @@ public:
 		setTexture(new Texture("human_tex.jpg", Texture::debug_path));
 
 		edit_animation_mode_ = false;
+	}
+
+
+	Humanoid(std::string name, float scale, DynamicModel* model, const KeyStateCallback_base& key_state_callback_caller = InternalObject::no_key_state_callback, const ControllerStateCallback_base& controller_state_callback_caller = InternalObject::no_controller_state_callback) :
+		GameObject(name, key_state_callback_caller, controller_state_callback_caller),
+		origin_(0, .15, 0),
+		origin_rotation_(BallJoint::XZX),
+		chest_rotation_(BallJoint::YXY),
+		waist_rotation_(Eigen::Vector3f(0, 1, 0)),
+		shoulder_offset_L_(Eigen::Vector3f(-.1607 * scale, .5952 * scale, 0), Eigen::Vector3f(0, .15 * scale, 0)),
+		shoulder_L_(BallJoint::XZX),
+		elbow_offset_L_(Eigen::Vector3f(-.48123 * scale, .5879 * scale, 0), Eigen::Vector3f(-.1607 * scale, .5952 * scale, 0)),
+		elbow_L_(Eigen::Vector3f(0, 1, 0)),
+		wrist_offset_L_(Eigen::Vector3f(-.77558 * scale, .60311 * scale, 0), Eigen::Vector3f(-.48123 * scale, .5879 * scale, 0)),
+		wrist_L_(BallJoint::ZYX),
+		shoulder_offset_R_(Eigen::Vector3f(.1607 * scale, .5952 * scale, 0), Eigen::Vector3f(0, .15 * scale, 0)),
+		shoulder_R_(BallJoint::XZX),
+		elbow_offset_R_(Eigen::Vector3f(.48123 * scale, .5879 * scale, 0), Eigen::Vector3f(.1607 * scale, .5952 * scale, 0)),
+		elbow_R_(Eigen::Vector3f(0, 1, 0)),
+		wrist_offset_R_(Eigen::Vector3f(.77558 * scale, .60311 * scale, 0), Eigen::Vector3f(.48123 * scale, .5879 * scale, 0)),
+		wrist_R_(BallJoint::ZYX),
+		hip_offset_L_(Eigen::Vector3f(-.0904 * scale, .1037 * scale, 0), Eigen::Vector3f(0, .15 * scale, 0)),
+		hip_L_(BallJoint::YXY),
+		knee_offset_L_(Eigen::Vector3f(-.0862 * scale, -.4319 * scale, 0), Eigen::Vector3f(-.0904 * scale, .1037 * scale, 0)),
+		knee_L_(Eigen::Vector3f(1, 0, 0)),
+		ankle_offset_L_(Eigen::Vector3f(-.0596 * scale, -.9047 * scale, 0), Eigen::Vector3f(-.0862 * scale, -.4319 * scale, 0)),
+		ankle_L_(BallJoint::ZXY),
+		hip_offset_R_(Eigen::Vector3f(.0904 * scale, .1037 * scale, 0), Eigen::Vector3f(0, .15 * scale, 0)),
+		hip_R_(BallJoint::YXY),
+		knee_offset_R_(Eigen::Vector3f(.0862 * scale, -.4319 * scale, 0), Eigen::Vector3f(.0904 * scale, .1037 * scale, 0)),
+		knee_R_(Eigen::Vector3f(1, 0, 0)),
+		ankle_offset_R_(Eigen::Vector3f(.0596 * scale, -.9047 * scale, 0), Eigen::Vector3f(.0862 * scale, -.4319 * scale, 0)),
+		ankle_R_(BallJoint::ZXY),
+		neck_offset_(Eigen::Vector3f(0, .6866 * scale, 0), Eigen::Vector3f(0, .15 * scale, 0)),
+		neck_(BallJoint::YXY),
+		head_offset_(Eigen::Vector3f(0, .8766 * scale, 0), Eigen::Vector3f(0, .6866 * scale, 0)),
+		head_tilt_(Eigen::Vector3f(1., 0, 0)),
+
+		arm_L_(shoulder_offset_L_, shoulder_L_, elbow_offset_L_, elbow_L_, wrist_offset_L_, wrist_L_),
+		arm_R_(shoulder_offset_R_, shoulder_R_, elbow_offset_R_, elbow_R_, wrist_offset_R_, wrist_R_),
+		leg_L_(hip_offset_L_, hip_L_, knee_offset_L_, knee_L_, ankle_offset_L_, ankle_L_),
+		leg_R_(hip_offset_R_, hip_R_, knee_offset_R_, knee_R_, ankle_offset_R_, ankle_R_),
+		head_chain_(neck_offset_, neck_, head_offset_, head_tilt_),
+		//humanoid_chain_(origin_position_,origin_,waist_rotation_, chest_rotation_, arm_L_,arm_R_,leg_L_,leg_R_,neck_offset_,neck_,head_offset_,head_tilt_),
+		animation_iterator_(.3, .6),
+		slider_panes_(1., 1., 1.),
+		hitbox_("human_static_hitbox.obj", AnimationBase::debug_path),
+		exact_hitbox_("human_B.obj", AnimationBase::debug_path),
+		enlarged_hitbox_("human_combat_hitbox.obj", AnimationBase::debug_path),
+		dyn_model_(model),
+		body_models_{{BodyType::custom,model}}	{
+
+		arm_L_.setRootTransform(&chest_rotation_.getEndTransform());
+		arm_R_.setRootTransform(&chest_rotation_.getEndTransform());
+		leg_L_.setRootTransform(&waist_rotation_.getEndTransform());
+		leg_R_.setRootTransform(&waist_rotation_.getEndTransform());
+		head_chain_.setRootTransform(&chest_rotation_.getEndTransform());
+		chest_rotation_.setRootTransform(&origin_.getEndTransform());
+		waist_rotation_.setRootTransform(&origin_.getEndTransform());
+		origin_.setRootTransform(&origin_rotation_.getEndTransform());
+		origin_position_.setRootTransform(&getPosition());
+		origin_rotation_.setRootTransform(&origin_position_.getEndTransform());
+		//origin_position_.setRootTransform(nullptr);
+
+		refresh();
+
+
+
+		//DynamicModel* model = new DynamicModel("human_B.obj", "human_B.txt");
+		dyn_model_->getGroup("fingers_L")->setTform(&wrist_L_.getEndTransform());
+		dyn_model_->getGroup("fingers_L")->setTform(&wrist_L_.getEndTransform());
+		dyn_model_->getGroup("thumb_L")->setTform(&wrist_L_.getEndTransform());
+		dyn_model_->getGroup("palm_L")->setTform(&wrist_L_.getEndTransform());
+		dyn_model_->getGroup("forearm_L")->setTform(&elbow_L_.getEndTransform());
+		dyn_model_->getGroup("humerus_L")->setTform(&shoulder_L_.getEndTransform());
+		dyn_model_->getGroup("shoulder_L")->setTform(&shoulder_L_.getEndTransform());
+
+		dyn_model_->getGroup("fingers_R")->setTform(&wrist_R_.getEndTransform());
+		dyn_model_->getGroup("thumb_R")->setTform(&wrist_R_.getEndTransform());
+		dyn_model_->getGroup("palm_R")->setTform(&wrist_R_.getEndTransform());
+		dyn_model_->getGroup("forearm_R")->setTform(&elbow_R_.getEndTransform());
+		dyn_model_->getGroup("humerus_R")->setTform(&shoulder_R_.getEndTransform());
+		dyn_model_->getGroup("shoulder_R")->setTform(&shoulder_R_.getEndTransform());
+
+		dyn_model_->getGroup("ribcage")->setTform(&chest_rotation_.getEndTransform());
+		dyn_model_->getGroup("waist")->setTform(&waist_rotation_.getEndTransform());
+
+		dyn_model_->getGroup("hip_L")->setTform(&hip_offset_L_.getEndTransform());
+		dyn_model_->getGroup("thigh_L")->setTform(&hip_L_.getEndTransform());
+		dyn_model_->getGroup("calf_L")->setTform(&knee_L_.getEndTransform());
+		dyn_model_->getGroup("foot_L")->setTform(&ankle_L_.getEndTransform());
+
+		dyn_model_->getGroup("hip_R")->setTform(&hip_offset_R_.getEndTransform());
+		dyn_model_->getGroup("thigh_R")->setTform(&hip_R_.getEndTransform());
+		dyn_model_->getGroup("calf_R")->setTform(&knee_R_.getEndTransform());
+		dyn_model_->getGroup("foot_R")->setTform(&ankle_R_.getEndTransform());
+
+		dyn_model_->getGroup("neck")->setTform(&neck_.getEndTransform());
+		dyn_model_->getGroup("head")->setTform(&head_tilt_.getEndTransform());
+		dyn_model_->getGroup("eye_L")->setTform(&head_tilt_.getEndTransform());
+		dyn_model_->getGroup("eye_R")->setTform(&head_tilt_.getEndTransform());
+
+		dyn_model_->offsetVerts();
+		dyn_model_->setRootTransform(&getPosition());
+		setModel(dyn_model_);
+		setTexture(new Texture("human_tex.jpg", Texture::debug_path));
+
+		edit_animation_mode_ = false;
+
 	}
 	/*
 	Humanoid() :
