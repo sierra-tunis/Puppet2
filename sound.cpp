@@ -237,6 +237,7 @@ bool Sound::play() {
 			//std::cout << std::hex << hr;
 			return false;
 		}
+		buffer.LoopCount = 0;
 		if (FAILED(hr = pSourceVoice->SubmitSourceBuffer(&buffer))) {
 			//std::cout << std::hex << hr;
 			return false;

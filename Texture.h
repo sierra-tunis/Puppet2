@@ -11,6 +11,8 @@ class Texture {
 	bool loaded;
 	int w_tmp,h_tmp,n_ch_tmp;
 
+	float specular_coefficient_;
+	float shininess_;
 
 protected:
 	std::vector<uint8_t> read_img_data(std::string fname);
@@ -36,7 +38,9 @@ public:
 		width(w_tmp),
 		height(h_tmp),
 		n_channels(n_ch_tmp),
-		fname(fname) {
+		fname(fname),
+		specular_coefficient_(0.0f),
+		shininess_(1.0f) {
 	
 	}
 
@@ -45,7 +49,9 @@ public:
 		width(width),
 		height(height),
 		n_channels(n_channels),
-		fname("") {
+		fname(""),
+		specular_coefficient_(0.0f),
+		shininess_(1.0f){
 
 	}
 
@@ -54,6 +60,18 @@ public:
 		return image_data;
 	}
 
+	void setSpecularCoefficient(float k_s) {
+		specular_coefficient_ = k_s;
+	}
+	float getSpecularCoefficient() const {
+		return specular_coefficient_;
+	}
+	void setShininess(float shininess) {
+		shininess_ = shininess;
+	}
+	float getShininess() const {
+		return shininess_;
+	}
 };
 
 #endif

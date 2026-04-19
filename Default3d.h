@@ -139,6 +139,8 @@ public:
 			glBindVertexArray(getVAO(cache));
 
 			glUniform4fv(glGetUniformLocation(gl_id, "overlay_color"), 1, std::get<0>(cache).overlay_color.data());
+			glUniform1f(glGetUniformLocation(gl_id, "specular_coefficient"), obj.getTexture()->getSpecularCoefficient());
+			glUniform1f(glGetUniformLocation(gl_id, "shininess"), obj.getTexture()->getShininess());
 
 			//should remove inverse here
 
@@ -193,6 +195,7 @@ public:
 				break;
 			}
 		}
+
 
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
