@@ -731,6 +731,9 @@ public:
 	void deactivateHitbox() {
 		active_hitbox_ = false;
 	}
+	bool hitboxActive() const {
+		return active_hitbox_;
+	}
 
 	void enablePhysics() {
 		physics_on_ = true;

@@ -149,7 +149,7 @@ public:
 		scene_->camera = camera;
 	}
 
-	void setScene(const Scene* scene) {
+	void setScene(Scene* scene) {
 		scene_ = scene;
 	}
 	/*template<class... data_>
