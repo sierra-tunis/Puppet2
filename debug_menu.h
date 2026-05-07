@@ -52,6 +52,7 @@ class DebugMenu : public GameObject {
 
 	Pane reposition_pane_;
 	Pane custom_obj_pane_;
+	Pane info_pane_;
 
 	TabbedPane edit_pane_;
 
@@ -59,6 +60,28 @@ class DebugMenu : public GameObject {
 	const Camera* game_cam_;
 
 	//Button show_hitboxes_;
+
+	bool cinematic_mode_;
+
+	void toggleCinematicMode() {
+		if (!cinematic_mode_) {
+			target_iterator_.hide();
+			edit_pane_.hide();
+			fps_tbox_.hide();
+			level_iterator_.hide();
+			hitbox_visualizer_.empty();
+			cinematic_mode_ = true;
+		}
+		else {
+			cinematic_mode_ = false;
+			target_iterator_.show();
+			edit_pane_.show();
+			fps_tbox_.show();
+			level_iterator_.show();
+			refreshCollidors();
+		}
+
+	}
 
 	void onKeyPress(int key) override {
 		if (key == GLFW_KEY_F3) {
@@ -71,6 +94,10 @@ class DebugMenu : public GameObject {
 			}
 		} else if (key == GLFW_KEY_LEFT_SHIFT) {
 			reposition_speed_ = 1.0;
+		} else if (key == GLFW_KEY_C) {
+			if (!isHidden()) {
+				toggleCinematicMode();
+			}
 		}
 	}
 	void onKeyRelease(int key) override {
@@ -256,6 +283,10 @@ public:
 		buttons_.push_back(button);
 	}
 
+	bool cinematicMode() const {
+		return cinematic_mode_;
+	}
+
 	DebugMenu(GLFWwindow* window, Default2d& graphics, TextGraphics& text_graphics, GraphicsRaw<CollisionPair<MeshSurface, MeshSurface>>& hitbox_visualizer) : GameObject("debug_menu",key_state_callback_caller_),
 		//test_button_(.1, .2, "test_button"),
 		//test_slider_(.1, .3, 0, 1),
@@ -279,7 +310,8 @@ public:
 		level_iterator_(.3,.6),
 		debug_camera_(.1, 5000, 120, 1600, 800, 1.0,true),
 		edit_pane_(1.,1.,.1),
-		reposition_speed_(10){
+		reposition_speed_(10),
+		cinematic_mode_(false){
 		
 		/*
 		test_button_.activateMouseInput(window);
@@ -357,6 +389,7 @@ public:
 
 		edit_pane_.addPane(&reposition_pane_, "Position", .2);
 		edit_pane_.addPane(&custom_obj_pane_, "Advanced", .2);
+		edit_pane_.addPane(&info_pane_, "Info", .1);
 		edit_pane_.moveTo(.5, -.5, 0);
 		addDependent(&edit_pane_);
 		edit_pane_.load(window, graphics_2d_, text_graphics_);
@@ -365,6 +398,8 @@ public:
 		addDependent(&debug_camera_);
 		//debug_camera_.setConnector(&cam_clamp_);
 		debug_camera_.activateMouseInput(window);
+
+
 
 		/*target_dbg_info_.box_width = 2;
 		target_dbg_info_.top = .95;
