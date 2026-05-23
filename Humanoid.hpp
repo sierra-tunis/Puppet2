@@ -96,9 +96,11 @@ public:
 		A,
 		A_no_legs,
 		A_head_and_torso,
+		A_trunk_hands_feet,
 		B,
 		B_no_legs,
 		B_head_and_torso,
+		B_trunk_hands_feet,
 		custom
 	};
 
@@ -107,9 +109,11 @@ private:
 	DynamicModel body_a_;
 	DynamicModel body_a_no_legs_;
 	DynamicModel body_a_head_and_torso_;
+	DynamicModel body_a_trunk_hands_feet_;
 	DynamicModel body_b_;
 	DynamicModel body_b_no_legs_;
 	DynamicModel body_b_head_and_torso_;
+	DynamicModel body_b_trunk_hands_feet_;
 
 	DynamicModel* dyn_model_;
 	int update_count_;
@@ -296,10 +300,12 @@ public:
 		body_a_("human.obj", "human.txt"),
 		body_a_no_legs_("human_a_no_legs.obj", "human_a_no_legs.txt"),
 		body_a_head_and_torso_("human_a_head_and_torso.obj", "human_a_head_and_torso.txt"),
+		body_a_trunk_hands_feet_("human_a_trunk_hands_feet.obj","human_a_trunk_hands_feet.txt"),
 		body_b_("human_B.obj", "human_B.txt"),
 		body_b_no_legs_("human_b_no_legs.obj", "human_b_no_legs.txt"),
 		body_b_head_and_torso_("human_b_head_and_torso.obj", "human_b_head_and_torso.txt"),
-		body_models_{{ BodyType::A,&body_a_},{ BodyType::A_no_legs,&body_a_no_legs_},{ BodyType::A_head_and_torso,&body_a_head_and_torso_},{BodyType::B,&body_b_}, { BodyType::B_no_legs,& body_b_no_legs_}, { BodyType::B_head_and_torso,& body_b_head_and_torso_}}{
+		body_b_trunk_hands_feet_("human_b_trunk_hands_feet.obj", "human_b_trunk_hands_feet.txt"),
+		body_models_{ { BodyType::A,&body_a_},{ BodyType::A_no_legs,&body_a_no_legs_},{ BodyType::A_head_and_torso,&body_a_head_and_torso_},{ BodyType::A_trunk_hands_feet,&body_a_trunk_hands_feet_} ,{BodyType::B,&body_b_}, { BodyType::B_no_legs,&body_b_no_legs_}, { BodyType::B_head_and_torso,&body_b_head_and_torso_},{BodyType::B_trunk_hands_feet,&body_b_trunk_hands_feet_} } {
 
 		arm_L_.setRootTransform(&chest_rotation_.getEndTransform());
 		arm_R_.setRootTransform(&chest_rotation_.getEndTransform());
