@@ -653,6 +653,7 @@ public:
 		animation_iterator_.setChangeCallback(setAnimation_static, this);
 		animation_iterator_.setIterable(&animations);
 
+		activateKeyInput(window);
 		//edit_animation_mode_ = true;
 	}
 	void closeDebugUI(GameObject* UI_container, GLFWwindow* window, GraphicsRaw<GameObject>& graphics_2d, GraphicsRaw<Textbox>& text_graphics) override {

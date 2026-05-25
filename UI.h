@@ -649,13 +649,10 @@ class UIIterator : public GameObject{
 		}
 		if (this_->iterable_dict_.contains(this_->getTarget())) {
 			this_->target_name_.text = this_->iterable_dict_.at(this_->getTarget());
-		} else {
+		} else if(this_->getTarget() != nullptr){
 			if constexpr (std::is_base_of<GameObject, obj_T>::value) {
-				if (this_->getTarget() != nullptr) {
-					this_->target_name_.text = this_->getTarget()->getName();
-				}
-			}
-			else if constexpr (std::is_base_of<AnimationBase, obj_T>::value) {
+				this_->target_name_.text = this_->getTarget()->getName();
+			} else if constexpr (std::is_base_of<AnimationBase, obj_T>::value) {
 				this_->target_name_.text = this_->getTarget()->getName();
 			}
 		}
@@ -686,7 +683,7 @@ class UIIterator : public GameObject{
 			} else if constexpr (std::is_base_of<AnimationBase, obj_T>::value) {
 				this_->target_name_.text = this_->getTarget()->getName();
 			}
-		}
+		} 
 		this_->text_graphics_->refresh(this_->target_name_);
 
 	}

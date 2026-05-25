@@ -283,6 +283,11 @@ bool Sound::playOnLoop() {
 	}
 }
 
+bool Sound::play(float gain) {
+	is_playing_ = false;
+	return setGain(gain) && play();
+}
+
 bool Sound::stop() {
 	if (is_loaded_ && is_playing_) {
 		/*

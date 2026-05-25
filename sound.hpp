@@ -52,6 +52,8 @@ public:
 
 	bool play();
 
+	bool play(float gain);
+
 	bool playOnLoop();
 
 	bool stop();

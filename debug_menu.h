@@ -94,7 +94,7 @@ class DebugMenu : public GameObject {
 			}
 		} else if (key == GLFW_KEY_LEFT_SHIFT) {
 			reposition_speed_ = 1.0;
-		} else if (key == GLFW_KEY_C) {
+		} else if (key == GLFW_KEY_H) {
 			if (!isHidden()) {
 				toggleCinematicMode();
 			}
