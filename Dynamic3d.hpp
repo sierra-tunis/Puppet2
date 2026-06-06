@@ -205,6 +205,11 @@ private:
 		}
 	}
 
+	static bool closerToPlayer(const Scene::light* a, const Scene::light* b) {
+		Eigen::Vector3f player_pos = InternalObject::getNamedObjectAs<GameObject>("player")->getPosition()(seq(0, 2), 3);
+		return (a->position - player_pos).norm() < (b->position - player_pos).norm();
+	}
+
 public:
 
 	void drawObj(const GameObject& obj, const Cache& cache) const override {
@@ -265,14 +270,25 @@ public:
 		else {
 			glUniform1f(glGetUniformLocation(gl_id, "light_strength"), 0);
 		}
-		for (int i = 0; i < max_lights; i++) {
-			if (i < scene_->secondary_lights_.size()) {
-				glUniform3fv(glGetUniformLocation(gl_id, ("light_position_" + std::to_string(i + 1)).c_str()), 1, scene_->secondary_lights_[i]->position.data());
-				glUniform3fv(glGetUniformLocation(gl_id, ("light_color_" + std::to_string(i + 1)).c_str()), 1, scene_->secondary_lights_[i]->color.data());
-				glUniform1f(glGetUniformLocation(gl_id, ("light_strength_" + std::to_string(i + 1)).c_str()), scene_->secondary_lights_[i]->brightness);
+		std::set<const Scene::light*, decltype(&closerToPlayer)> ordered_lights_(&closerToPlayer);
+		for (const auto& l : scene_->secondary_lights_) {
+			if (l->on) {
+				ordered_lights_.insert(l);
+			}
+		}
+		int i = 0;
+		for (auto& l : ordered_lights_) {
+			if (i < ordered_lights_.size()) {
+				glUniform3fv(glGetUniformLocation(gl_id, ("light_position_" + std::to_string(i + 1)).c_str()), 1, l->position.data());
+				glUniform3fv(glGetUniformLocation(gl_id, ("light_color_" + std::to_string(i + 1)).c_str()), 1, l->color.data());
+				glUniform1f(glGetUniformLocation(gl_id, ("light_strength_" + std::to_string(i + 1)).c_str()), l->brightness);
 			}
 			else {
 				glUniform1f(glGetUniformLocation(gl_id, ("light_strength_" + std::to_string(i + 1)).c_str()), 0);
+			}
+			i++;
+			if (i == max_lights) {
+				break;
 			}
 		}
 		glEnable(GL_BLEND);
