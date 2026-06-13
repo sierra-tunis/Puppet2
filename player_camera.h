@@ -29,6 +29,8 @@ private:
 	bool look_mode_;
 	const bool control_mode_; //i.e. CAD mode
 	bool frozen_;
+	bool zoom_enabled_;
+
 	static constexpr float joystick_x_sensitivity = 1500;
 	static constexpr float joystick_y_sensitivity = 1500;
 
@@ -77,12 +79,14 @@ private:
 	}
 
 	void onMouseScroll(float dx, float dy) override {
-		equilibrium_length_ -= dy * .025;
-		if (equilibrium_length_ < .125) {
-			equilibrium_length_ = .125;
-		}
-		else if (equilibrium_length_ > 20.) {
-			equilibrium_length_ = 20.;
+		if(zoom_enabled_){
+			equilibrium_length_ -= dy * .025;
+			if (equilibrium_length_ < .125) {
+				equilibrium_length_ = .125;
+			}
+			else if (equilibrium_length_ > 20.) {
+				equilibrium_length_ = 20.;
+			}
 		}
 	}
 
@@ -110,6 +114,7 @@ public:
 		tether_(ConnectorChain<OffsetConnector, RotationJoint, RotationJoint, PrismaticJoint>(anchor_,pan_,tilt_,dist_)),
 		cam_box_("cam_box.obj", Model::debug_path),
 		look_mode_(true),
+		zoom_enabled_(true),
 		control_mode_(CAD_mode){
 
 		setConnector(&tether_);
@@ -173,6 +178,10 @@ public:
 	}
 	void unfreeze() {
 		frozen_ = false;
+	}
+
+	void disableZoom() {
+		zoom_enabled_ = false;
 	}
 
 	friend void cursor_position_callback(GLFWwindow* window, double xpos, double ypos);
