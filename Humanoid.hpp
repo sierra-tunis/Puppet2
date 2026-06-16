@@ -91,6 +91,9 @@ private:
 	Pane leg_L_pane_;
 	Pane leg_R_pane_;
 	TabbedPane slider_panes_;
+
+	static Texture human_tex;
+
 public:
 	enum class BodyType {
 		A,
@@ -366,7 +369,7 @@ public:
 		}
 		setModel(&body_b_);
 		dyn_model_ = &body_b_;
-		setTexture(new Texture("human_tex.jpg", Texture::debug_path));
+		setTexture(&human_tex);
 
 		edit_animation_mode_ = false;
 	}
@@ -474,7 +477,7 @@ public:
 		dyn_model_->offsetVerts();
 		dyn_model_->setRootTransform(&getPosition());
 		setModel(dyn_model_);
-		setTexture(new Texture("human_tex.jpg", Texture::debug_path));
+		setTexture(&human_tex);
 
 		edit_animation_mode_ = false;
 

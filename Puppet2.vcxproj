@@ -264,6 +264,7 @@
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="Humanoid.cpp" />
     <ClCompile Include="InternalObject.cpp" />
     <ClCompile Include="level.cpp" />
     <ClCompile Include="main.cpp" />

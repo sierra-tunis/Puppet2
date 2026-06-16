@@ -2,9 +2,13 @@
 #ifndef PUPPET_TEXTURE
 #define PUPPET_TEXTURE
 
+#include <stdio.h>
+#include <iostream>
+
 #include <string>
 #include <vector>
 #include"DebugPath.hpp"
+#include <unordered_map>
 
 class Texture {
 	std::string fname;
@@ -13,6 +17,11 @@ class Texture {
 
 	float specular_coefficient_;
 	float shininess_;
+
+	static std::unordered_map<std::string, size_t>& getReallocationMemoryMap() {
+		static std::unordered_map<std::string, size_t> reallocation_memory;
+		return reallocation_memory;
+	}
 
 protected:
 	std::vector<uint8_t> read_img_data(std::string fname);
@@ -41,7 +50,16 @@ public:
 		fname(fname),
 		specular_coefficient_(0.0f),
 		shininess_(1.0f) {
-	
+
+//#ifndef EVILMONSTERS_PUBLISH
+
+		if (getReallocationMemoryMap().contains(path + fname)) {
+			getReallocationMemoryMap()[path + fname] += image_data.size() * sizeof(uint8_t);
+		} else {
+			getReallocationMemoryMap()[path + fname] = 0;
+		}
+//#endif
+
 	}
 
 	Texture(int height, int width, int n_channels, std::vector<uint8_t> img_data) :
@@ -71,6 +89,18 @@ public:
 	}
 	float getShininess() const {
 		return shininess_;
+	}
+
+	static void printReallocationReport() {
+		std::cout << "\n Puppet 2 Texture reallocation memory report:\n";
+		size_t total = 0;
+		for (auto& f : getReallocationMemoryMap()) {
+			if (f.second != 0) {
+				std::cout << f.first << ": " << f.second/ 1048576 << "Mb\n";
+				total += f.second;
+			}
+		}
+		std::cout << "Total reallocated texture memory: " << total/ 1048576 <<"Mb\n";
 	}
 };
 
