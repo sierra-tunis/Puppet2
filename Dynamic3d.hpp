@@ -263,6 +263,8 @@ public:
 
 		glUniform4f(glGetUniformLocation(gl_id, "atmosphere_color"), scene_->atmosphere_color(0), scene_->atmosphere_color(1), scene_->atmosphere_color(2), scene_->atmosphere_strength);
 		glUniform1f(glGetUniformLocation(gl_id, "ambient_light"), scene_->ambient_light);
+		glUniform1f(glGetUniformLocation(gl_id, "white_reduction"), scene_->white_reduction);
+
 		if (scene_->primary_light_ != nullptr) {
 			glUniform3fv(glGetUniformLocation(gl_id, "light_position"), 1, scene_->primary_light_->position.data());
 			glUniform3fv(glGetUniformLocation(gl_id, "light_color"), 1, scene_->primary_light_->color.data());

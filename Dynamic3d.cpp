@@ -36,6 +36,7 @@ const char* Dynamic3d::fragment_code = "#version 330 core\n"
 
 "uniform vec4 atmosphere_color;\n" //alpha is atmosphere strength
 "uniform float ambient_light;\n"
+"uniform float white_reduction;"
 "uniform vec4 light_color;\n"
 "uniform vec3 light_position;\n"
 "uniform float light_strength;\n"
@@ -68,7 +69,7 @@ const char* Dynamic3d::fragment_code = "#version 330 core\n"
 
 "	vec4 tex_pixel_data = texture(tex,texCoord);\n"
 "   if(tex_pixel_data.w < .2) discard;\n"
-"	vec3 tex_color = (diff + ambient_light) * (tex_pixel_data.xyz + vec3(.000001,.000001,.000001));\n"
+"	vec3 tex_color = (diff + ambient_light*(1-white_reduction*length(tex_pixel_data))) * (tex_pixel_data.xyz + vec3(.000001,.000001,.000001));\n"
 //apply atmospheric perspective
 "	FragColor.xyz = (tex_color*(1-overlay_color.w) + overlay_color.xyz*overlay_color.w)*(1 - a) + atmosphere_color.xyz * a;\n"
 
