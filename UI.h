@@ -65,7 +65,11 @@ public:
 		GameObject(name),
 		height_(height),
 		width_(width),
-		model_(height_,width_){
+		model_(height_,width_),
+		left_(nullptr),
+		right_(nullptr),
+		up_(nullptr),
+		down_(nullptr){
 
 	}
 	UIElement(float height, float width) :

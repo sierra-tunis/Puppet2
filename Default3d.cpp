@@ -89,7 +89,7 @@ const char* Default3d::fragment_code = "#version 330 core\n"
 "	diff += (max(dot(normal, normalize(light_dir)), 0.0)*light_strength_6*light_strength_6)/(light_strength_6*light_strength_6+dot(light_dir, light_dir));\n"
 
 "	vec3 tex_color_raw = texture(tex,texCoord).xyz;\n"
-"	vec3 tex_color = (diff + ambient_light*(1-white_reduction*length(tex_color_raw))) * texture(tex,texCoord).xyz;\n"
+"	vec3 tex_color = (diff + ambient_light*(1-white_reduction*length(tex_color_raw))) * (texture(tex,texCoord).xyz + vec3(.000001,.000001,.000001));\n"
 //apply atmospheric perspective
 "	FragColor.xyz = (tex_color*(1-overlay_color.w) + overlay_color.xyz*overlay_color.w)*(1 - a) + atmosphere_color.xyz * a;\n"
 //apply specular based on darkness
