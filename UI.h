@@ -1083,10 +1083,13 @@ public:
 	}
 
 	int getSection() const {
+		if (getNSections() == 0) {
+			return 0;
+		}
 		//indexes go counter clockwise
 		float cursor_angle = getCursorAngle();
-		float section_width_radians = 2.0 * M_PI / n_sections_;
-		return ((int)round(cursor_angle/section_width_radians))%n_sections_;
+		float section_width_radians = 2.0 * M_PI / getNSections();
+		return ((int)round(cursor_angle/section_width_radians))%getNSections();
 	}
 
 	obj_T* getTarget() const {
@@ -1104,10 +1107,13 @@ public:
 		}
 	}
 
+	int getNSections() const {
+		return iterable_->size();
+	}
+
 	void setIterable(const std::vector<obj_T*>* iterable) {
 		obj_T* prev_target = getTarget();
 		iterable_ = iterable;
-		n_sections_ = iterable_->size();
 		//do draw calls based on iterable_.size();
 	}
 

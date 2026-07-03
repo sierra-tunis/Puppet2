@@ -172,6 +172,17 @@ public:
 	float getTilt() const {
 		return tilt_.getState()(0);
 	}
+	void setTilt(float tilt)  {
+		tilt_.setState(tilt);
+		tether_.setState(tether_.getState());
+	}
+	float getPan() const {
+		return pan_.getState()(0);
+	}
+	void setPan(float pan) {
+		pan_.setState(pan);
+		tether_.setState(tether_.getState());
+	}
 
 	void freeze() {
 		frozen_ = true;
