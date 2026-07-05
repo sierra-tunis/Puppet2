@@ -761,6 +761,49 @@ public:
 		}
 	}
 
+	static const std::unordered_set<Texture*>& getEyeColors() {
+		return eye_colors;
+	}
+	static std::string getStringFromEyeColor(const Texture* color) {
+		if (color == &brown_eyes) {
+			return "Brown";
+		}
+		else if (color == &amber_eyes) {
+			return "Amber";
+		}
+		else if (color == &hazel_eyes) {
+			return "Hazel";
+		}
+		else if (color == &green_eyes) {
+			return "Green";
+		}
+		else if (color == &blue_eyes) {
+			return "Blue";
+		} else {
+			return "custom";
+		}
+	}
+	static Texture* getEyeColorFromString(std::string color) {
+		if (color == "Blue") {
+			return &blue_eyes;
+		}
+		else if (color == "Green") {
+			return &green_eyes;
+		}
+		else if (color == "Hazel") {
+			return &hazel_eyes;
+		}
+		else if (color == "Amber") {
+			return &amber_eyes;
+		}
+		else if (color == "Brown") {
+			return &brown_eyes;
+		}
+		else {
+			return nullptr;
+		}
+	}
+
 	void updateDynamicModel() {
 		dyn_model_->updateData();
 	}
