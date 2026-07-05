@@ -73,6 +73,8 @@ protected:
 		LimbConnector, LimbConnector,
 		OffsetConnector, BallJoint, OffsetConnector, RotationJoint> humanoid_chain_;*/
 
+	
+
 public:
 	static constexpr int n_dofs = CartesianJoint::getDoF() + BallJoint::getDoF() + 2 * RotationJoint::getDoF() + 2 * BallJoint::getDoF() + 4 * LimbConnector::getDoF();
 	static constexpr int upper_dofs_ = 2 * LimbConnector::getDoF() + 2 * BallJoint::getDoF() + RotationJoint::getDoF();
@@ -92,7 +94,7 @@ private:
 	Pane leg_R_pane_;
 	TabbedPane slider_panes_;
 
-	static Texture human_tex;
+	static std::unordered_set<Texture*> skin_tones;
 
 public:
 	enum class BodyType {
@@ -106,6 +108,13 @@ public:
 		B_trunk_hands_feet,
 		custom
 	};
+
+	static Texture skin_tone_1;
+	static Texture skin_tone_2;
+	static Texture skin_tone_3;
+	static Texture skin_tone_4;
+	static Texture skin_tone_5;
+	static Texture skin_tone_6;
 
 private:
 	std::unordered_map<BodyType, DynamicModel*> body_models_;
@@ -369,7 +378,7 @@ public:
 		}
 		setModel(&body_b_);
 		dyn_model_ = &body_b_;
-		setTexture(&human_tex);
+		setTexture(&skin_tone_2);
 
 		edit_animation_mode_ = false;
 	}
@@ -477,7 +486,7 @@ public:
 		dyn_model_->offsetVerts();
 		dyn_model_->setRootTransform(&getPosition());
 		setModel(dyn_model_);
-		setTexture(&human_tex);
+		setTexture(&skin_tone_2);
 
 		edit_animation_mode_ = false;
 
@@ -704,6 +713,44 @@ public:
 	void setBodyType(BodyType body_type) {
 		dyn_model_ = body_models_.at(body_type);
 		setModel(dyn_model_);
+	}
+
+	static const std::unordered_set<Texture*>& getSkinTones() {
+		return skin_tones;
+	}
+	static std::string getStringFromSkinTone(const Texture* tone) {
+		if (tone == &skin_tone_1) {
+			return "Skin Tone 1";
+		} else if (tone == &skin_tone_2) {
+			return "Skin Tone 2";
+		} else if (tone == &skin_tone_3) {
+			return "Skin Tone 3";
+		} else if (tone == &skin_tone_4) {
+			return "Skin Tone 4";
+		} else if (tone == &skin_tone_5) {
+			return "Skin Tone 5";
+		} else if (tone == &skin_tone_6) {
+			return "Skin Tone 6";
+		} else {
+			return "custom";
+		}
+	}
+	static Texture* getSkinToneFromString(std::string tone) {
+		if (tone == "Skin Tone 1") {
+			return &skin_tone_1;
+		} else if (tone == "Skin Tone 2") {
+			return &skin_tone_2;
+		} else if (tone == "Skin Tone 3") {
+			return &skin_tone_3;
+		} else if (tone == "Skin Tone 4") {
+			return &skin_tone_4;
+		} else if (tone == "Skin Tone 5") {
+			return &skin_tone_5;
+		} else if (tone == "Skin Tone 6") {
+			return &skin_tone_6;
+		} else {
+			return nullptr;
+		}
 	}
 
 	void updateDynamicModel() {
