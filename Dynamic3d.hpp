@@ -58,6 +58,7 @@ private:
 
 	const unsigned int tex_location_;
 	const unsigned int overlay_tex_location_;
+	const unsigned int use_overlay_tex_location_;
 
 	static constexpr int max_lights = 3;
 
@@ -252,6 +253,8 @@ public:
 			glActiveTexture(GL_TEXTURE0 + 1);
 			glBindTexture(GL_TEXTURE_2D, getTexID(cache)[1]);
 
+			glUniform1i(use_overlay_tex_location_, obj.getOverlayTexture() != nullptr);
+
 			glBindVertexArray(getVAO(cache));
 
 			glBindBuffer(GL_ARRAY_BUFFER, getPosVBO(cache));
@@ -361,7 +364,8 @@ public:
 		camera_location_(glGetUniformLocation(gl_id, "camera")),
 		perspective_location_(glGetUniformLocation(gl_id, "perspective")),
 		tex_location_(glGetUniformLocation(gl_id,"tex")),
-		overlay_tex_location_(glGetUniformLocation(gl_id, "overlay_tex")){
+		overlay_tex_location_(glGetUniformLocation(gl_id, "overlay_tex")),
+		use_overlay_tex_location_(glGetUniformLocation(gl_id, "use_overlay_tex")) {
 
 		//perspective_ << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1;
 	}

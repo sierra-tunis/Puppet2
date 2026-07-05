@@ -386,7 +386,7 @@ public:
 		setModel(&body_b_);
 		dyn_model_ = &body_b_;
 		setTexture(&skin_tone_2);
-		setOverlayTexture(&brown_eyes);
+		//setOverlayTexture(&brown_eyes);
 
 		edit_animation_mode_ = false;
 	}
