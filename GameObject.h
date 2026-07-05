@@ -40,6 +40,7 @@ private:
 	//because it has a texture member
 	Model* model_; //model is all the model data in one place and can be subclassed for other shader types
 	Texture* texture_; //texture has all the texture packed into it like color, normal etc, and can just be subclassed to add more
+	Texture* overlay_texture_;
 	std::unordered_set<AnimationBase*> animations_;
 	AnimationBase* active_animation_;
 	//inherited from parent (might want to make seperate "visibility_parent_")
@@ -228,6 +229,9 @@ public:
 		t_init_(system_clock::now()),
 		parent_(nullptr),
 		connector_(nullptr),
+		model_(nullptr),
+		texture_(nullptr),
+		overlay_texture_(nullptr),
 		active_hitbox_(true),
 		physics_on_(false){
 	}
@@ -403,6 +407,9 @@ public:
 
 	virtual const Texture* getTexture() const {
 		return texture_;
+	}
+	const Texture* getOverlayTexture() const {
+		return overlay_texture_;
 	}
 
 	const GameObject* getParent() const {
@@ -719,6 +726,10 @@ public:
 
 	void setTexture(Texture* tex) {
 		texture_ = tex;
+	}
+	
+	void setOverlayTexture(Texture* overlay_tex) {
+		overlay_texture_ = overlay_tex;
 	}
 
 	GraphicsRaw<GameObject>* getShader() {

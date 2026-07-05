@@ -31,7 +31,7 @@ struct Dynamic3dStaticSubcache {
 struct Dynamic3dCache {
 	unsigned int VAO;
 	unsigned int VBO[3];
-	unsigned int tex_id;
+	unsigned int tex_id[2];
 	size_t n_elems;
 	unsigned int pos_vbo;
 	unsigned int norm_vbo;
@@ -40,10 +40,10 @@ struct Dynamic3dCache {
 
 	Eigen::Vector4f overlay_color;
 
-	Dynamic3dCache() : VAO(-1), VBO{ 0,0,0 }, tex_id(-1), n_elems(0), pos_vbo(0), norm_vbo(0), overlay_color(0, 0, 0, 0) {
+	Dynamic3dCache() : VAO(-1), VBO{ 0,0,0 }, tex_id{ 0,0 }, n_elems(0), pos_vbo(0), norm_vbo(0), overlay_color(0, 0, 0, 0) {
 	};
-	Dynamic3dCache(unsigned int VAO, unsigned int* VBO, unsigned int tex_id, size_t n_elems,unsigned int pos_vbo,unsigned int norm_vbo, std::vector<std::tuple<Dynamic3dStaticSubcache>> static_VAOs)
-		: VAO(VAO), VBO{VBO[0],VBO[1],VBO[2]}, tex_id(tex_id), n_elems(n_elems),
+	Dynamic3dCache(unsigned int VAO, unsigned int* VBO, unsigned int* tex_id, size_t n_elems,unsigned int pos_vbo,unsigned int norm_vbo, std::vector<std::tuple<Dynamic3dStaticSubcache>> static_VAOs)
+		: VAO(VAO), VBO{VBO[0],VBO[1],VBO[2]}, tex_id{tex_id[0],tex_id[1]}, n_elems(n_elems),
 			pos_vbo(pos_vbo), norm_vbo(norm_vbo),static_VAOs(static_VAOs),
 			overlay_color(0.0f, 0.0f, 0.0f, 0.0f) {
 	};
@@ -56,6 +56,9 @@ private:
 	const unsigned int camera_location_;
 	const unsigned int model_location_;
 
+	const unsigned int tex_location_;
+	const unsigned int overlay_tex_location_;
+
 	static constexpr int max_lights = 3;
 
 
@@ -66,7 +69,7 @@ private:
 	const unsigned int* getVBO(const Cache& cache) const {
 		return std::get<0>(cache).VBO;
 	}
-	const unsigned int& getTexID(const Cache& cache) const {
+	const unsigned int* getTexID(const Cache& cache) const {
 		return std::get<0>(cache).tex_id;
 	}
 	const size_t& getNElems(const Cache& cache) const {
@@ -169,9 +172,9 @@ private:
 
 		//texture code:
 
-		unsigned int tex_id;
-		glGenTextures(1, &(tex_id));
-		glBindTexture(GL_TEXTURE_2D, tex_id);
+		unsigned int tex_id[2];
+		glGenTextures(2, tex_id);
+		glBindTexture(GL_TEXTURE_2D, tex_id[0]);
 		//this->tex_id = static_cast<int>(tex_id);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -188,6 +191,32 @@ private:
 
 		}
 		glGenerateMipmap(GL_TEXTURE_2D);
+
+		glBindTexture(GL_TEXTURE_2D, tex_id[1]);
+		const Texture* overlay_tex;
+		if (obj.getOverlayTexture() == nullptr) {
+			overlay_tex = new Texture(2, 2, 4, { 0,0,0,0,
+										0,0,0,0,
+										0,0,0,0,
+										0,0,0,0 });
+		} else {
+			overlay_tex = obj.getOverlayTexture();
+		}
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+		glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+		if (tex.n_channels == 3) {
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, overlay_tex->width, overlay_tex->height, 0, GL_RGB, GL_UNSIGNED_BYTE, overlay_tex->getData().data());
+		}
+		else if (tex.n_channels == 4) {
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, overlay_tex->width, overlay_tex->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, overlay_tex->getData().data());
+
+		}
+		glGenerateMipmap(GL_TEXTURE_2D);
 		
 		delete vert_norm;
 		delete vert_pos;
@@ -198,7 +227,7 @@ private:
 	virtual void deleteDataCache(Cache& cache) const override {
 		glDeleteVertexArrays(1, &getVAO(cache));
 		glDeleteBuffers(3, getVBO(cache));
-		glDeleteTextures(1, &getTexID(cache));
+		glDeleteTextures(2, getTexID(cache));
 		for (const std::tuple<Dynamic3dStaticSubcache>& s : getStaticVAOs(cache)) {
 			glDeleteVertexArrays(1, &std::get<0>(s).static_VAO);
 			glDeleteBuffers(3, std::get<0>(s).static_VBO);
@@ -217,8 +246,12 @@ public:
 			glUniformMatrix4fv(model_location_, 1, GL_FALSE, obj.getPosition().data());
 			glUniform4fv(glGetUniformLocation(gl_id, "overlay_color"), 1, std::get<0>(cache).overlay_color.data());
 
+			glActiveTexture(GL_TEXTURE0 + 0);
+			glBindTexture(GL_TEXTURE_2D, getTexID(cache)[0]);
 
-			glBindTexture(GL_TEXTURE_2D, getTexID(cache));
+			glActiveTexture(GL_TEXTURE0 + 1);
+			glBindTexture(GL_TEXTURE_2D, getTexID(cache)[1]);
+
 			glBindVertexArray(getVAO(cache));
 
 			glBindBuffer(GL_ARRAY_BUFFER, getPosVBO(cache));
@@ -261,6 +294,9 @@ public:
 		glUniformMatrix4fv(perspective_location_, 1, GL_FALSE, scene_->camera->getPerspective().data());
 		glUniformMatrix4fv(camera_location_, 1, GL_FALSE, scene_->camera->getCameraMatrix().data());
 
+		glUniform1i(tex_location_, 0);
+		glUniform1i(overlay_tex_location_, 1);
+
 		glUniform4f(glGetUniformLocation(gl_id, "atmosphere_color"), scene_->atmosphere_color(0), scene_->atmosphere_color(1), scene_->atmosphere_color(2), scene_->atmosphere_strength);
 		glUniform1f(glGetUniformLocation(gl_id, "ambient_light"), scene_->ambient_light);
 		glUniform1f(glGetUniformLocation(gl_id, "white_reduction"), scene_->white_reduction);
@@ -302,6 +338,7 @@ public:
 
 	void endDraw() const override {
 		//default3d specific code
+		glActiveTexture(GL_TEXTURE0);
 	}
 
 	/*void setCamera(Camera* camera) {
@@ -322,7 +359,9 @@ public:
 	Dynamic3d() :
 		model_location_(glGetUniformLocation(gl_id, "model")),
 		camera_location_(glGetUniformLocation(gl_id, "camera")),
-		perspective_location_(glGetUniformLocation(gl_id, "perspective")){
+		perspective_location_(glGetUniformLocation(gl_id, "perspective")),
+		tex_location_(glGetUniformLocation(gl_id,"tex")),
+		overlay_tex_location_(glGetUniformLocation(gl_id, "overlay_tex")){
 
 		//perspective_ << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1;
 	}

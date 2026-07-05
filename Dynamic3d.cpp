@@ -31,6 +31,7 @@ const char* Dynamic3d::fragment_code = "#version 330 core\n"
 "in vec3 normal;\n"
 
 "uniform sampler2D tex;\n"
+"uniform sampler2D overlay_tex;\n"
 
 "uniform vec4 overlay_color;\n"
 
@@ -68,6 +69,8 @@ const char* Dynamic3d::fragment_code = "#version 330 core\n"
 "	diff += (max(dot(normal, normalize(light_dir)), 0.0)*light_strength_3*light_strength_3)/(light_strength_3*light_strength_3+dot(light_dir, light_dir));\n"
 
 "	vec4 tex_pixel_data = texture(tex,texCoord);\n"
+"   vec4 tex_overlay_pixel_data = texture(overlay_tex,texCoord);\n"
+"   if(tex_overlay_pixel_data.w > .99) tex_pixel_data = tex_overlay_pixel_data;\n"
 "   if(tex_pixel_data.w < .2) discard;\n"
 "	vec3 tex_color = (diff + ambient_light*(1-white_reduction*length(tex_pixel_data))) * (tex_pixel_data.xyz + vec3(.000001,.000001,.000001));\n"
 //apply atmospheric perspective

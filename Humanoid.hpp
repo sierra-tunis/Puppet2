@@ -95,6 +95,7 @@ private:
 	TabbedPane slider_panes_;
 
 	static std::unordered_set<Texture*> skin_tones;
+	static std::unordered_set<Texture*> eye_colors;
 
 public:
 	enum class BodyType {
@@ -115,6 +116,12 @@ public:
 	static Texture skin_tone_4;
 	static Texture skin_tone_5;
 	static Texture skin_tone_6;
+
+	static Texture blue_eyes;
+	static Texture green_eyes;
+	static Texture brown_eyes;
+	static Texture amber_eyes;
+	static Texture hazel_eyes;
 
 private:
 	std::unordered_map<BodyType, DynamicModel*> body_models_;
@@ -379,6 +386,7 @@ public:
 		setModel(&body_b_);
 		dyn_model_ = &body_b_;
 		setTexture(&skin_tone_2);
+		setOverlayTexture(&brown_eyes);
 
 		edit_animation_mode_ = false;
 	}
