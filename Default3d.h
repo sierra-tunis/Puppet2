@@ -34,6 +34,7 @@ private:
 	const unsigned int perspective_location_;
 	const unsigned int camera_location_;
 	const unsigned int model_location_;
+	const unsigned int tex_location_;
 
 	//const Camera* camera_;
 
@@ -135,7 +136,9 @@ public:
 	}
 
 	void drawObj(const GameObject& obj, const Cache& cache) const override {
+			glActiveTexture(GL_TEXTURE0 + 0);
 			glBindTexture(GL_TEXTURE_2D, getTexID(cache));
+
 			glBindVertexArray(getVAO(cache));
 
 			glUniform4fv(glGetUniformLocation(gl_id, "overlay_color"), 1, std::get<0>(cache).overlay_color.data());
@@ -161,6 +164,8 @@ public:
 
 		glUniformMatrix4fv(perspective_location_, 1, GL_FALSE, scene_->camera->getPerspective().data());
 		glUniformMatrix4fv(camera_location_, 1, GL_FALSE, scene_->camera->getCameraMatrix().data());
+
+		glUniform1i(tex_location_, 0);
 
 		glUniform4f(glGetUniformLocation(gl_id, "atmosphere_color"), scene_->atmosphere_color(0), scene_->atmosphere_color(1), scene_->atmosphere_color(2), scene_->atmosphere_strength);
 		glUniform1f(glGetUniformLocation(gl_id, "white_reduction"), scene_->white_reduction);
@@ -220,7 +225,8 @@ public:
 	Default3d():
 		model_location_(glGetUniformLocation(gl_id, "model")),
 		camera_location_(glGetUniformLocation(gl_id, "camera")),
-		perspective_location_(glGetUniformLocation(gl_id, "perspective")){
+		perspective_location_(glGetUniformLocation(gl_id, "perspective")),
+		tex_location_(glGetUniformLocation(gl_id,"tex")){
 
 		//perspective_ << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1;
 	}
