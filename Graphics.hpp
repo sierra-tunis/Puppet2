@@ -121,8 +121,8 @@ protected:
 	const int gl_id;
 	static const char* vertex_code;
 	static const char* fragment_code;
-	static std::unordered_map<int, const Object*> draw_targets_; //needs to be map for removal
-	static std::unordered_map<int, Cache> cached_data_;
+	std::unordered_map<int, const Object*> draw_targets_; //needs to be map for removal
+	std::unordered_map<int, Cache> cached_data_;
 
 protected:
 	
@@ -140,7 +140,10 @@ protected:
 	}
 
 public:
-	
+
+	const Cache& getConstCache(const Object& obj) const {
+		return cached_data_.at(obj.getID());
+	}
 
 	void setCamera(const Camera* camera) {
 		if (scene_ == nullptr) {
@@ -288,11 +291,12 @@ public:
 	}
 
 };
+/*
 template <Identifiable Object, class...data>
 std::unordered_map<int, std::tuple<data...>> Graphics<Object, data...>::cached_data_ = std::unordered_map<int, std::tuple<data...>>();
 template <Identifiable Object, class...data>
 std::unordered_map<int, const Object*> Graphics<Object, data...>::draw_targets_ = std::unordered_map<int, const Object*>();
-
+*/
 //YOU CAN USE TEMPLATE ARGUMENTS IN OPENGL CODE BEFORE THEY COMPILE!!!
 
 #endif

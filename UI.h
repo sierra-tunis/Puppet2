@@ -768,6 +768,18 @@ public:
 		}
 	}
 
+
+	bool setTarget(obj_T* target) {
+		const obj_T* current_target = getTarget();
+		do {
+			goToNext();
+			if (getTarget() == target) {
+				return true;
+			}
+		} while (getTarget() != current_target);
+		return false;
+	}
+
 	void setChangeCallback(void (*callback_on_change)(obj_T*, obj_T*, void*), void* callback_input) {
 		callback_on_change_ = callback_on_change;
 		callback_input_ = callback_input;

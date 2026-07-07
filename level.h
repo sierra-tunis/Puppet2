@@ -45,7 +45,7 @@ private:
 	Scene scene_;
 
 	bool is_menu_;
-
+	bool hide_on_deactivate_;
 	//we can render the floor like an image with color corresponding to the height.
 	// use some sentinel color for the background to indicate out of bounds regions.
 	//this lets us rectangularize the whole level and only need to figure out the player position
@@ -75,6 +75,9 @@ public:
 			enterStandby(); // cant go from frozen straight to active
 		}
 		load_state_ = active;
+		if (hide_on_deactivate_) {
+			show();
+		}
 		for (auto& obj : getDependents()) {
 			obj->onRoomActivation();
 		}
@@ -93,6 +96,9 @@ public:
 		load_state_ = standby;
 		for (auto& obj : getDependents()) {
 			obj->onRoomDeactivation();
+		}
+		if (hide_on_deactivate_) {
+			hide();
 		}
 		theme_.stop();
 	}
@@ -424,6 +430,10 @@ public:
 	void setMenuState(bool is_menu) {
 		is_menu_ = is_menu;
 	}
+	void setHideOnDeactivate(bool hide_on_deactivate) {
+		hide_on_deactivate_ = hide_on_deactivate;
+	}
+	
 
 	static void resetGame(GLFWwindow* window) {
 		for (auto& level : Level::AllLevels()) {
