@@ -42,6 +42,7 @@ private:
 	
 	static int last_id_;
 	static std::unordered_map<std::string, InternalObject*> named_internal_objects_;
+	inline static std::unordered_map<int, InternalObject*> internal_objects_;
 	const int id_;
 	std::string name_;
 
@@ -201,7 +202,6 @@ protected:
 	static const std::unordered_map<std::string, InternalObject*>& getNamedInternalObjects() {
 		return named_internal_objects_;
 	};
-
 	
 
 public:
@@ -238,7 +238,7 @@ public:
 	const static ControllerStateCallback_base no_controller_state_callback;
 
 	InternalObject(std::string name=no_name, const KeyStateCallback_base& key_state_callback = no_key_state_callback, const ControllerStateCallback_base& controller_state_callback = no_controller_state_callback) :
-		id_(last_id_++),//this is only to avoid not wanting to generate random strings
+		id_(getNextID()),//this is only to avoid not wanting to generate random strings
 		name_(name),
 		key_state_callback_(key_state_callback),
 		controller_state_callback_(controller_state_callback){
@@ -250,6 +250,8 @@ public:
 				InternalObject::named_internal_objects_[name_] = this;
 			}
 		}
+		InternalObject::internal_objects_.insert({ getID(),this });
+		last_id_ = getNextID();
 
 	}
 
@@ -262,6 +264,15 @@ public:
 		if (name_ != no_name) {
 			InternalObject::named_internal_objects_.erase(name_);
 		}
+		InternalObject::internal_objects_.erase(getID());
+	}
+
+	static int getNextID() {
+		int id = last_id_;
+		while (InternalObject::internal_objects_.contains(id)) {
+			id++;
+		}
+		return id;
 	}
 
 	inline virtual void update(GLFWwindow* window) {
@@ -419,6 +430,7 @@ public:
 	
 
 };
+
 
 template<int... Keys>
 class KeyStateCallback : public KeyStateCallback_base{
