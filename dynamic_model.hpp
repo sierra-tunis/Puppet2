@@ -27,6 +27,9 @@ class DynamicModel : public Model {
 
 	std::unordered_map<const VertexGroup*, Model*> static_models_;
 
+	std::string model_fname_;
+	std::string vertex_groups_fname_;
+
 	void loadMatrices() {
 		vert_mat_.resize(3, vlen());
 		norm_mat_.resize(3, vlen());
@@ -53,7 +56,9 @@ public:
 
 	DynamicModel(std::string model_fname, std::string vertex_groups_fname, std::string path, bool force_shade_hard=true) :
 	//Model(model_fname, path, force_shade_hard){
-	Model(){
+	Model(),
+	model_fname_(model_fname),
+	vertex_groups_fname_(vertex_groups_fname){
 		Model raw_model(model_fname, path, force_shade_hard);
 
 		if (!shade_smooth_) {
@@ -263,6 +268,14 @@ public:
 
 	const std::unordered_map<const VertexGroup*, Model*>& getStaticModels() const {
 		return static_models_;
+	}
+
+
+	std::string getModelFname() const {
+		return model_fname_;
+	}
+	std::string getVertexGroupsFname() const {
+		return vertex_groups_fname_;
 	}
 
 };
