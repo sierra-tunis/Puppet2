@@ -92,16 +92,6 @@ private:
 	
 protected:
 	
-
-	void addAnimation(AnimationBase* animation) {
-		animations_.insert(animation);
-		//animation->load();
-	}
-	void removeAnimation(AnimationBase* animation) {
-		animations_.erase(animation);
-	}
-
-
 	Eigen::Vector3f onInvalidTranslation(Eigen::Vector3f translation, BoundaryConstraint* broken_constraint, int n_iters) {
 		//motion constraint::bestTranslate/limitTranslate will NEVER return an invalid translation, however if the
 		//user wants to perform some chikanery here and decide to do something else they are allowed
@@ -205,6 +195,16 @@ protected:
 	}
 
 public:
+
+
+	void addAnimation(AnimationBase* animation) {
+		animations_.insert(animation);
+		//animation->load();
+	}
+	void removeAnimation(AnimationBase* animation) {
+		animations_.erase(animation);
+	}
+
 
 	static void setGlobalGameSpeed(float game_speed) {
 		global_game_speed_ = game_speed;

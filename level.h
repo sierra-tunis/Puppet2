@@ -322,7 +322,7 @@ public:
 		}
 
 		if (level_shader != nullptr) {
-			level_shader->add(*this);
+			draw(level_shader);
 		}
 
 	}

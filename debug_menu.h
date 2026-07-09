@@ -10,7 +10,7 @@
 
 class DebugMenu : public GameObject {
 
-	KeyStateCallback<GLFW_KEY_UP, GLFW_KEY_DOWN, GLFW_KEY_LEFT, GLFW_KEY_RIGHT, GLFW_KEY_PAGE_UP,GLFW_KEY_PAGE_DOWN,GLFW_KEY_COMMA,GLFW_KEY_PERIOD> key_state_callback_caller_;
+	KeyStateCallback<GLFW_KEY_UP, GLFW_KEY_DOWN, GLFW_KEY_LEFT, GLFW_KEY_RIGHT, GLFW_KEY_PAGE_UP,GLFW_KEY_PAGE_DOWN,GLFW_KEY_COMMA,GLFW_KEY_PERIOD, GLFW_KEY_MINUS,GLFW_KEY_EQUAL> key_state_callback_caller_;
 
 	std::vector<Button*> buttons_;
 
@@ -98,6 +98,12 @@ class DebugMenu : public GameObject {
 			if (!isHidden()) {
 				toggleCinematicMode();
 			}
+		} else if (key == GLFW_KEY_K) { //k for Kamera
+			if (debug_scene_->camera == &debug_camera_) {
+				debug_scene_->camera = game_cam_;
+			} else {
+				debug_scene_->camera = &debug_camera_;
+			}
 		}
 	}
 	void onKeyRelease(int key) override {
@@ -135,7 +141,16 @@ class DebugMenu : public GameObject {
 			case GLFW_KEY_PERIOD:
 				debug_target_->rotateY(reposition_speed_ * getdt());
 				break;
-			}
+			case GLFW_KEY_MINUS:
+				debug_target_->rotateAxisAngle(debug_target_->getPosition()(seq(0,2),0), reposition_speed_ * getdt());
+				break;
+			case GLFW_KEY_EQUAL:
+				debug_target_->rotateAxisAngle(debug_target_->getPosition()(seq(0, 2), 0), -reposition_speed_ * getdt());
+				break;
+
+			} 
+
+
 		}
 	}
 
