@@ -703,11 +703,16 @@ public:
 
 	virtual std::string save() const {
 		const Eigen::Matrix4f& M = getInitialPosition();
-		constexpr char fs[] = "{:.6}";
-		return std::format(fs, M(0, 0)) + "\t" + std::format(fs, M(0, 1)) + "\t" + std::format(fs, M(0, 2)) + "\t" + std::format(fs, M(0, 3)) + "\t" +
+		#ifndef fs
+		#define fs "{:.6}"
+		#endif
+		std::string ret = std::format(fs, M(0, 0)) + "\t" + std::format(fs, M(0, 1)) + "\t" + std::format(fs, M(0, 2)) + "\t" + std::format(fs, M(0, 3)) + "\t" +
 			std::format(fs, M(1, 0)) + "\t" + std::format(fs, M(1, 1)) + "\t" + std::format(fs, M(1, 2)) + "\t" + std::format(fs, M(1, 3)) + "\t" +
 			std::format(fs, M(2, 0)) + "\t" + std::format(fs, M(2, 1)) + "\t" + std::format(fs, M(2, 2)) + "\t" + std::format(fs, M(2, 3)) + "\t" +
 			std::format(fs, M(3, 0)) + "\t" + std::format(fs, M(3, 1)) + "\t" + std::format(fs, M(3, 2)) + "\t" + std::format(fs, M(3, 3));
+		#undef fs
+		return ret;
+
 	}
 
 	template<class T = GameObject>
