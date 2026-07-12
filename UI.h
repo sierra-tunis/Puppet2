@@ -44,7 +44,9 @@ public:
 	static Texture border_rect_tex;
 
 	Rect2d(float height, float width):
-	Model(RectVerts(height,width),RectNorms(),RectTex(1.,1.,0.,0.),RectFace(),RectFaceNorm(),RectFaceTex()){}
+	Model(RectVerts(height,width),RectNorms(),RectTex(1.,1.,0.,0.),RectFace(),RectFaceNorm(),RectFaceTex()){
+		bounding_box_ = Eigen::Vector3f(width, height, 0);
+	}
 };
 
 

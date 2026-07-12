@@ -141,6 +141,8 @@ public:
 
 			glBindVertexArray(getVAO(cache));
 
+			glUniform1f(glGetUniformLocation(gl_id, "scale"), obj.getModel()->getScale());
+
 			glUniform4fv(glGetUniformLocation(gl_id, "overlay_color"), 1, std::get<0>(cache).overlay_color.data());
 			glUniform1f(glGetUniformLocation(gl_id, "specular_coefficient"), obj.getTexture()->getSpecularCoefficient());
 			glUniform1f(glGetUniformLocation(gl_id, "shininess"), obj.getTexture()->getShininess());

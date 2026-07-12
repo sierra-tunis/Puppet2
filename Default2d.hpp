@@ -26,6 +26,7 @@ struct Default2dCache {
 class Default2d : public Graphics<GameObject, Default2dCache> {
 											//vao, tex_id
 	const unsigned int position_location_;
+	const unsigned int scale_location_;
 
 	const unsigned int& getVAO(const Cache& cache) const {
 		return std::get<0>(cache).VAO;
@@ -100,7 +101,7 @@ class Default2d : public Graphics<GameObject, Default2dCache> {
 	}
 
 public:
-	Default2d() : position_location_(glGetUniformLocation(gl_id, "position_matrix")) {}
+	Default2d() : position_location_(glGetUniformLocation(gl_id, "position_matrix")),scale_location_(glGetUniformLocation(gl_id, "scale")) {}
 
 	void beginDraw() const override {
 		glEnable(GL_DEPTH_TEST);
@@ -113,6 +114,8 @@ public:
 		glBindTexture(GL_TEXTURE_2D, getTexID(cache));
 
 		glUniformMatrix4fv(position_location_, 1, GL_FALSE, obj.getPosition().data());
+		glUniform1f(scale_location_, obj.getModel()->getScale());
+
 		glBindVertexArray(getVAO(cache));
 		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		//for (auto const& o : obj.getChildren()) {

@@ -47,6 +47,8 @@ private:
 	std::vector<unsigned int> OBJ_face_tex_coords_;
 	std::vector<unsigned int> OBJ_lines_;
 
+	float scale_;
+
 	//since verbatim obj data is stored until the model is finalized, this keeps track of open files
 	static std::unordered_map<std::string, Model*> open_files_;
 
@@ -144,6 +146,14 @@ public:
 	}
 
 
+	void setScale(float scale) {
+		scale_ = scale;
+	}
+
+	const float& getScale() const {
+		return scale_;
+	}
+
 	template<class data_T, unsigned int data_vec_length>
 	bool objVertData2gl(const std::vector<data_T>& OBJ_data, std::vector<data_T>& gl_data) {
 		//reformats data. obj style vertex data (vert data+face data, i.e. EBO) gets written in gl style data(faces are 123,456,...)
@@ -194,7 +204,8 @@ public:
 		face_data_(faces),
 		face_norm_data_(face_norms),
 		face_tex_data_(face_tex),
-		fname_("") {
+		fname_(""),
+		scale_(1.0){
 		//reassign_vtx();
 		calculateBoundingBox();
 	}
@@ -203,7 +214,8 @@ public:
 	}
 
 	Model(std::string fname, std::string path, bool force_shade_hard=true):
-	fname_(fname){
+	fname_(fname),
+	scale_(1.0){
 		std::string line;
 		std::string type;
 		std::string value;
