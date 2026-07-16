@@ -163,8 +163,8 @@ public:
 		auto z12 = getZdataDiscrete(position(1), x_ind_min, y_ind_max, step_height);
 		auto z22 = getZdataDiscrete(position(1), x_ind_max, y_ind_max, step_height);
 
-		float z_below = quad_interpolate(x_remainder, y_remainder, z11.first.z, z21.first.z, z12.first.z, z22.first.z, 1.);
-		float z_above = quad_interpolate(x_remainder, y_remainder, z11.second.z, z21.second.z, z12.second.z, z22.second.z, 1.);
+		float z_below = quad_interpolate(x_remainder, y_remainder, z11.first.z, z12.first.z, z21.first.z, z22.first.z, 1.);
+		float z_above = quad_interpolate(x_remainder, y_remainder, z11.second.z, z12.second.z, z21.second.z, z22.second.z, 1.);
 
 
 		return std::pair<zdata, zdata>(zdata({ z_below,0,0 }, z11.first.room_id), zdata({ z_above,0,0 }, z11.second.room_id));
