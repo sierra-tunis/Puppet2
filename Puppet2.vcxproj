@@ -269,6 +269,7 @@
     <ClCompile Include="level.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="player_camera.cpp" />
     <ClCompile Include="sound.cpp" />
     <ClCompile Include="surface.cpp" />
     <ClCompile Include="Texture.cpp" />

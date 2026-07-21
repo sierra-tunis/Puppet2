@@ -26,6 +26,8 @@ private:
 	ConnectorChain<OffsetConnector,RotationJoint, RotationJoint, PrismaticJoint> tether_;
 	MeshSurface cam_box_;
 
+	float velocity_cushion_;
+
 	bool look_mode_;
 	const bool control_mode_; //i.e. CAD mode
 	bool frozen_;
@@ -112,10 +114,11 @@ public:
 		tilt_(RotationJoint(Eigen::Vector3f(1, 0, 0))),
 		dist_(PrismaticJoint(Eigen::Vector3f(0., .0, 2))),
 		tether_(ConnectorChain<OffsetConnector, RotationJoint, RotationJoint, PrismaticJoint>(anchor_,pan_,tilt_,dist_)),
-		cam_box_("cam_box.obj", Model::debug_path),
+		cam_box_("frustum.obj", Model::debug_path),
 		look_mode_(true),
 		zoom_enabled_(true),
-		control_mode_(CAD_mode){
+		control_mode_(CAD_mode),
+		velocity_cushion_(0.0f){
 
 		setConnector(&tether_);
 		tether_.setRootTransform(nullptr);
@@ -133,36 +136,8 @@ public:
 		Camera::update(window);
 	}
 
-	void onStep() override {
+	void onStep() override;
 
-		//Camera::update(window);
-		float current_extension_ = tether_.getState()(2);
-		dist_.setState(Eigen::Vector<float, 1>(0));
-		Eigen::Vector<float, 3> equilibrium_state(pan_.getState()(0), tilt_.getState()(0), equilibrium_length_);
-		if (getParent() != nullptr) {
-			tether_.boundedMove<20>(equilibrium_state, getParent()->getMotionConstraints());
-		}
-		float new_extension_ = tether_.getState()(2);
-		float damped_return_to_equilibrium = (new_extension_ + (19) * current_extension_) / (20);
-		//dist_.setState(Eigen::Vector<float,1>(damped_return_to_equilibrium));
-		tether_.setState(tether_.getState());
-
-		//scale camera mesh by certain ratio 
-		
-		//float delta_len = getParent()->getPosition()(seq(0, 2), seq(0, 2)) * damped_return_to_equilibrium;
-		//float new_len = bounds_->findMaxTravel(getParent()->getPosition(), delta_pos, 0, 0, 10, 100).norm();
-		//std::cout << (getParent()->getGlobalPosition()(seq(0, 2), seq(0, 2)).transpose() * (new_pos-parent_pos)).transpose() << "\n";
-		//new_len = equilibrium_length_;
-		//tether_.setState(Eigen::Vector3f(0,0,new_len));
-
-		/*if (bounds_->getZdata(getGlobalPosition()(seq(0, 2), 3), 0).first.room_id == zdata::BaseRoom) {
-			Vector3f new_pos = bounds_->findMaxTravel(parent_pos, getGlobalPosition()(seq(0, 2), 3) - parent_pos, 0, 0, 10, 5);
-
-			this->moveTo(new_pos-parent_pos);
-		} else {
-			//moveTo((equilibrium_position_(seq(0, 2), 3) + getLocalPosition()(seq(0, 2), 3)) / 2);
-		}*/
-	}
 	void enableMouseControl(GLFWwindow* window) {
 		window_ = window;
 		activateKeyInput(window);
