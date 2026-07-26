@@ -26,7 +26,7 @@ void Zmap::createData(const GameObject& level, unsigned int n_steps, const std::
 	 for (int i = 0; i < x_resolution_ * y_resolution_; i++) {
 		 size_total += raw_data_[i].size()*sizeof(zdata) + sizeof(raw_data_);
 	 }
-
-	 std::cout << "size of zmap for " + level.getName() + ": " << size_total/1000 << "kB (zdata=" << sizeof(zdata) <<"bytes)\n";
+	 //std::cout << "size of zmap for " + level.getName() + ": " << size_total/1000 << "kB (zdata=" << sizeof(zdata) <<"bytes)\n";
+	 std::cout << "Loading " + level.getName() + "...\n";
 
 }

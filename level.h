@@ -139,7 +139,9 @@ public:
 				}
 			}
 		} else {
+#ifndef EVILMONSTERS_PUBLISH
 			std::cerr << "layout file not opened!\n";
+#endif
 		}
 	}
 

@@ -26,6 +26,9 @@ private:
 	ConnectorChain<OffsetConnector,RotationJoint, RotationJoint, PrismaticJoint> tether_;
 	MeshSurface cam_box_;
 
+	float stick_drift_;
+	float sensitivity_;
+
 	float velocity_cushion_;
 
 	bool look_mode_;
@@ -46,10 +49,10 @@ private:
 		}
 		if (look_mode_) {
 			if (dx != 0) {
-				pan_.setState(Eigen::Vector<float, 1>(pan_.getState()(0) - dx * .004));
+				pan_.setState(Eigen::Vector<float, 1>(pan_.getState()(0) - dx * .004*sensitivity_));
 			}
 			if (dy != 0) {
-				float new_state = tilt_.getState()(0) - dy * .004;
+				float new_state = tilt_.getState()(0) - dy * .004 * sensitivity_;
 				if (new_state <= M_PI * .667 / 2. && new_state >= -M_PI * .8 / 2.) {
 					tilt_.setState(Eigen::Vector<float, 1>(new_state));
 				}
@@ -118,7 +121,9 @@ public:
 		look_mode_(true),
 		zoom_enabled_(true),
 		control_mode_(CAD_mode),
-		velocity_cushion_(0.0f){
+		velocity_cushion_(0.0f),
+		sensitivity_(1.0),
+		stick_drift_(.1){
 
 		setConnector(&tether_);
 		tether_.setRootTransform(nullptr);
@@ -128,10 +133,10 @@ public:
 
 	void update(GLFWwindow* window) override {
 		Eigen::Vector3f joystick_command = Eigen::Vector3f(InternalObject::getRightStickPosition(window).first, 0, InternalObject::getRightStickPosition(window).second);
-		if (joystick_command.norm() > .1 && !frozen_) {
+		if (joystick_command.norm() > stick_drift_ && !frozen_) {
 			joystick_command = joystick_command - .1 * joystick_command.normalized();
 			joystick_command = Eigen::Vector3f(joystick_command(0) * abs(joystick_command(0)), 0, joystick_command(2) * abs(joystick_command(2)));
-			onMouseMove(0, 0, joystick_x_sensitivity * joystick_command(0)*getdt(), joystick_y_sensitivity * joystick_command(2)*getdt());
+			onMouseMove(0, 0, sensitivity_*joystick_x_sensitivity * joystick_command(0)*getdt(), sensitivity_ * joystick_y_sensitivity * joystick_command(2)*getdt());
 		}
 		Camera::update(window);
 	}
@@ -158,7 +163,12 @@ public:
 		pan_.setState(pan);
 		tether_.setState(tether_.getState());
 	}
-
+	void setStickDrift(float stick_drift) {
+		stick_drift_ = stick_drift;
+	}
+	void setSensitivity(float sensitivity) {
+		sensitivity_ = sensitivity;
+	}
 	void freeze() {
 		frozen_ = true;
 	}

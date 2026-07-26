@@ -421,7 +421,12 @@ public:
 		text_graphics.unload(lower_limit_value_);
 		text_graphics.unload(upper_limit_value_);
 	}
-	
+	void increment() {
+		incrementCallback(this);
+	}
+	void decrement() {
+		decrementCallback(this);
+	}
 	void setCurrentValue(float new_val) {
 		if (new_val <= upper_limit_ && new_val >= lower_limit_) {
 			current_position_ = new_val;

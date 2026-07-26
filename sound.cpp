@@ -62,17 +62,17 @@ void Sound::initialize() {
 	HRESULT hr;
 	hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
 	if (FAILED(hr)) {
-		std::cout << std::hex << hr;
+		std::cout << "Failed to initialize XAudio2: " << std::hex << hr;
 	}
 
 	pXAudio2 = nullptr;
 	if (FAILED(hr = XAudio2Create(&pXAudio2, 0, XAUDIO2_DEFAULT_PROCESSOR))) {
-		std::cout << std::hex << hr;
+		std::cout << "Failed to initialize XAudio2: " << std::hex << hr;
 	}
 
 	pMasterVoice = nullptr;
 	if (FAILED(hr = pXAudio2->CreateMasteringVoice(&pMasterVoice))) {
-		std::cout << std::hex << hr;
+		std::cout << "Failed to initialize XAudio2: " << std::hex << hr;
 	}
 }
 
@@ -165,13 +165,15 @@ bool Sound::load(){
 
 	if (INVALID_HANDLE_VALUE == hFile) {
 		//std::cout << std::hex << HRESULT_FROM_WIN32(GetLastError());
-		std::cout << fname_ << " not found!\n";
+		//std::cout << fname_ << " not found!\n";
 		return false;
 	}
 
 	if (INVALID_SET_FILE_POINTER == SetFilePointer(hFile, 0, NULL, FILE_BEGIN)) {
 		//std::cout << std::hex << HRESULT_FROM_WIN32(GetLastError());
+#ifndef EVILMONSTERS_PUBLISH
 		std::cout << fname_ << " not found, invalid set file pointer!\n";
+#endif
 		return false;
 	}
 
