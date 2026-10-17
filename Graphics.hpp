@@ -44,11 +44,14 @@ private:
 	static void check_compile_error(unsigned int shader) {
 		int  success;
 		char infoLog[512];
+		int length = 0;
 		glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 		if (!success)
 		{
-			glGetShaderInfoLog(shader, 512, NULL, infoLog);
-			std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+			glGetShaderInfoLog(shader, 512, &length, infoLog);
+			if (length > 0) {
+				std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+			}
 		}
 	}
 
