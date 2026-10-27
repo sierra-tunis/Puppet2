@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "x64\\static link release\\Texture.obj",
+            "outputs": [
+                "x64\\static link release\\Texture.cpp.obj.dt.module.json",
+                "x64\\static link release\\Texture.cpp.obj.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}

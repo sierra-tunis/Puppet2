@@ -10,7 +10,6 @@
 #include <unordered_map>
 #include <glad/glad.h>
 
-
 #include "Model.h"
 #include "Texture.h"
 #include "InternalObject.h"

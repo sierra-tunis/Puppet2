@@ -593,7 +593,7 @@ protected:
 		Eigen::Vector<float, constraint_::getDoF()> next_input = state_vec(seq(0, constraint_::getDoF() - 1));
 		constraint_& pop_conn = std::get<sizeof...(constraints) - sizeof...(constraints_) - 1>(connectors_);
 		const Eigen::Matrix4f& pop_front = pop_conn.computeConnectorTransform(next_input);
-		return pop_front * computeChainTransform<constraint2_,constraints_...>(state_vec(seq(constraint_::getDoF(), Eigen::last)));
+		return pop_front * computeChainTransform<constraint2_,constraints_...>(state_vec(seq(constraint_::getDoF(), Eigen::placeholders::last)));
 	}
 	template<Connector constraint_>
 	void setSubstate(Eigen::Vector<float, constraint_::getDoF()> state_vec) {
@@ -604,13 +604,13 @@ protected:
 	void setSubstate(Eigen::Vector<float, sumDoF<constraint_, constraint2_, constraints_...>()> state_vec) {
 		constraint_& pop_conn = std::get<sizeof...(constraints) - sizeof...(constraints_) - 1>(connectors_);
 		pop_conn.setState(state_vec(seq(0, constraint_::getDoF() - 1)));
-		setSubstate<constraint2_, constraints_...>(state_vec(seq(constraint_::getDoF(), Eigen::last)));
+		setSubstate<constraint2_, constraints_...>(state_vec(seq(constraint_::getDoF(), Eigen::placeholders::last)));
 	}
 
 	template<int start_index, Connector constraint_>
 	void writeSubstate(Eigen::Vector<float, ConnectorChain::getDoF()>& state_vec) const {
 		constraint_& conn = std::get< sizeof...(constraints)>(connectors_); //get last connector
-		state_vec(seq(start_index, Eigen::last)) = conn.getState();
+		state_vec(seq(start_index, Eigen::placeholders::last)) = conn.getState();
 	}
 	template<int start_index, Connector constraint_, Connector constraint2_, Connector...constraints_>
 	void writeSubstate(Eigen::Vector<float, ConnectorChain::getDoF()>& state_vec) const {

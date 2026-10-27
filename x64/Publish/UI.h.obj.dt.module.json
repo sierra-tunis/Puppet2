@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "x64\\Publish\\UI.obj",
+            "outputs": [
+                "x64\\Publish\\UI.h.obj.dt.module.json",
+                "x64\\Publish\\UI.h.obj.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}

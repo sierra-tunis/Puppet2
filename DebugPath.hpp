@@ -3,6 +3,6 @@
 #ifdef PUPPET_PUBLISH
 	#define DEBUG_PATH "debug\\"
 #else
-	#define DEBUG_PATH "C:\\Users\\Sierra\\source\\repos\\Puppet2\\Puppet2\\assets\\"
+	#define DEBUG_PATH "C:\\Users\\sierr\\source\\repos\\Puppet2\\Puppet2\\assets\\"
 #endif
 #endif

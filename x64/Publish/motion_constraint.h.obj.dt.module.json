@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "x64\\Publish\\motion_constraint.obj",
+            "outputs": [
+                "x64\\Publish\\motion_constraint.h.obj.dt.module.json",
+                "x64\\Publish\\motion_constraint.h.obj.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}
