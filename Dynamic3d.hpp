@@ -58,6 +58,7 @@ private:
 
 	const unsigned int tex_location_;
 	const unsigned int overlay_tex_location_;
+	const unsigned int overlay_color_location_;
 	const unsigned int use_overlay_tex_location_;
 
 	static constexpr int max_lights = 3;
@@ -245,7 +246,7 @@ public:
 	void drawObj(const GameObject& obj, const Cache& cache) const override {
 		if (!obj.isHidden()) {
 			glUniformMatrix4fv(model_location_, 1, GL_FALSE, obj.getPosition().data());
-			glUniform4fv(glGetUniformLocation(gl_id, "overlay_color"), 1, std::get<0>(cache).overlay_color.data());
+			glUniform4fv(overlay_color_location_, 1, std::get<0>(cache).overlay_color.data());
 
 			glActiveTexture(GL_TEXTURE0 + 0);
 			glBindTexture(GL_TEXTURE_2D, getTexID(cache)[0]);
@@ -272,6 +273,7 @@ public:
 			const DynamicModel* dyn_model = dynamic_cast<const DynamicModel*>(obj.getModel());
 			if (dyn_model != nullptr) {
 				
+				//std::for_each(std::execution::par,getStaticVAOs(cache).begin(),getStaticVAOs(cache).end(),[model_location=model_location_](const std::tuple<Dynamic3dStaticSubcache> & static_VAOs){
 				for (int i = 0; i < getStaticVAOs(cache).size(); i++) {
 					const Dynamic3dStaticSubcache& sVAO_pos_pair = std::get<0>(getStaticVAOs(cache)[i]);
 					//glBindTexture(GL_TEXTURE_2D, getTexID(cache));
@@ -365,6 +367,7 @@ public:
 		perspective_location_(glGetUniformLocation(gl_id, "perspective")),
 		tex_location_(glGetUniformLocation(gl_id,"tex")),
 		overlay_tex_location_(glGetUniformLocation(gl_id, "overlay_tex")),
+		overlay_color_location_(glGetUniformLocation(gl_id, "overlay_color")),
 		use_overlay_tex_location_(glGetUniformLocation(gl_id, "use_overlay_tex")) {
 
 		//perspective_ << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1;

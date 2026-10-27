@@ -186,6 +186,7 @@ public:
 	void drawAllUnordered() const {
 		glUseProgram(gl_id);
 		beginDraw();
+		//		std::for_each(std::execution::par,draw_targets_.begin(),draw_targets_.end(),[this](const std::pair<int,const Object*>& obj) {
 		for (const auto& obj : draw_targets_) {
 			if (!((obj.second)->isHidden())) {
 				this->drawObj(*(obj.second), cached_data_.at(obj.first));

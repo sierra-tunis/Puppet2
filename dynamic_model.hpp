@@ -6,6 +6,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <execution>
 
 #include "Model.h"
 #include "vertex_group.hpp"
@@ -187,14 +188,14 @@ public:
 				const Eigen::Matrix4f& tform = *vg->getTform();
 				const Eigen::Matrix4f rel_tform = root_tform_ == nullptr ? tform : root_tform_->inverse() * tform;
 				const Eigen::Matrix3f& rot = rel_tform(seq(0, 2), seq(0, 2));
-				for (const VertexGroup::vertex& vert : vg->getVerts()) {
+				std::for_each(std::execution::par, vg->getVerts().begin(), vg->getVerts().end(), [this,rel_tform,rot](const VertexGroup::vertex& vert) {
 					Eigen::Vector3f pos = vert_mat_(seq(0, 2), vert.index);
-					pos = (rot * pos + rel_tform(seq(0, 2), 3))/rel_tform(3,3);
+					pos = (rot * pos + rel_tform(seq(0, 2), 3)) / rel_tform(3, 3);
 					setVert(vert.index, pos);
 					Eigen::Vector3f norm = norm_mat_(seq(0, 2), vert.index);
 					norm = rot * norm;
 					setNorm(vert.index, norm);
-				}
+				});
 			}
 		}
 	}

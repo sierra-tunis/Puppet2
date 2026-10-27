@@ -290,8 +290,5 @@
     <ClInclude Include="Dynamic2d.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Achievement.hpp">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

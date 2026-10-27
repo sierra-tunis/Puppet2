@@ -35,6 +35,10 @@ private:
 	const unsigned int camera_location_;
 	const unsigned int model_location_;
 	const unsigned int tex_location_;
+	const unsigned int scale_location_;
+	const unsigned int overlay_color_location_;
+	const unsigned int specular_location_;
+	const unsigned int shininess_location_;
 
 	//const Camera* camera_;
 
@@ -141,11 +145,11 @@ public:
 
 			glBindVertexArray(getVAO(cache));
 
-			glUniform1f(glGetUniformLocation(gl_id, "scale"), obj.getModel()->getScale());
+			glUniform1f(scale_location_, obj.getModel()->getScale());
 
-			glUniform4fv(glGetUniformLocation(gl_id, "overlay_color"), 1, std::get<0>(cache).overlay_color.data());
-			glUniform1f(glGetUniformLocation(gl_id, "specular_coefficient"), obj.getTexture()->getSpecularCoefficient());
-			glUniform1f(glGetUniformLocation(gl_id, "shininess"), obj.getTexture()->getShininess());
+			glUniform4fv(overlay_color_location_, 1, std::get<0>(cache).overlay_color.data());
+			glUniform1f(specular_location_, obj.getTexture()->getSpecularCoefficient());
+			glUniform1f(shininess_location_, obj.getTexture()->getShininess());
 
 			//should remove inverse here
 
@@ -228,7 +232,11 @@ public:
 		model_location_(glGetUniformLocation(gl_id, "model")),
 		camera_location_(glGetUniformLocation(gl_id, "camera")),
 		perspective_location_(glGetUniformLocation(gl_id, "perspective")),
-		tex_location_(glGetUniformLocation(gl_id,"tex")){
+		tex_location_(glGetUniformLocation(gl_id,"tex")),
+		scale_location_(glGetUniformLocation(gl_id, "scale")),
+		overlay_color_location_(glGetUniformLocation(gl_id, "overlay_color")),
+		specular_location_(glGetUniformLocation(gl_id, "specular_coefficient")),
+		shininess_location_(glGetUniformLocation(gl_id, "shininess")){
 
 		//perspective_ << 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1;
 	}
