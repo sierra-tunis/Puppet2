@@ -285,9 +285,13 @@ bool Sound::playOnLoop() {
 	}
 }
 
-bool Sound::play(float gain) {
+bool Sound::play(float gain,bool int32) {
 	is_playing_ = false;
-	return setGain(gain) && play();
+	return setGain(gain,int32) && play();
+}
+
+bool Sound::playOnLoop(float gain,bool int32) {
+	return !isPlaying() && setGain(gain,int32) && playOnLoop();
 }
 
 bool Sound::stop() {
@@ -303,7 +307,15 @@ bool Sound::stop() {
 	else return false;
 }
 
-bool Sound::setGain(float gain) {
+bool Sound::setGain(float gain, bool int32) {
+	if (int32) {
+		return setGain_int32(gain);
+	} else {
+		return setGain_int16(gain);
+	}
+}
+
+bool Sound::setGain_int16(float gain) {
 	if (is_playing_ || !is_loaded_) {
 		return false;
 	} else {
@@ -311,9 +323,36 @@ bool Sound::setGain(float gain) {
 		const SHORT* pSample_read = (SHORT*)(buffer_original.pAudioData + 8);
 		SHORT* pSample_write = (SHORT*)(buffer.pAudioData + 8);
 		//BYTE* new_buff = new BYTE[buffer_original.AudioBytes];
-		for (DWORD i = 0; i < buffer_original.AudioBytes/2; i++) {
+		for (DWORD i = 0; i < buffer_original.AudioBytes/sizeof(SHORT); i++) {
 			SHORT shSample = *pSample_read;
-			shSample = (SHORT)(shSample * gain);
+			shSample = (SHORT)std::lround((float)shSample * gain);
+			*pSample_write = shSample;
+			pSample_read++;
+			pSample_write++;
+
+			if (((BYTE*)pSample_read) >= (buffer_original.pAudioData + buffer_original.AudioBytes - 1))
+				break;
+		}
+
+		//delete[] buffer.pAudioData;
+		//buffer.pAudioData = new_buff;
+		gain_ = gain;
+		return true;
+	}
+}
+
+bool Sound::setGain_int32(float gain) {
+	if (is_playing_ || !is_loaded_) {
+		return false;
+	}
+	else {
+		//https://stackoverflow.com/questions/2302841/win32-playsound-how-to-control-the-volume
+		const LONG* pSample_read = (LONG*)(buffer_original.pAudioData + 24);
+		LONG* pSample_write = (LONG*)(buffer.pAudioData + 24);
+		//BYTE* new_buff = new BYTE[buffer_original.AudioBytes];
+		for (DWORD i = 0; i < buffer_original.AudioBytes / sizeof(LONG); i++) {
+			LONG shSample = *pSample_read;
+			shSample = (LONG)std::lround((float)shSample * gain);
 			*pSample_write = shSample;
 			pSample_read++;
 			pSample_write++;

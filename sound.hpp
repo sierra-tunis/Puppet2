@@ -32,6 +32,10 @@ class Sound {
 	static IXAudio2MasteringVoice* pMasterVoice;
 
 
+	bool setGain_int16(float gain);
+
+	bool setGain_int32(float gain);
+
 public:
 
 	static constexpr char debug_path[] = DEBUG_PATH;
@@ -52,9 +56,11 @@ public:
 
 	bool play();
 
-	bool play(float gain);
+	bool play(float gain,bool int32=false);
 
 	bool playOnLoop();
+
+	bool playOnLoop(float gain,bool int32=false);
 
 	bool stop();
 
@@ -62,7 +68,7 @@ public:
 
 	bool unload();
 
-	bool setGain(float gain);
+	bool setGain(float gain, bool int32=false);
 
 	bool isPlaying() {
 		return is_playing_;
